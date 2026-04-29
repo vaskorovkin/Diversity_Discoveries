@@ -1,0 +1,71 @@
+BOLD global public data size notes
+==================================
+
+These are approximate global BOLD summary counts from API queries run on
+2026-04-29. Counts are for public BOLD records matching the taxon query, not
+for all sequence data worldwide. Some groups are nested inside others.
+
+| Group | Records | Coord coverage | Usefulness |
+|---|---:|---:|---|
+| Plantae | 468K | 41% | Important for medicinal/natural-products angle, but geography weaker |
+| Fungi | 347K | 25% | Discovery-relevant, but geography weak |
+| Arthropoda | 18.8M | 94% | Huge; must split |
+| Mollusca | 302K | 45% | Useful, especially marine/freshwater |
+| Gastropoda | 212K | 47% | Manageable mollusk subgroup |
+| Bivalvia | 69K | 39% | Manageable |
+| Coleoptera | 1.2M | 88% | Large but feasible if split |
+| Formicidae | 383K | 93% | Very feasible first global insect group |
+| Araneae | 222K | 83% | Very feasible spider group |
+
+Important caveat:
+The 1 million record cap in the BOLD Portal API is per query/token, not a
+time-resetting allowance. Larger groups need to be split by country, taxonomic
+subgroup, or another query dimension.
+
+
+Animalia split by phylum
+========================
+
+Approximate global public BOLD summary counts from API queries run on
+2026-04-29.
+
+| Phylum | Records | Coord coverage |
+|---|---:|---:|
+| Arthropoda | 18.78M | 94.1% |
+| Chordata | 797K | 50.8% |
+| Mollusca | 302K | 45.0% |
+| Annelida | 116K | 67.5% |
+| Nematoda | 59K | 26.1% |
+| Echinodermata | 48K | 57.7% |
+| Cnidaria | 41K | 38.2% |
+| Platyhelminthes | 40K | 27.4% |
+| Rotifera | 14K | 45.2% |
+| Porifera | 12K | 38.7% |
+| Nemertea | 8K | 55.1% |
+| Tardigrada | 6K | 28.9% |
+| Bryozoa | 5K | 58.8% |
+
+
+Insecta split by order
+======================
+
+Approximate global public BOLD summary counts from API queries run on
+2026-04-29.
+
+| Order | Records | Coord coverage |
+|---|---:|---:|
+| Diptera | 10.09M | 98.0% |
+| Hymenoptera | 2.51M | 95.1% |
+| Lepidoptera | 2.10M | 90.2% |
+| Coleoptera | 1.21M | 88.4% |
+| Hemiptera | 1.05M | 91.7% |
+
+| Psocodea | 146K | 96.9% |
+| Orthoptera | 102K | 69.1% |
+| Trichoptera | 97K | 90.1% |
+| Thysanoptera | 65K | 92.0% |
+| Blattodea | 50K | 81.8% |
+| Ephemeroptera | 40K | 80.1% |
+| Neuroptera | 33K | 89.4% |
+| Odonata | 27K | 63.6% |
+| Plecoptera | 23K | 82.4% |

@@ -1,0 +1,32 @@
+# OS/editor noise
+.DS_Store
+**/.DS_Store
+
+# Data downloads and derived datasets
+Data/raw/
+Data/processed/
+Data/**/*.tsv
+Data/**/*.csv
+Data/**/*.dta
+Data/**/*.json
+Data/**/*.part
+
+# Generated outputs
+Output/
+
+# Local literature PDFs and other large binary references
+Literature/*.pdf
+
+# LaTeX build products
+Notes/*.aux
+Notes/*.log
+Notes/*.out
+Notes/*.toc
+Notes/*.fls
+Notes/*.fdb_latexmk
+Notes/*.synctex.gz
+Notes/*.pdf
+
+# Python cache
+__pycache__/
+*.py[cod]

@@ -1,0 +1,104 @@
+\documentclass[10pt]{article}
+
+\usepackage[margin=0.78in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\setlist[itemize]{leftmargin=1.2em,itemsep=0.1em,topsep=0.2em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.32em}
+
+\title{\vspace{-1.2cm}Biodiversity, Sampling, and Scientific Discovery: Empirical Layers}
+\author{}
+\date{\vspace{-0.8cm}}
+
+\begin{document}
+\maketitle
+\vspace{-1.2cm}
+
+\section*{Idea}
+
+The goal is to move from a theoretical biodiversity-to-pharmaceutical-value argument to micro-level evidence on how biodiversity enters scientific knowledge systems. A natural empirical architecture has three layers: (i) where sampling occurs, (ii) which organisms are sampled conditional on environmental and social conditions, and (iii) whether sampled biodiversity leads to measurable discovery outputs.
+
+\section*{Layer 1: Sampling}
+
+Let $c$ index spatial cells, such as 25 km, 50 km, or 100 km equal-area grid cells, and let $t$ index years. The first exercise estimates whether cells with different biodiversity, access, and shocks are more likely to enter biodiversity datasets:
+\begin{equation}
+    Sampling_{ct} = \alpha + \beta X_{ct} + \mu_c + \lambda_t + \varepsilon_{ct}.
+\end{equation}
+
+$Sampling_{ct}$ can be an extensive margin, $1\{\text{any record in } c,t\}$, or an intensive margin such as counts of observations, specimens, unique taxa, observers, sequences, or $\log(1+\text{count})$. For count outcomes with many zeroes, Poisson pseudo-maximum likelihood with cell and year fixed effects is likely preferable to OLS on logs.
+
+The vector $X_{ct}$ can include baseline biodiversity or endemicity, forest loss, fire, drought, temperature and precipitation anomalies, conflict, natural disasters, protected-area status, roads, population density, night lights, travel time to cities, distance to universities or research stations, and country-year research capacity. Baseline or model-based biodiversity should be preferred to contemporaneous observed richness, since observed richness is mechanically related to sampling effort.
+
+Candidate data sources include GBIF, iNaturalist, eBird, OBIS, BioTIME, BOLD, GenBank/ENA, and museum/herbarium occurrence records. These data are best interpreted as measuring entry into the observed biodiversity record, not true abundance.
+
+\section*{Layer 2: Composition of Sampled Organisms}
+
+The second exercise asks what kinds of organisms enter the sampling process. A cell-year specification is:
+\begin{equation}
+    TraitComposition_{ct} = \alpha + \beta X_{ct} + \mu_c + \lambda_t + \varepsilon_{ct},
+\end{equation}
+where outcomes may include the share of sampled organisms that are plants, fungi, insects, vertebrates, threatened species, endemic taxa, invasive taxa, medicinal-plant families, or taxa with existing sequence data.
+
+A richer taxon-cell-year design is:
+\begin{equation}
+    Sampled_{gct} = \alpha + \beta X_{ct} + \gamma (X_{ct} \times Trait_g)
+    + \eta_g + \mu_c + \lambda_t + \varepsilon_{gct},
+\end{equation}
+where $g$ indexes species, genera, or families. This specification tests whether shocks and covariates select particular organism types into the knowledge system. Adding total sampling intensity on the right-hand side changes the estimand: without it, coefficients capture total changes in observed composition; with it, they capture composition shifts holding the amount of sampling fixed.
+
+\section*{Layer 3: Discovery}
+
+The third layer links biodiversity and sampling to discovery outcomes that are less sparse than approved drugs. Useful proxies include first DNA sequence deposit, first BOLD barcode, first publication mentioning a taxon, first natural-product compound linked to a species or genus, first bioactivity record, new assay-target record, first patent mentioning a taxon or compound, and new species descriptions.
+
+At the cell-year level:
+\begin{equation}
+    Discovery_{ct} = \alpha + \beta X_{ct} + \delta Sampling_{ct}
+    + \mu_c + \lambda_t + \varepsilon_{ct}.
+\end{equation}
+At the taxon-year level, one can instead use exposure to spatial shocks across the historical range of taxon $g$:
+\begin{equation}
+    Discovery_{gt} = \alpha + \beta ShockExposure_{gt}
+    + \eta_g + \lambda_t + \varepsilon_{gt}.
+\end{equation}
+
+Discovery datasets include OpenAlex and PubMed for publications, GenBank/ENA/BOLD for sequence deposition, COCONUT and NPAtlas for natural products, PubChem, ChEMBL and BindingDB for bioactivity, PatentsView or Lens for patents, ClinicalTrials.gov for trials, and FDA files for late-stage validation. FDA approvals and clinical trials are probably too sparse for main regressions but useful as downstream checks.
+
+\section*{Data Order and First Downloads}
+
+For sequencing geography, start with BOLD, then ENA, then NCBI BioSample/GenBank. BOLD is the cleanest first pass because records are specimen/barcode-centered and often include country, province, site, latitude, longitude, collection date, taxonomy, marker, and specimen identifiers. A small TSV pull can be made through the public API, e.g.
+\begin{verbatim}
+curl -L "http://www.boldsystems.org/index.php/API_Public/specimen?\
+taxon=Aves&geo=Costa%20Rica&format=tsv" -o bold_specimens.tsv
+\end{verbatim}
+Use \texttt{combined} instead of \texttt{specimen} when sequence metadata are needed too. The newer BOLD portal API is documented at \url{https://boldsystems.org/data/api/}; the legacy TSV endpoint remains useful for quick audits.
+
+For ENA, download metadata reports before raw reads. First inspect returnable fields:
+\begin{verbatim}
+curl -L "https://www.ebi.ac.uk/ena/portal/api/returnFields?result=read_run"
+\end{verbatim}
+Then query a taxon, country, or sample class:
+\begin{verbatim}
+curl -L "https://www.ebi.ac.uk/ena/portal/api/search?result=read_run&\
+query=country%3D%22Costa%20Rica%22&fields=accession,sample_accession,\
+scientific_name,tax_id,country,collection_date&format=tsv" -o ena_reads.tsv
+\end{verbatim}
+For non-indexed geography, use ENA Browser API XML records and parse sample attributes.
+
+For NCBI, use BioSample metadata rather than sequence files at first. BioSample contains structured attributes such as \texttt{geo\_loc\_name}, \texttt{lat\_lon}, and \texttt{collection\_date}. With EDirect, a small pilot is:
+\begin{verbatim}
+esearch -db biosample -query "Costa Rica[All Fields]" | \
+  efetch -format xml > ncbi_biosample.xml
+\end{verbatim}
+GenBank source modifiers can then be used to link BioSamples to nucleotide records and accessions. NCBI Datasets is useful for genome packages, but BioSample/E-utilities are the better starting point for geography.
+
+\section*{Interpretation}
+
+These exercises are feasible, but their interpretation should be disciplined. Biodiversity records are strongly shaped by observer effort, access, safety, roads, institutions, research fashion, platform growth, and legal restrictions. Therefore, the first layer is primarily a sampling/access equation; the second layer is a selection equation; and the third layer is a knowledge-production equation.
+
+The most credible design would use physical shocks, such as forest loss, fire, drought, bleaching, conflict, or disasters, interacted with pre-period biodiversity exposure or historical taxon ranges. This avoids treating observed contemporaneous richness as an exogenous measure of true biodiversity. A practical first implementation should use 25--100 km cells globally, reserving 5 km cells for dense regional analyses where coordinate uncertainty, privacy fuzzing, and zero inflation are manageable.
+
+\end{document}
