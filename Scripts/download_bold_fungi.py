@@ -48,6 +48,7 @@ def api_get_json(endpoint: str, params: dict[str, str], timeout: int) -> dict:
 def download_stream(url: str, output_path: Path, timeout: int) -> None:
     tmp_path = output_path.with_suffix(output_path.suffix + ".part")
     bytes_read = 0
+    next_progress = 25 * 1024 * 1024
     started = time.time()
 
     request = urllib.request.Request(url, headers=HTTP_HEADERS)
@@ -59,10 +60,11 @@ def download_stream(url: str, output_path: Path, timeout: int) -> None:
                     break
                 out.write(chunk)
                 bytes_read += len(chunk)
-                if bytes_read % (100 * 1024 * 1024) < 1024 * 1024:
+                if bytes_read >= next_progress:
                     elapsed = max(time.time() - started, 1)
                     mb = bytes_read / (1024 * 1024)
-                    print(f"Downloaded {mb:,.0f} MB ({mb / elapsed:,.1f} MB/s)")
+                    print(f"Downloaded {mb:,.0f} MB ({mb / elapsed:,.1f} MB/s)", flush=True)
+                    next_progress += 25 * 1024 * 1024
 
     tmp_path.replace(output_path)
 

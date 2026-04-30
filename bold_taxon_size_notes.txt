@@ -56,9 +56,12 @@ Approximate global public BOLD summary counts from API queries run on
 |---|---:|---:|
 | Diptera | 10.09M | 98.0% |
 | Hymenoptera | 2.51M | 95.1% |
+
 | Lepidoptera | 2.10M | 90.2% |
 | Coleoptera | 1.21M | 88.4% |
+
 | Hemiptera | 1.05M | 91.7% |
+
 | Psocodea | 146K | 96.9% |
 | Orthoptera | 102K | 69.1% |
 | Trichoptera | 97K | 90.1% |
@@ -69,7 +72,1055 @@ Approximate global public BOLD summary counts from API queries run on
 | Odonata | 27K | 63.6% |
 | Plecoptera | 23K | 82.4% |
 
-Download note:
-Hemiptera exceeded the nominal 1 million record query cap. BOLD returned a
-completed TSV with exactly 1,000,000 data rows, so the file is capped/truncated
-relative to the 1,053,311 specimen summary and should be split before analysis.
+
+Family splits for large insect orders
+====================================
+
+Source note: these family-level counts come from the legacy BOLD v4
+taxonomy browser child-family lists, because the current BOLD Portal
+summary endpoint does not aggregate by family. These are taxonomy-browser
+specimen counts and can differ from the BOLD v5 summary counts above.
+Full CSV: Output/audits/bold_v4_insect_order_family_splits.csv
+
+Diptera families
+----------------
+
+Families listed: 158; summed family records: 12,113,178.
+
+| Family | Records |
+|---|---:|
+| Cecidomyiidae | 2.45M |
+| Chironomidae | 2.01M |
+| Phoridae | 1.58M |
+| Sciaridae | 1.41M |
+| Ceratopogonidae | 947K |
+| Psychodidae | 442K |
+| Dolichopodidae | 325K |
+| Muscidae | 312K |
+| Mycetophilidae | 226K |
+| Chloropidae | 194K |
+| Drosophilidae | 170K |
+| Sphaeroceridae | 167K |
+| Tachinidae | 160K |
+| Culicidae | 158K |
+| Syrphidae | 129K |
+| Anthomyiidae | 124K |
+| Limoniidae | 120K |
+| Hybotidae | 115K |
+| Agromyzidae | 93K |
+| Sarcophagidae | 63K |
+| Tephritidae | 61K |
+| Empididae | 55K |
+| Milichiidae | 54K |
+| Chaoboridae | 54K |
+| Tabanidae | 53K |
+| Ephydridae | 48K |
+| Calliphoridae | 46K |
+| Stratiomyidae | 42K |
+| Heleomyzidae | 41K |
+| Simuliidae | 36K |
+| Pipunculidae | 35K |
+| Lauxaniidae | 30K |
+| Bombyliidae | 28K |
+| Asilidae | 26K |
+| Scatopsidae | 25K |
+| Tipulidae | 21K |
+| Keroplatidae | 20K |
+| Sepsidae | 17K |
+| Fanniidae | 16K |
+| Scathophagidae | 15K |
+| Bibionidae | 15K |
+| Micropezidae | 14K |
+| Ulidiidae | 11K |
+| Carnidae | 10K |
+| Clusiidae | 10K |
+| Polleniidae | 9K |
+| Anisopodidae | 9K |
+| Lonchaeidae | 8K |
+| Conopidae | 7K |
+| Therevidae | 6K |
+| Platystomatidae | 6K |
+| Rhagionidae | 6K |
+| Richardiidae | 6K |
+| Sciomyzidae | 6K |
+| Chamaemyiidae | 5K |
+| Periscelididae | 4K |
+| Hippoboscidae | 4K |
+| Chyromyidae | 4K |
+| Trichoceridae | 4K |
+| Ditomyiidae | 4K |
+| Mesembrinellidae | 4K |
+| Corethrellidae | 3K |
+| Pediciidae | 3K |
+| Psilidae | 3K |
+| Asteiidae | 2K |
+| Scenopinidae | 2K |
+| Cryptochetidae | 2K |
+| Xylomyidae | 2K |
+| Anthomyzidae | 2K |
+| Neriidae | 2K |
+| Iteaphilidae | 2K |
+| Glossinidae | 2K |
+| Brachystomatidae | 2K |
+| Piophilidae | 2K |
+| Aulacigastridae | 2K |
+| Lonchopteridae | 2K |
+| Oestridae | 1K |
+| Canacidae | 1K |
+| Opomyzidae | 1K |
+| Dryomyzidae | 1K |
+| Platypezidae | 1K |
+| Blephariceridae | 753 |
+| Xylophagidae | 753 |
+| Diadocidiidae | 738 |
+| Fergusoninidae | 731 |
+| Bolitophilidae | 719 |
+| Diopsidae | 708 |
+| Dixidae | 705 |
+| Cypselosomatidae | 684 |
+| Mydidae | 682 |
+| Athericidae | 629 |
+| Nemestrinidae | 605 |
+| Thaumaleidae | 591 |
+| Ptychopteridae | 580 |
+| Pallopteridae | 530 |
+| Inbiomyiidae | 501 |
+| Odiniidae | 499 |
+| Diastatidae | 363 |
+| Atelestidae | 346 |
+| Acroceridae | 341 |
+| Pyrgotidae | 336 |
+| Sciaroidea_incertae_sedis | 303 |
+| Camillidae | 278 |
+| Curtonotidae | 253 |
+| Cylindrotomidae | 248 |
+| Coelopidae | 229 |
+| Oreogetonidae | 212 |
+| Apsilocephalidae | 196 |
+| Opetiidae | 181 |
+| Apioceridae | 172 |
+| Tanypezidae | 158 |
+| Acartophthalmidae | 151 |
+| Celyphidae | 150 |
+| Ropalomeridae | 147 |
+| Natalimyzidae | 145 |
+| Strongylophthalmyiidae | 104 |
+| Syringogastridae | 102 |
+| Vermileonidae | 100 |
+| Canthyloscelidae | 78 |
+| Nymphomyiidae | 78 |
+| Apystomyiidae | 68 |
+| Xenasteiidae | 67 |
+| Bolbomyiidae | 65 |
+| Austroleptidae | 61 |
+| Somatiidae | 55 |
+| Hesperinidae | 48 |
+| Megamerinidae | 33 |
+| Tipuloidea_incertae_sedis | 23 |
+| Deuterophlebiidae | 19 |
+| Helosciomyzidae | 19 |
+| Neurochaetidae | 19 |
+| Neminidae | 18 |
+| Nothybidae | 18 |
+| Pelecorhynchidae | 18 |
+| Paraleucopidae | 17 |
+| Pachyneuridae | 16 |
+| Mormotomyiidae | 15 |
+| Huttoninidae | 14 |
+| Ironomyiidae | 13 |
+| Marginidae | 13 |
+| Tanyderidae | 13 |
+| Helcomyzidae | 12 |
+| Axymyiidae | 10 |
+| Ctenostylidae | 9 |
+| Gobryidae | 9 |
+| Australimyzidae | 8 |
+| Teratomyzidae | 6 |
+| Hilarimorphidae | 5 |
+| Nannodastiidae | 5 |
+| Diptera_family_incertae_sedis | 4 |
+| Evocoidae | 4 |
+| Pantophthalmidae | 4 |
+| Perissommatidae | 4 |
+| Homalocnemidae | 3 |
+| Oreoleptidae | 2 |
+| Mystacinobiidae | 1 |
+| Rangomaramidae | 1 |
+| Ulurumyiidae | 1 |
+
+Hymenoptera families
+--------------------
+
+Families listed: 138; summed family records: 3,100,407.
+
+| Family | Records |
+|---|---:|
+| Formicidae | 535K |
+| Braconidae | 357K |
+| Ichneumonidae | 345K |
+| Scelionidae | 340K |
+| Diapriidae | 155K |
+| Eulophidae | 142K |
+| Mymaridae | 129K |
+| Platygastridae | 125K |
+| Apidae | 101K |
+| Bethylidae | 87K |
+| Figitidae | 71K |
+| Halictidae | 62K |
+| Pteromalidae | 59K |
+| Encyrtidae | 50K |
+| Tenthredinidae | 49K |
+| Trichogrammatidae | 44K |
+| Aphelinidae | 40K |
+| Vespidae | 38K |
+| Pompilidae | 36K |
+| Ceraphronidae | 27K |
+| Megachilidae | 27K |
+| Andrenidae | 23K |
+| Dryinidae | 23K |
+| Crabronidae | 22K |
+| Colletidae | 15K |
+| Eupelmidae | 14K |
+| Proctotrupidae | 13K |
+| Eurytomidae | 13K |
+| Torymidae | 12K |
+| Chalcididae | 11K |
+| Chrysididae | 11K |
+| Cynipidae | 10K |
+| Evaniidae | 10K |
+| Mutillidae | 8K |
+| Megaspilidae | 8K |
+| Tiphiidae | 6K |
+| Agaonidae | 5K |
+| Pemphredonidae | 5K |
+| Sphecidae | 4K |
+| Bembicidae | 4K |
+| Thynnidae | 4K |
+| Signiphoridae | 3K |
+| Scoliidae | 3K |
+| Diparidae | 3K |
+| Pirenidae | 3K |
+| Argidae | 3K |
+| Azotidae | 2K |
+| Xyelidae | 2K |
+| Philanthidae | 2K |
+| Perilampidae | 2K |
+| Megastigmidae | 2K |
+| Gasteruptiidae | 2K |
+| Chalcidoidea_incertae_sedis | 2K |
+| Diprionidae | 2K |
+| Pamphiliidae | 2K |
+| Psenidae | 2K |
+| Ormyridae | 1K |
+| Diplolepididae | 1K |
+| Eucharitidae | 1K |
+| Cleonymidae | 1K |
+| Pergidae | 1K |
+| Melittidae | 1K |
+| Cimbicidae | 1K |
+| Cephidae | 1K |
+| Sclerogibbidae | 1K |
+| Sparasionidae | 887 |
+| Siricidae | 859 |
+| Rhopalosomatidae | 843 |
+| Pelecinidae | 760 |
+| Astatidae | 693 |
+| Tetracampidae | 669 |
+| Embolemidae | 636 |
+| Trigonalidae | 622 |
+| Mymarommatidae | 605 |
+| Myrmosidae | 597 |
+| Epichrysomallidae | 538 |
+| Ampulicidae | 495 |
+| Eunotidae | 465 |
+| Ismaridae | 429 |
+| Spalangiidae | 422 |
+| unclassified Chalcidoidea | 414 |
+| Chyphotidae | 410 |
+| Lyciscidae | 348 |
+| Sapygidae | 300 |
+| Heloridae | 226 |
+| Xiphydriidae | 217 |
+| Leucospidae | 207 |
+| Systasidae | 200 |
+| Sierolomorphidae | 195 |
+| Stephanidae | 189 |
+| Metapelmatidae | 185 |
+| Ammoplanidae | 165 |
+| Megalodontesidae | 164 |
+| Aulacidae | 145 |
+| Tanaostigmatidae | 140 |
+| Eremiaspheciidae | 138 |
+| Heptamelidae | 134 |
+| Bradynobaenidae | 132 |
+| Orussidae | 126 |
+| Moranilidae | 112 |
+| Chalcedectidae | 107 |
+| Scolebythidae | 101 |
+| Herbertiidae | 97 |
+| Cerocephalidae | 95 |
+| Mellinidae | 76 |
+| Janzenellidae | 71 |
+| Calesidae | 60 |
+| Stenotritidae | 60 |
+| Ceidae | 57 |
+| Blasticotomidae | 44 |
+| Chrysolampidae | 44 |
+| Neanastatidae | 40 |
+| Megalyridae | 39 |
+| Monomachidae | 38 |
+| Coelocybidae | 35 |
+| Cynipencyrtidae | 31 |
+| Liopteridae | 31 |
+| Ibaliidae | 28 |
+| Melanosomellidae | 21 |
+| Plumariidae | 18 |
+| Maamingidae | 14 |
+| Eutrichosomatidae | 12 |
+| Vanhorniidae | 12 |
+| Nixoniidae | 11 |
+| Roproniidae | 10 |
+| Anaxyelidae | 8 |
+| Neuroscelionidae | 8 |
+| Paraulacidae | 8 |
+| Heydeniidae | 6 |
+| unclassified Hymenoptera | 6 |
+| Macromesidae | 5 |
+| Ooderidae | 5 |
+| Pelecinellidae | 5 |
+| Trachypetidae | 5 |
+| Entomosericidae | 3 |
+| Geoscelionidae | 3 |
+| Heterogynaidae | 3 |
+| Baeomorphidae | 2 |
+
+Lepidoptera families
+--------------------
+
+Families listed: 137; summed family records: 2,945,403.
+
+| Family | Records |
+|---|---:|
+| Erebidae | 370K |
+| Geometridae | 329K |
+| Gelechiidae | 218K |
+| Sphingidae | 200K |
+| Noctuidae | 199K |
+| Crambidae | 158K |
+| Nymphalidae | 136K |
+| Tortricidae | 132K |
+| Saturniidae | 110K |
+| Tineidae | 109K |
+| Hesperiidae | 74K |
+| Pyralidae | 70K |
+| Depressariidae | 68K |
+| Lycaenidae | 61K |
+| Gracillariidae | 61K |
+| Notodontidae | 54K |
+| Cosmopterigidae | 54K |
+| Nepticulidae | 42K |
+| Oecophoridae | 38K |
+| Pieridae | 32K |
+| Elachistidae | 29K |
+| Coleophoridae | 27K |
+| Blastobasidae | 25K |
+| Lasiocampidae | 24K |
+| Lecithoceridae | 22K |
+| Riodinidae | 22K |
+| Nolidae | 18K |
+| Autostichidae | 17K |
+| Psychidae | 16K |
+| Papilionidae | 16K |
+| Limacodidae | 14K |
+| Bucculatricidae | 12K |
+| Pterophoridae | 11K |
+| Scythrididae | 10K |
+| Xyloryctidae | 10K |
+| Plutellidae | 8K |
+| Uraniidae | 8K |
+| Sesiidae | 7K |
+| Argyresthiidae | 5K |
+| Momphidae | 5K |
+| Thyrididae | 5K |
+| Dryadaulidae | 5K |
+| Zygaenidae | 5K |
+| Drepanidae | 5K |
+| Euteliidae | 5K |
+| Hepialidae | 5K |
+| Choreutidae | 4K |
+| Glyphipterigidae | 4K |
+| Bombycidae | 4K |
+| Heliozelidae | 4K |
+| Eupterotidae | 4K |
+| Cossidae | 4K |
+| Yponomeutidae | 4K |
+| Lyonetiidae | 4K |
+| Immidae | 4K |
+| Stathmopodidae | 3K |
+| Ypsolophidae | 3K |
+| Adelidae | 3K |
+| Apatelodidae | 3K |
+| unclassified Lepidoptera | 3K |
+| Mimallonidae | 3K |
+| Megalopygidae | 3K |
+| Batrachedridae | 2K |
+| Tischeriidae | 2K |
+| Micropterigidae | 2K |
+| Opostegidae | 2K |
+| Prodoxidae | 2K |
+| Eriocottidae | 1K |
+| Eriocraniidae | 1K |
+| Dalceridae | 1K |
+| Epermeniidae | 1K |
+| Brahmaeidae | 1K |
+| Anthelidae | 1K |
+| Carposinidae | 997 |
+| Alucitidae | 960 |
+| Hedylidae | 935 |
+| Douglasiidae | 864 |
+| Incurvariidae | 855 |
+| Bedelliidae | 833 |
+| Lypusidae | 812 |
+| Attevidae | 773 |
+| Pterolonchidae | 739 |
+| Hyblaeidae | 736 |
+| Praydidae | 688 |
+| Roeslerstammiidae | 628 |
+| Heliodinidae | 550 |
+| Sematuridae | 530 |
+| Lacturidae | 522 |
+| Urodidae | 520 |
+| Lepidoptera_incertae_sedis | 505 |
+| Phiditiidae | 485 |
+| Copromorphidae | 469 |
+| Brachodidae | 448 |
+| Castniidae | 397 |
+| Palaephatidae | 386 |
+| Schreckensteiniidae | 302 |
+| Meessiidae | 269 |
+| Metarbelidae | 264 |
+| Endromidae | 259 |
+| Epipyropidae | 234 |
+| Tridentaformidae | 215 |
+| Galacticidae | 183 |
+| Oenosandridae | 171 |
+| Himantopteridae | 166 |
+| Cecidosidae | 150 |
+| Dudgeoneidae | 146 |
+| Peleopodidae | 142 |
+| Millieriidae | 131 |
+| Epicopeiidae | 112 |
+| Aididae | 87 |
+| Heterogynidae | 83 |
+| Scranciidae | 77 |
+| Neopseustidae | 66 |
+| Callidulidae | 60 |
+| Acanthopteroctetidae | 39 |
+| Cyclotornidae | 38 |
+| Doidae | 36 |
+| Cimeliidae | 30 |
+| unclassifed Lepidoptera | 24 |
+| Carthaeidae | 20 |
+| Lophocoronidae | 19 |
+| Andesianidae | 18 |
+| Phaudidae | 18 |
+| Schistonoeidae | 18 |
+| Mnesarchaeidae | 16 |
+| Tonzidae | 16 |
+| Heterobathmiidae | 13 |
+| Agathiphagidae | 12 |
+| Prodidactidae | 8 |
+| Simaethistidae | 8 |
+| Somabrachyidae | 8 |
+| Epimarptidae | 7 |
+| Ustyurtiidae | 5 |
+| Whalleyanidae | 4 |
+| Pseudobistonidae | 3 |
+| Ratardidae | 2 |
+| Cemiostomidae | 1 |
+
+Coleoptera families
+-------------------
+
+Families listed: 188; summed family records: 1,494,326.
+
+| Family | Records |
+|---|---:|
+| Chrysomelidae | 204K |
+| Staphylinidae | 179K |
+| Curculionidae | 176K |
+| Carabidae | 96K |
+| Scarabaeidae | 75K |
+| Coccinellidae | 73K |
+| Cerambycidae | 52K |
+| Elateridae | 48K |
+| Mordellidae | 40K |
+| Dytiscidae | 32K |
+| Tenebrionidae | 28K |
+| Cantharidae | 27K |
+| Ptilodactylidae | 25K |
+| Nitidulidae | 23K |
+| Scraptiidae | 23K |
+| Latridiidae | 21K |
+| Throscidae | 21K |
+| Melyridae | 19K |
+| Buprestidae | 18K |
+| Brentidae | 17K |
+| Hydrophilidae | 17K |
+| Cleridae | 17K |
+| Lampyridae | 16K |
+| Scirtidae | 15K |
+| Corylophidae | 15K |
+| Ptinidae | 14K |
+| Lycidae | 13K |
+| Erotylidae | 11K |
+| Leiodidae | 11K |
+| Phalacridae | 10K |
+| Anthribidae | 10K |
+| Aderidae | 10K |
+| Anthicidae | 9K |
+| Eucnemidae | 8K |
+| Elmidae | 8K |
+| Bostrichidae | 6K |
+| Phengodidae | 6K |
+| Ptiliidae | 6K |
+| Oedemeridae | 5K |
+| Histeridae | 5K |
+| Dermestidae | 5K |
+| Cryptophagidae | 5K |
+| Zopheridae | 5K |
+| Meloidae | 5K |
+| Lucanidae | 4K |
+| Hydraenidae | 4K |
+| Mycetophagidae | 4K |
+| Endomychidae | 3K |
+| Melandryidae | 3K |
+| Cybocephalidae | 3K |
+| Silvanidae | 2K |
+| Laemophloeidae | 2K |
+| Attelabidae | 2K |
+| Monotomidae | 2K |
+| Hybosoridae | 2K |
+| Gyrinidae | 2K |
+| Derodontidae | 2K |
+| Ciidae | 2K |
+| Salpingidae | 1K |
+| Haliplidae | 1K |
+| Biphyllidae | 1K |
+| Limnichidae | 1K |
+| Heteroceridae | 1K |
+| Geotrupidae | 1K |
+| Helophoridae | 964 |
+| Mycteridae | 955 |
+| Psephenidae | 892 |
+| Noteridae | 888 |
+| Anamorphidae | 813 |
+| Passalidae | 778 |
+| Pyrochroidae | 769 |
+| Byrrhidae | 750 |
+| Trogossitidae | 746 |
+| Eucinetidae | 707 |
+| Byturidae | 684 |
+| Dryopidae | 668 |
+| Lymexylidae | 650 |
+| Sphindidae | 589 |
+| Smicripidae | 559 |
+| Ripiphoridae | 537 |
+| Rhagophthalmidae | 530 |
+| Rhadalidae | 525 |
+| Trogidae | 506 |
+| Kateretidae | 488 |
+| Protocucujidae | 478 |
+| Cucujidae | 425 |
+| Bothrideridae | 424 |
+| Omethidae | 405 |
+| Clambidae | 394 |
+| Artematopodidae | 389 |
+| Tetratomidae | 378 |
+| Cerylonidae | 368 |
+| Hydrochidae | 318 |
+| Nosodendridae | 316 |
+| Bolboceratidae | 292 |
+| Glaphyridae | 285 |
+| Chelonariidae | 276 |
+| Orsodacnidae | 241 |
+| Megalopodidae | 214 |
+| Prionoceridae | 212 |
+| Stenotrachelidae | 179 |
+| Callirhipidae | 141 |
+| Cerophytidae | 139 |
+| Ulodidae | 135 |
+| Ochodaeidae | 133 |
+| Pythidae | 133 |
+| Archeocrypticidae | 125 |
+| Discolomatidae | 124 |
+| Dascillidae | 123 |
+| Lutrochidae | 116 |
+| Agyrtidae | 110 |
+| Cimberididae | 107 |
+| Georissidae | 103 |
+| Phloeostichidae | 101 |
+| Lophocateridae | 100 |
+| Silphidae | 93 |
+| Rentoniidae | 83 |
+| Belidae | 81 |
+| Peltidae | 80 |
+| Alexiidae | 78 |
+| Thanerocleridae | 78 |
+| Passandridae | 74 |
+| Cupedidae | 68 |
+| Spercheidae | 67 |
+| Thymalidae | 61 |
+| Euxestidae | 57 |
+| Trachypachidae | 51 |
+| Trictenotomidae | 51 |
+| Hygrobiidae | 48 |
+| Sphaeriusidae | 46 |
+| Glaresidae | 43 |
+| Pleocomidae | 43 |
+| Rhipiceridae | 43 |
+| Nemonychidae | 42 |
+| Disteniidae | 41 |
+| Cneoglossidae | 37 |
+| Synchroidae | 35 |
+| Mauroniscidae | 33 |
+| Boridae | 32 |
+| Amphizoidae | 30 |
+| Micromalthidae | 30 |
+| Sphaeritidae | 29 |
+| Torridincolidae | 29 |
+| Mycetaeidae | 28 |
+| Promecheilidae | 28 |
+| Prostomidae | 27 |
+| Epimetopidae | 24 |
+| Eulichadidae | 24 |
+| Hydroscaphidae | 22 |
+| Eupsilobiidae | 20 |
+| unclassified Coleoptera | 19 |
+| Jurasaidae | 17 |
+| Helotidae | 16 |
+| Vesperidae | 14 |
+| Ischaliidae | 13 |
+| Phloiophilidae | 13 |
+| Protelmidae | 12 |
+| Oxypeltidae | 11 |
+| Akalyptoischiidae | 10 |
+| Aspidytidae | 10 |
+| Caridae | 10 |
+| Chaetosomatidae | 10 |
+| Tenebrionoidea_incertae_sedis | 10 |
+| Boganiidae | 9 |
+| Schizopodidae | 9 |
+| Acanthocnemidae | 8 |
+| Brachypsectridae | 7 |
+| Jacobsoniidae | 7 |
+| Meruidae | 6 |
+| Murmidiidae | 6 |
+| Myraboliidae | 6 |
+| Phycosecidae | 6 |
+| Priasilphidae | 6 |
+| Cyclaxyridae | 5 |
+| Diphyllostomatidae | 5 |
+| Hobartiidae | 5 |
+| Lagrioididae | 3 |
+| Lepiceridae | 3 |
+| Ommatidae | 3 |
+| Cavognathidae | 2 |
+| Chalcodryidae | 2 |
+| Decliniidae | 2 |
+| Iberobaeniidae | 2 |
+| Rhinorhipidae | 2 |
+| Synteliidae | 2 |
+| Agapythidae | 1 |
+| Pterogeniidae | 1 |
+| Trachelostenidae | 1 |
+
+Hemiptera families
+------------------
+
+Families listed: 171; summed family records: 1,253,610.
+
+| Family | Records |
+|---|---:|
+| Cicadellidae | 494K |
+| Aleyrodidae | 143K |
+| Aphididae | 140K |
+| Miridae | 75K |
+| Cixiidae | 30K |
+| Rhyparochromidae | 26K |
+| Pentatomidae | 23K |
+| Delphacidae | 21K |
+| Lygaeidae | 19K |
+| Issidae | 16K |
+| Ceratocombidae | 15K |
+| Flatidae | 13K |
+| Cicadidae | 12K |
+| Tropiduchidae | 12K |
+| Psyllidae | 11K |
+| Reduviidae | 10K |
+| Pseudococcidae | 9K |
+| Membracidae | 9K |
+| Aphrophoridae | 9K |
+| Anthocoridae | 8K |
+| Tingidae | 8K |
+| Triozidae | 7K |
+| Derbidae | 7K |
+| Achilidae | 6K |
+| Veliidae | 6K |
+| Coreidae | 5K |
+| Gerridae | 5K |
+| Diaspididae | 5K |
+| Nogodinidae | 5K |
+| Ricaniidae | 4K |
+| Corixidae | 4K |
+| Nabidae | 4K |
+| Schizopteridae | 4K |
+| Fulgoroidea_incertae_sedis | 4K |
+| Fulgoridae | 4K |
+| Coccidae | 3K |
+| Acanaloniidae | 3K |
+| Ischnorhinidae | 3K |
+| Cydnidae | 3K |
+| Rhopalidae | 3K |
+| Aphalaridae | 3K |
+| Alydidae | 3K |
+| Meenoplidae | 3K |
+| Pyrrhocoridae | 3K |
+| Scutelleridae | 3K |
+| Belostomatidae | 2K |
+| Cercopidae | 2K |
+| Psylloidea_incertae_sedis | 2K |
+| Enicocephalidae | 2K |
+| Coccoidea_incertae_sedis | 2K |
+| Adelgidae | 2K |
+| Aradidae | 2K |
+| Berytidae | 2K |
+| Oxycarenidae | 1K |
+| Dictyopharidae | 1K |
+| Saldidae | 1K |
+| Geocoridae | 1K |
+| Acanthosomatidae | 1K |
+| Notonectidae | 1K |
+| Micronectidae | 1K |
+| Clastopteridae | 1K |
+| Monophlebidae | 1K |
+| Blissidae | 1K |
+| Kinnaridae | 997 |
+| Cimicidae | 962 |
+| Plataspidae | 950 |
+| Naucoridae | 926 |
+| Largidae | 891 |
+| Eriococcidae | 797 |
+| Caliscelidae | 763 |
+| Pleidae | 645 |
+| Liviidae | 632 |
+| Nepidae | 563 |
+| Phylloxeridae | 545 |
+| Calophyidae | 540 |
+| Achilixiidae | 524 |
+| Tettigometridae | 518 |
+| Cymidae | 450 |
+| Dactylopiidae | 431 |
+| Mesoveliidae | 377 |
+| Thaumastocoridae | 372 |
+| Lophopidae | 351 |
+| Margarodidae | 346 |
+| Eurybrachidae | 344 |
+| Machaerotidae | 344 |
+| Pachygronthidae | 321 |
+| Kerriidae | 306 |
+| Aclerdidae | 289 |
+| Malcidae | 289 |
+| Carsidaridae | 284 |
+| Lethaeidae | 267 |
+| Microphysidae | 260 |
+| Tessaratomidae | 260 |
+| Lasiochilidae | 254 |
+| Putoidae | 251 |
+| Gelastocoridae | 249 |
+| Thyreocoridae | 245 |
+| Stictococcidae | 228 |
+| Hydrometridae | 227 |
+| Colobathristidae | 218 |
+| Piesmatidae | 201 |
+| Rhizoecidae | 200 |
+| Heterogastridae | 188 |
+| Aetalionidae | 187 |
+| Ochteridae | 183 |
+| Hebridae | 167 |
+| Epipygidae | 166 |
+| Dinidoridae | 160 |
+| Dipsocoridae | 153 |
+| Ortheziidae | 135 |
+| Aphelocheiridae | 132 |
+| Aenictopecheidae | 114 |
+| Plinthisidae | 104 |
+| Pentatomoidea_incertae_sedis | 100 |
+| Artheneidae | 97 |
+| Stenocephalidae | 88 |
+| Urostylididae | 88 |
+| Plokiophilidae | 75 |
+| Lyctocoridae | 57 |
+| Ninidae | 57 |
+| Asterolecaniidae | 52 |
+| Peloridiidae | 44 |
+| Leptopodidae | 40 |
+| Botocudidae | 32 |
+| Cyrtocoridae | 31 |
+| Gengidae | 31 |
+| Matsucoccidae | 30 |
+| Canopidae | 26 |
+| Kermesidae | 24 |
+| Lecanodiaspididae | 23 |
+| Coelostomidiidae | 21 |
+| Cryptococcidae | 20 |
+| Helotrephidae | 20 |
+| Polyctenidae | 18 |
+| Conchaspididae | 17 |
+| Idiostolidae | 14 |
+| Tettigarctidae | 14 |
+| Borysthenidae | 12 |
+| Marchalinidae | 12 |
+| Diaprepocoridae | 8 |
+| Halimococcidae | 8 |
+| Kuwaniidae | 8 |
+| Macroveliidae | 8 |
+| Parastrachiidae | 8 |
+| Megarididae | 7 |
+| Hyocephalidae | 6 |
+| Lygaeoidea_incertae_sedis | 6 |
+| Myerslopiidae | 6 |
+| Pachynomidae | 6 |
+| Hermatobatidae | 5 |
+| Melizoderidae | 5 |
+| Velocipedidae | 5 |
+| Beesoniidae | 4 |
+| Lestoniidae | 4 |
+| Phloeidae | 4 |
+| Cimicoidea_incertae_sedis | 3 |
+| Joppeicidae | 3 |
+| Mastigimatidae | 3 |
+| Meschiidae | 3 |
+| Omaniidae | 3 |
+| Potamocoridae | 3 |
+| Saileriolidae | 3 |
+| Thaumastellidae | 3 |
+| Aepophilidae | 1 |
+| Cerococcidae | 1 |
+| Cryptorhamphidae | 1 |
+| Curaliidae | 1 |
+| Hypsipterygidae | 1 |
+| Paraphrynoveliidae | 1 |
+| Termitaphididae | 1 |
+| Xenococcidae | 1 |
+
+
+
+Genus splits for oversized Diptera families
+==========================================
+
+Source note: these genus-level counts come from the legacy BOLD v4
+taxonomy browser child-genus lists. They are used to plan downloads
+for Diptera families above the 1M-record BOLD Portal query cap and
+can differ from BOLD v5 summary counts.
+Full CSV: Output/audits/bold_v4_diptera_large_family_genus_splits.csv
+
+Cecidomyiidae genera
+--------------------
+
+Genera listed: 5; summed genus records: 33.
+
+| Genus | Records |
+|---|---:|
+| CecidIntGen | 9 |
+| Cecidomyiidae_incertae_sedis | 9 |
+| Cecidomyiidae_CecidInt | 8 |
+| cecidoJanzen01 | 6 |
+| ceciMalaise01 | 1 |
+
+Chironomidae genera
+-------------------
+
+Genera listed: 4; summed genus records: 3,137.
+
+| Genus | Records |
+|---|---:|
+| chiroJanzen01 | 2K |
+| ChiroGn1 | 559 |
+| chiroJanzen02 | 277 |
+| chiroJanzen2 | 24 |
+
+Phoridae genera
+---------------
+
+Genera listed: 7; summed genus records: 263.
+
+| Genus | Records |
+|---|---:|
+| Phoridae_genus_BB4 | 148 |
+| Phoridae_genus_BB5 | 57 |
+| n_gen_BB1 | 54 |
+| Phoridae_PhorIntGen122 | 1 |
+| Phoridae_genus_BB1 | 1 |
+| Phoridae_genus_BB2 | 1 |
+| Phoridae_genus_BB3 | 1 |
+
+Sciaridae genera
+----------------
+
+Genera listed: 58; summed genus records: 332,135.
+
+| Genus | Records |
+|---|---:|
+| Bradysia | 70K |
+| Pseudolycoriella | 70K |
+| Corynoptera | 46K |
+| Hyperlasion | 41K |
+| Scatopsciara | 25K |
+| Austrosciara | 8K |
+| Lycoriella | 8K |
+| Hemineurina | 7K |
+| Cosmosciara | 6K |
+| Camptochaeta | 6K |
+| Trichosiopsis | 5K |
+| Cratyna | 5K |
+| Sciara | 5K |
+| Spathobdella | 4K |
+| Alpinosciara | 3K |
+| Dichopygina | 3K |
+| Prosciara | 2K |
+| Pseudosciara | 2K |
+| Schwenckfeldina | 2K |
+| Claustropyga | 2K |
+| Peyerimhoffia | 1K |
+| Trichosia | 1K |
+| Bradysiopsis | 1K |
+| Dolichosciara | 1K |
+| Epidapus | 1K |
+| Chaetosciara | 691 |
+| Falakia | 653 |
+| Pseudoaerumnosa | 556 |
+| Stenacanthella | 409 |
+| Xylosciara | 355 |
+| Sciaridae_genus_JH01 | 317 |
+| Trichocoelina | 259 |
+| Pnyxia | 254 |
+| Eugnoriste | 216 |
+| Hirtipennia | 216 |
+| Zygoneura | 210 |
+| Baeosciara | 203 |
+| Moehnia | 174 |
+| Cesathrix | 150 |
+| Mouffetina | 113 |
+| Mohrigia | 104 |
+| Phytosciara | 79 |
+| Scythropochroa | 68 |
+| Keilbachia | 59 |
+| Shiara | 34 |
+| Pseudozygomma | 24 |
+| Pnyxiopsis | 22 |
+| Leptospina | 16 |
+| sciaridJanzen01 | 14 |
+| Trichodapus | 10 |
+| Linana | 7 |
+| Pnyxiopalpus | 6 |
+| Allopnyxia | 5 |
+| Aerumnosa | 4 |
+| Spinopygina | 4 |
+| Odontosciara | 3 |
+| Peniosciara | 3 |
+| Sciaridae_gen_KH2 | 1 |
+
+
+
+Non-insect BOLD group summary
+=============================
+
+Source note: approximate global public BOLD summary counts from BOLD
+Portal API queries. These are query-level public record counts and
+coordinate coverage estimates, not cleaned unique-specimen counts.
+Full CSV: Output/audits/bold_non_insect_group_summaries.csv
+
+| Category | Group | Query | Records | Coord coverage | Status |
+|---|---|---|---:|---:|---|
+| Downloaded backbone | Plantae | `tax:kingdom:Plantae` | 468K | 41.3% | local summary |
+| Downloaded backbone | Fungi | `tax:kingdom:Fungi` | 347K | 24.5% | local summary |
+| Downloaded backbone | Mollusca | `tax:phylum:Mollusca` | 302K | 45.0% | local summary |
+| Downloaded backbone | Chordata | `tax:phylum:Chordata` | 797K | 50.8% | local summary |
+| Downloaded non-arthropod animals | Annelida | `tax:phylum:Annelida` | 116K | 67.5% | local summary |
+| Downloaded non-arthropod animals | Cnidaria | `tax:phylum:Cnidaria` | 41K | 38.2% | ok |
+| Downloaded non-arthropod animals | Echinodermata | `tax:phylum:Echinodermata` | 48K | 57.7% | ok |
+| Downloaded non-arthropod animals | Nematoda | `tax:phylum:Nematoda` | 59K | 26.1% | ok |
+| Downloaded non-arthropod animals | Platyhelminthes | `tax:phylum:Platyhelminthes` | 40K | 27.4% | ok |
+| Downloaded non-arthropod animals | Porifera | `tax:phylum:Porifera` | 12K | 38.7% | ok |
+| Downloaded non-arthropod animals | Rotifera | `tax:phylum:Rotifera` | 14K | 45.2% | ok |
+| Downloaded non-arthropod animals | Bryozoa | `tax:phylum:Bryozoa` | 5K | 58.8% | ok |
+| Downloaded non-arthropod animals | Nemertea | `tax:phylum:Nemertea` | 8K | 55.1% | ok |
+| Downloaded non-arthropod animals | Tardigrada | `tax:phylum:Tardigrada` | 6K | 28.9% | ok |
+| Downloaded non-arthropod animals | Onychophora | `tax:phylum:Onychophora` | 2K | 1.7% | ok |
+| Downloaded non-arthropod animals | Acanthocephala | `tax:phylum:Acanthocephala` | 4K | 40.9% | ok |
+| Downloaded non-arthropod animals | Brachiopoda | `tax:phylum:Brachiopoda` | 548 | 32.3% | ok |
+| Downloaded non-arthropod animals | Chaetognatha | `tax:phylum:Chaetognatha` | 2K | 49.3% | ok |
+| Downloaded non-arthropod animals | Ctenophora | `tax:phylum:Ctenophora` | 731 | 47.5% | ok |
+| Downloaded non-arthropod animals | Entoprocta | `tax:phylum:Entoprocta` | 81 | 45.7% | ok |
+| Downloaded non-arthropod animals | Gastrotricha | `tax:phylum:Gastrotricha` | 1K | 49.1% | ok |
+| Downloaded non-arthropod animals | Hemichordata | `tax:phylum:Hemichordata` | 337 | 49.3% | ok |
+| Downloaded non-arthropod animals | Kinorhyncha | `tax:phylum:Kinorhyncha` | 656 | 36.4% | ok |
+| Downloaded non-arthropod animals | Phoronida | `tax:phylum:Phoronida` | 211 | 75.4% | ok |
+| Downloaded non-arthropod animals | Priapulida | `tax:phylum:Priapulida` | 331 | 43.2% | ok |
+| Downloaded non-arthropod animals | Xenacoelomorpha | `tax:phylum:Xenacoelomorpha` | 1K | 23.7% | ok |
+| Non-insect arthropods | Araneae | `tax:order:Araneae` | 222K | 83.0% | ok |
+| Non-insect arthropods | Acari | `tax:order:Acari` | 0 | 0.0% | ok |
+| Non-insect arthropods | Scorpiones | `tax:order:Scorpiones` | 7K | 36.9% | ok |
+| Non-insect arthropods | Opiliones | `tax:order:Opiliones` | 12K | 62.9% | ok |
+| Non-insect arthropods | Pseudoscorpiones | `tax:order:Pseudoscorpiones` | 7K | 76.2% | ok |
+| Non-insect arthropods | Decapoda | `tax:order:Decapoda` | 116K | 42.2% | ok |
+| Non-insect arthropods | Amphipoda | `tax:order:Amphipoda` | 69K | 67.7% | ok |
+| Non-insect arthropods | Isopoda | `tax:order:Isopoda` | 28K | 63.5% | ok |
+| Non-insect arthropods | Copepoda | `tax:class:Copepoda` | 31K | 69.6% | ok |
+| Non-insect arthropods | Ostracoda | `tax:class:Ostracoda` | 7K | 59.2% | ok |
+| Non-insect arthropods | Chilopoda | `tax:class:Chilopoda` | 7K | 63.8% | ok |
+| Non-insect arthropods | Diplopoda | `tax:class:Diplopoda` | 10K | 79.3% | ok |
+| Non-insect arthropods | Symphyla | `tax:class:Symphyla` | 578 | 87.7% | ok |
+| Non-insect arthropods | Pauropoda | `tax:class:Pauropoda` | 236 | 78.0% | ok |
+| Non-insect arthropods | Pycnogonida | `tax:class:Pycnogonida` | 4K | 53.3% | ok |
+| Non-insect arthropods | Xiphosura | `tax:class:Xiphosura` | 0 | 0.0% | ok |
+| Other kingdoms/domains | Chromista | `tax:kingdom:Chromista` | 0 | 0.0% | ok |
+| Other kingdoms/domains | Protozoa | `tax:kingdom:Protozoa` | 0 | 0.0% | ok |
+| Other kingdoms/domains | Archaea | `tax:kingdom:Archaea` | 0 | 0.0% | ok |
+| Other kingdoms/domains | Bacteria | `tax:kingdom:Bacteria` | 20K | 25.2% | ok |
+
+
+Oversized Diptera family country split notes
+============================================
+
+Source note: BOLD v5 summary metadata, not specimen downloads. Full
+outputs are in Output/audits/bold_diptera_oversized_family_top_countries.*
+
+| Family | BOLD v5 records | Rank | Country/ocean | Records | Share |
+|---|---:|---:|---|---:|---:|
+| Cecidomyiidae | 2,092,907 | 1 | Costa Rica | 1,122,446 | 53.64% |
+| Cecidomyiidae | 2,092,907 | 2 | Canada | 192,940 | 9.22% |
+| Cecidomyiidae | 2,092,907 | 3 | United States | 97,827 | 4.67% |
+| Cecidomyiidae | 2,092,907 | 4 | South Africa | 83,815 | 4.00% |
+| Cecidomyiidae | 2,092,907 | 5 | Peru | 80,569 | 3.85% |
+| Chironomidae | 1,647,619 | 1 | Costa Rica | 578,626 | 35.12% |
+| Chironomidae | 1,647,619 | 2 | Canada | 358,463 | 21.75% |
+| Chironomidae | 1,647,619 | 3 | United States | 145,099 | 8.81% |
+| Chironomidae | 1,647,619 | 4 | United Kingdom | 63,417 | 3.85% |
+| Chironomidae | 1,647,619 | 5 | South Africa | 59,414 | 3.61% |
+| Phoridae | 1,385,577 | 1 | Costa Rica | 835,884 | 60.33% |
+| Phoridae | 1,385,577 | 2 | Canada | 118,654 | 8.56% |
+| Phoridae | 1,385,577 | 3 | United States | 96,621 | 6.97% |
+| Phoridae | 1,385,577 | 4 | Peru | 47,852 | 3.45% |
+| Phoridae | 1,385,577 | 5 | South Africa | 24,988 | 1.80% |
+| Sciaridae | 1,172,067 | 1 | Costa Rica | 537,663 | 45.87% |
+| Sciaridae | 1,172,067 | 2 | Canada | 140,765 | 12.01% |
+| Sciaridae | 1,172,067 | 3 | United States | 79,272 | 6.76% |
+| Sciaridae | 1,172,067 | 4 | Peru | 47,949 | 4.09% |
+| Sciaridae | 1,172,067 | 5 | South Africa | 32,656 | 2.79% |
+
+Interpretation: country/ocean splits solve Sciaridae, Chironomidae,
+and Phoridae at the current BOLD summary counts. Cecidomyiidae still
+needs a second split inside Costa Rica because Costa Rica alone is
+above the 1M query cap.

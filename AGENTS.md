@@ -18,7 +18,12 @@ This repository is a research data project. Preserve downloaded data and never r
 - `Scripts/download_bold_plants.py`, `download_bold_mollusca.py`, and `download_bold_chordata.py` are thin wrappers around the generic downloader.
 - `Scripts/download_bold_animals_except_acm.py` downloads non-Arthropoda, non-Chordata, non-Mollusca animal phyla one phylum at a time.
 - `Scripts/download_bold_insect_orders_small.py` downloads selected smaller insect orders one order at a time.
+- `Scripts/download_bold_coleoptera_by_family.py`, `download_bold_hemiptera_by_family.py`, `download_bold_hymenoptera_by_family.py`, and `download_bold_lepidoptera_by_family.py` download large insect orders one family at a time.
+- `Scripts/download_bold_diptera_from_ceratopogonidae.py` downloads manageable Diptera families while intentionally skipping the four over-cap families: Cecidomyiidae, Chironomidae, Phoridae, and Sciaridae.
+- `Scripts/download_bold_sciaridae_by_country.py` downloads Sciaridae one country/ocean value at a time.
+- `Scripts/download_bold_non_insect_arthropods_and_microbes.py` downloads selected non-insect arthropod groups plus Bacteria and logs zero-record BOLD v5 groups.
 - `Scripts/audit_bold_downloads.py` audits local BOLD TSVs against their summary JSON files.
+- `Scripts/audit_bold_taxon_coverage.py` audits the intended taxon coverage plan against local manifests and files without hitting BOLD.
 - `Scripts/make_bold_fungi_minimal.py` creates the current Stata-friendly Fungi TSV.
 - `Scripts/map_bold_fungi_grid.py` maps geocoded Fungi records on equal-area cells.
 
@@ -30,12 +35,14 @@ Run this for the current local audit:
 python3 Scripts/audit_bold_downloads.py
 ```
 
-As of the latest audit:
+As of the latest coverage audit:
 
-- 37 BOLD record TSV files are present.
-- No `.part` files are present.
-- 36 files have data rows greater than or equal to BOLD summary specimens.
-- `Data/raw/bold/bold_global_hemiptera_records.tsv` is capped/truncated at exactly 1,000,000 data rows, while the BOLD summary reports 1,053,311 specimens.
+- 847 intended taxon units were audited locally.
+- 818 were downloaded cleanly.
+- 16 were downloaded but still appear in stale failed-download logs from earlier BOLD 403/503 attempts.
+- 9 are BOLD v5 zero-record groups or tiny v4/v5 taxonomy mismatches.
+- 4 oversized Diptera families are intentionally excluded from the complete set for now: Cecidomyiidae, Chironomidae, Phoridae, and Sciaridae.
+- The old order-level Hemiptera file is capped, but Hemiptera by-family downloads are now the relevant complete working version.
 
 ## Safe Workflow
 
@@ -49,7 +56,7 @@ Before committing:
 
 ```bash
 python3 -m py_compile Scripts/*.py
-python3 Scripts/audit_bold_downloads.py
+python3 Scripts/audit_bold_taxon_coverage.py
 git status --short
 ```
 
@@ -67,6 +74,12 @@ Run remaining animal phyla in small paste-safe batches:
 
 ```bash
 python3 Scripts/download_bold_animals_except_acm.py --phyla Chaetognatha Ctenophora Entoprocta --retries 2 --retry-sleep 300
+```
+
+Download Sciaridae by country/ocean:
+
+```bash
+python3 Scripts/download_bold_sciaridae_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
 ```
 
 Map Fungi sampling at 50, 100, or 200 km:

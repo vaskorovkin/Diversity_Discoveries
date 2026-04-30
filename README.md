@@ -16,9 +16,9 @@ The GitHub repository intentionally excludes large data, generated outputs, PDFs
 
 ## Current BOLD Data
 
-Downloaded BOLD groups include Fungi, Plantae, Mollusca, Chordata, Hemiptera, selected smaller insect orders, and Animalia excluding Arthropoda/Chordata/Mollusca. Raw BOLD TSV files are under `Data/raw/bold/`.
+Downloaded BOLD groups include Fungi, Plantae, Mollusca, Chordata, selected smaller insect orders, animal phyla excluding Arthropoda/Chordata/Mollusca, non-insect arthropod groups, and Bacteria. Large insect orders are split family by family where needed: Coleoptera, Hemiptera, Hymenoptera, Lepidoptera, and manageable Diptera families from Ceratopogonidae downward. Raw BOLD TSV files are under `Data/raw/bold/`.
 
-Important caveat: Hemiptera is capped. The BOLD summary reports 1,053,311 specimens, but the downloaded file contains exactly 1,000,000 data rows. Treat it as an incomplete extract until split by country, family, or another query dimension.
+Current caveat: four Diptera families remain unresolved because each exceeds the 1,000,000-record BOLD query cap at the family level: Cecidomyiidae, Chironomidae, Phoridae, and Sciaridae. Sciaridae is now being handled by country-level requests; the other three still need final split plans. See `diptera_oversized_family_problem.md`.
 
 ## Core Commands
 
@@ -26,6 +26,12 @@ Audit all BOLD downloads:
 
 ```bash
 python3 Scripts/audit_bold_downloads.py
+```
+
+Audit intended taxon coverage against local manifests:
+
+```bash
+python3 Scripts/audit_bold_taxon_coverage.py
 ```
 
 Create a minimal Fungi TSV:
@@ -54,7 +60,7 @@ Rows in BOLD TSV downloads are marker/sequence records, not necessarily unique s
 
 ## Next Steps
 
-1. Split Hemiptera into complete subqueries.
-2. Add clean/minimal TSV builders for Plantae, Mollusca, Chordata, and insect orders.
+1. Finish split plans for the four oversized Diptera families and audit summed split counts against BOLD v5 family summaries.
+2. Add clean/minimal TSV builders for Plantae, Mollusca, Chordata, insect orders, and country/family split downloads.
 3. Build grid-cell/year sampling panels from geocoded records.
 4. Link sampling layers to discovery data such as ENA/NCBI, COCONUT, NPAtlas, PubChem, ChEMBL, patents, and publications.

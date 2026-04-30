@@ -1,0 +1,11 @@
+Coleoptera missing family TSVs:
+python3 -c 'import csv,re;from pathlib import Path;d=Path("Data/raw/bold/coleoptera_by_family");slug=lambda x:re.sub(r"[^a-z0-9]+","_",x.lower()).strip("_");missing=[row["family"] for row in csv.DictReader((d/"coleoptera_family_manifest.csv").open()) if not (d/("bold_global_coleoptera_family_"+slug(row["family"])+"_records.tsv")).exists()];print(len(missing));print("\n".join(missing))'
+
+Hemiptera missing family TSVs:
+python3 -c 'import csv,re;from pathlib import Path;d=Path("Data/raw/bold/hemiptera_by_family");slug=lambda x:re.sub(r"[^a-z0-9]+","_",x.lower()).strip("_");missing=[row["family"] for row in csv.DictReader((d/"hemiptera_family_manifest.csv").open()) if not (d/("bold_global_hemiptera_family_"+slug(row["family"])+"_records.tsv")).exists()];print(len(missing));print("\n".join(missing))'
+
+Lepidoptera missing family TSVs:
+python3 -c 'import csv,re;from pathlib import Path;d=Path("Data/raw/bold/lepidoptera_by_family");slug=lambda x:re.sub(r"[^a-z0-9]+","_",x.lower()).strip("_");missing=[row["family"] for row in csv.DictReader((d/"lepidoptera_family_manifest.csv").open()) if not (d/("bold_global_lepidoptera_family_"+slug(row["family"])+"_records.tsv")).exists()];print(len(missing));print("\n".join(missing))'
+
+Hymenoptera missing family TSVs:
+python3 -c 'import csv,re;from pathlib import Path;d=Path("Data/raw/bold/hymenoptera_by_family");slug=lambda x:re.sub(r"[^a-z0-9]+","_",x.lower()).strip("_");missing=[row["family"] for row in csv.DictReader((d/"hymenoptera_family_manifest.csv").open()) if not (d/("bold_global_hymenoptera_family_"+slug(row["family"])+"_records.tsv")).exists()];print(len(missing));print("\n".join(missing))'
