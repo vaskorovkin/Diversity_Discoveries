@@ -59,7 +59,6 @@ Approximate global public BOLD summary counts from API queries run on
 | Lepidoptera | 2.10M | 90.2% |
 | Coleoptera | 1.21M | 88.4% |
 | Hemiptera | 1.05M | 91.7% |
-
 | Psocodea | 146K | 96.9% |
 | Orthoptera | 102K | 69.1% |
 | Trichoptera | 97K | 90.1% |
@@ -69,3 +68,8 @@ Approximate global public BOLD summary counts from API queries run on
 | Neuroptera | 33K | 89.4% |
 | Odonata | 27K | 63.6% |
 | Plecoptera | 23K | 82.4% |
+
+Download note:
+Hemiptera exceeded the nominal 1 million record query cap. BOLD returned a
+completed TSV with exactly 1,000,000 data rows, so the file is capped/truncated
+relative to the 1,053,311 specimen summary and should be split before analysis.
