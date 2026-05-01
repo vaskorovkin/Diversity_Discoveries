@@ -110,6 +110,64 @@ one-sided events: 35,512
 Use the common 2005-2024 window when merging BOLD and UCDP. Generate logs and
 lags in Stata, not in the raw UCDP regressor file.
 
+RESOLVE 2017 ecoregions have been assigned to the 100 km land cells:
+
+```text
+Scripts/download_baseline_geography.py
+Scripts/baseline_geography_README.md
+Scripts/aggregate_resolve_ecoregions_100km.py
+Data/regressors/baseline_geography/resolve_ecoregions_100km_cells.csv
+```
+
+Current RESOLVE audit:
+
+```text
+output_rows: 14,566
+unique_cells: 14,566
+duplicate_cell_ids: 0
+matched_to_ecoregion: 14,291
+unmatched: 275
+rock_and_ice_cells: 1,243
+unique_ecoregions: 680
+unique_biomes: 15
+unique_realms: 9
+```
+
+The overlay uses cell centroids. Use it as static baseline geography for
+strata, interactions, or heterogeneity; it is not a cell-year shock.
+
+CEPF/Conservation International biodiversity hotspots have also been assigned
+to the 100 km land cells:
+
+```text
+Scripts/aggregate_cepf_hotspots_100km.py
+Data/regressors/baseline_geography/cepf_hotspots_100km_cells.csv
+```
+
+Current hotspot audit:
+
+```text
+output_rows: 14,566
+unique_cells: 14,566
+duplicate_cell_ids: 0
+cells_in_any_hotspot: 2,430
+unique_hotspot_names_hit: 36
+cells_matching_multiple_hotspots: 0
+```
+
+WDPA/Protected Planet protected-area share is not run yet because no WDPA file
+is currently local. The prepared script is:
+
+```text
+Scripts/aggregate_wdpa_protected_share_100km.py
+```
+
+Expected use after downloading a WDPA polygon GPKG/SHP:
+
+```bash
+python3 Scripts/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public.gpkg
+```
+
 Hansen Global Forest Change is being aggregated via Google Earth Engine:
 
 ```text
@@ -142,6 +200,28 @@ Data/regressors/hansen/hansen_forest_loss_100km_panel.csv
 Hansen covers 2001-2023 (tree-cover-weighted method). Variables include
 `baseline_forest_km2`, `forest_loss_km2`, `forest_loss_share`,
 `cumulative_loss_km2`, `cumulative_loss_share`, and 1-2 year lags.
+
+MODIS MCD64A1 burned area is also aggregated via Earth Engine:
+
+```text
+Scripts/gee_modis_burned_area_100km.js
+Scripts/merge_modis_burned_exports.py
+```
+
+After exporting from Earth Engine and downloading to `Data/regressors/modis/`:
+
+```bash
+python3 Scripts/merge_modis_burned_exports.py
+```
+
+MODIS output:
+
+```text
+Data/regressors/modis/modis_burned_area_100km_panel.csv
+```
+
+Variables: `burned_area_km2`, `any_burned`, `cumulative_burned_km2`, and 1-2
+year lags. Covers 2001-2023.
 
 Local coverage audit:
 
@@ -180,19 +260,20 @@ Current prepared changes are code/docs only; data and output remain ignored.
 Suggested commit summary:
 
 ```text
-Add BOLD panel, UCDP conflict, and Hansen forest loss regressors
+Add baseline geography, Hansen, and MODIS regressors
 ```
 
 Suggested commit description:
 
 ```text
-Adds exhibit scripts for BOLD minimal records, summary tables, time-series plots,
-grid/admin maps, cell-level correlations, and the 2005-2025 collection-year cell
-panel. Adds UCDP GED aggregation to the same 100 km cell-year grid, with
-event/fatality/type/precision variables for 2005-2024. Adds Hansen Global Forest
-Change aggregation via Google Earth Engine using tree-cover-weighted method,
-producing baseline forest area and annual/cumulative loss for 2001-2023. Includes
-the capped Costa Rica Cecidomyiidae file by default while continuing to exclude
-redundant capped diagnostics, and documents the land-cell panel caveat for
-downstream Stata regressions.
+Adds reproducible download and aggregation scripts for static baseline geography
+regressors: RESOLVE 2017 ecoregions, CEPF biodiversity hotspots, and WDPA
+protected-area share. Records source metadata and hashes for reproducibility.
+
+Adds Hansen Global Forest Change and MODIS MCD64A1 burned area aggregation via
+Google Earth Engine, producing tree-cover-weighted baseline forest,
+annual/cumulative forest loss (2001-2023), and annual burned area (2001-2023).
+
+Updates README, handover, agent, and regressor documentation with new workflows
+and audit results. Adds geospatial Python dependency notes.
 ```

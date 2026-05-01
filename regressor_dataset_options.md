@@ -156,6 +156,17 @@ The useful empirical tests are comparative:
 3. Aggregate MODIS MCD64A1 to cells by year:
    - burned area
    - any burned area
+
+   Current status: implemented via Google Earth Engine in
+   `Scripts/gee_modis_burned_area_100km.js`. Output:
+
+   ```text
+   Data/regressors/modis/modis_burned_area_100km_panel.csv
+   ```
+
+   Variables: `burned_area_km2`, `any_burned`, `cumulative_burned_km2`, and
+   1-2 year lags. Covers 2001-2023.
+
 4. Aggregate TerraClimate or CHIRPS/ERA5 anomalies:
    - annual precipitation anomaly
    - drought/water-deficit anomaly
@@ -166,3 +177,41 @@ The useful empirical tests are comparative:
    - hotspot indicator
    - protected-area share
    - modeled richness/intactness when available
+
+   Current status for ecoregion/biome/realm: implemented locally with RESOLVE
+   2017 centroid overlay in `Scripts/aggregate_resolve_ecoregions_100km.py`.
+   Raw input download is reproducible via `Scripts/download_baseline_geography.py`
+   and documented in `Scripts/baseline_geography_README.md`. Geospatial package
+   dependencies are listed in `requirements_baseline_geography.txt`.
+   Output:
+
+   ```text
+   Data/regressors/baseline_geography/resolve_ecoregions_100km_cells.csv
+   ```
+
+   Audit: 14,566 unique land cells; 14,291 matched to RESOLVE ecoregions;
+   1,243 are explicit `Rock and Ice`; 275 remain unmatched.
+
+   Current status for hotspot indicator: implemented locally with CEPF/
+   Conservation International hotspot polygons in
+   `Scripts/aggregate_cepf_hotspots_100km.py`. Output:
+
+   ```text
+   Data/regressors/baseline_geography/cepf_hotspots_100km_cells.csv
+   ```
+
+   Audit: 14,566 unique land cells; 2,430 cells inside any hotspot; all 36
+   hotspot names represented; no cell centroid matched multiple hotspots.
+
+   Current status for protected-area share: script prepared but not run because
+   no local WDPA/Protected Planet polygon file is present. Script:
+
+   ```text
+   Scripts/aggregate_wdpa_protected_share_100km.py
+   ```
+
+   Expected output after downloading WDPA:
+
+   ```text
+   Data/regressors/baseline_geography/wdpa_protected_share_100km_cells.csv
+   ```

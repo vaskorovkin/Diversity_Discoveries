@@ -26,6 +26,11 @@ This repository is a research data project. Preserve downloaded data and never r
 - `Scripts/exhibits/00_build_bold_minimal.py` builds compact BOLD records for exhibits and regressions. It includes the capped Costa Rica Cecidomyiidae file by default, but excludes the redundant global capped Cecidomyiidae and old capped Hemiptera files.
 - `Scripts/exhibits/06_build_cell_year_panel.py` builds the main 100 km land-cell x collection-year panel for 2005-2025.
 - `Scripts/aggregate_ucdp_ged_100km.py` aggregates a downloaded UCDP GED CSV to the same 100 km land cells for 2005-2024. Logs and lags are intentionally left for Stata.
+- `Scripts/download_baseline_geography.py` downloads raw RESOLVE ecoregions and CEPF hotspot inputs for the static baseline geography overlays. See `Scripts/baseline_geography_README.md`.
+- `Scripts/aggregate_resolve_ecoregions_100km.py` assigns RESOLVE 2017 ecoregion, biome, and realm to each 100 km land cell by centroid overlay.
+- `Scripts/aggregate_cepf_hotspots_100km.py` assigns CEPF/Conservation International biodiversity hotspot indicators to each 100 km land cell by centroid overlay.
+- `Scripts/aggregate_wdpa_protected_share_100km.py` computes protected-area share by 100 km cell from a local WDPA polygon GPKG/SHP. It has not been run yet because WDPA is not local.
+- Baseline-geography geospatial dependencies are listed in `requirements_baseline_geography.txt`.
 - `Scripts/download_bold_non_insect_arthropods_and_microbes.py` downloads selected non-insect arthropod groups plus Bacteria and logs zero-record BOLD v5 groups.
 - `Scripts/audit_bold_downloads.py` audits local BOLD TSVs against their summary JSON files.
 - `Scripts/audit_bold_taxon_coverage.py` audits the intended taxon coverage plan against local manifests and files without hitting BOLD.
@@ -50,6 +55,9 @@ As of the latest coverage audit:
 - The old order-level Hemiptera file is capped, but Hemiptera by-family downloads are now the relevant complete working version.
 - The current Stata-ready BOLD panel is `Exhibits/data/bold_grid100_cell_year_panel_collection_2005_2025.csv`. It has 305,886 rows: 14,566 land cells x 21 years. It uses collection year, zero-fills land cell-years, and excludes coordinate records outside the strict land-cell universe.
 - The current UCDP regressor panel is `Data/regressors/ucdp/ucdp_ged_100km_cell_year_2005_2024.csv`. It has 291,320 rows: 14,566 land cells x 20 years. Merge with BOLD over the common 2005-2024 window.
+- The current static baseline geography file is `Data/regressors/baseline_geography/resolve_ecoregions_100km_cells.csv`. It has 14,566 unique cells, 14,291 RESOLVE matches, 1,243 explicit `Rock and Ice` cells, and 275 unmatched cells.
+- The current hotspot file is `Data/regressors/baseline_geography/cepf_hotspots_100km_cells.csv`. It has 14,566 unique cells, 2,430 cells in any hotspot, and all 36 hotspot names are represented.
+- WDPA protected-area share is script-ready but not run. It needs a local Protected Planet / WDPA polygon file.
 
 ## Safe Workflow
 

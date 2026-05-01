@@ -109,6 +109,38 @@ It contains all UCDP GED events, best/low/high fatalities, civilian deaths,
 type splits for state/non-state/one-sided violence, and precision-filtered
 versions using `where_prec` 1-2. Logs and lags should be generated in Stata.
 
+Static baseline geography has also been assigned to the 100 km land cells using
+the RESOLVE 2017 terrestrial ecoregions shapefile:
+
+```text
+Data/regressors/baseline_geography/resolve_ecoregions_100km_cells.csv
+```
+
+This file has one row per BOLD land cell with ecoregion, biome, realm, and
+match flags. It is a centroid overlay, so it is best used as a baseline stratum,
+heterogeneity variable, or interaction term rather than a time-varying shock.
+The raw RESOLVE and CEPF inputs are reproducibly downloaded by
+`Scripts/download_baseline_geography.py`; see
+`Scripts/baseline_geography_README.md`. The geospatial Python requirements for
+these overlays are listed in `requirements_baseline_geography.txt`.
+
+CEPF/Conservation International biodiversity hotspots have also been assigned
+by centroid overlay:
+
+```text
+Data/regressors/baseline_geography/cepf_hotspots_100km_cells.csv
+```
+
+This file has one row per BOLD land cell with `cepf_hotspot_any`,
+`cepf_hotspot_count`, and `cepf_hotspot_names`.
+
+A WDPA/Protected Planet protected-area share script is prepared, but it requires
+a local WDPA polygon download before it can be run:
+
+```text
+Scripts/aggregate_wdpa_protected_share_100km.py
+```
+
 Hansen Global Forest Change (tree-cover-weighted forest loss) is aggregated via
 Google Earth Engine:
 

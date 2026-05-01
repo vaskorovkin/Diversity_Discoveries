@@ -3,8 +3,14 @@
 ## Regressor Aggregation
 
 - `aggregate_ucdp_ged_100km.py`: aggregates a downloaded UCDP GED CSV to the BOLD 100 km land-cell x year grid for 2005-2024. See `Scripts/ucdp_ged_README.md`.
+- `download_baseline_geography.py`: downloads the raw RESOLVE ecoregions and CEPF hotspot files used by the static baseline geography overlays. See `Scripts/baseline_geography_README.md`.
+- `aggregate_resolve_ecoregions_100km.py`: assigns RESOLVE 2017 ecoregion, biome, and realm to each BOLD 100 km land cell by centroid overlay.
+- `aggregate_cepf_hotspots_100km.py`: assigns CEPF/Conservation International biodiversity hotspot indicators to each BOLD 100 km land cell by centroid overlay.
+- `aggregate_wdpa_protected_share_100km.py`: computes protected-area area/share for each BOLD 100 km land cell from a local WDPA polygon GPKG/SHP.
 - `gee_hansen_forest_loss_100km.js`: Google Earth Engine script to aggregate Hansen Global Forest Change to 100 km cells using tree-cover-weighted method. See `Scripts/gee_hansen_forest_loss_README.md`.
 - `merge_hansen_exports.py`: merges Earth Engine CSV exports into a complete cell-year panel with lags.
+- `gee_modis_burned_area_100km.js`: Google Earth Engine script to aggregate MODIS MCD64A1 burned area to 100 km cells.
+- `merge_modis_burned_exports.py`: merges MODIS Earth Engine CSV exports into a complete cell-year panel with lags.
 
 ## Downloaders
 
@@ -72,4 +78,8 @@ python3 Scripts/summarize_bold_diptera_large_family_genera_v4.py
 python3 Scripts/summarize_bold_diptera_oversized_country_counts.py
 python3 Scripts/summarize_bold_non_insect_groups.py
 python3 Scripts/aggregate_ucdp_ged_100km.py
+python3 Scripts/download_baseline_geography.py
+python3 Scripts/aggregate_resolve_ecoregions_100km.py
+python3 Scripts/aggregate_cepf_hotspots_100km.py
+python3 Scripts/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public.gpkg
 ```
