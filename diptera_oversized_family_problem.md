@@ -78,9 +78,9 @@ Key result: Costa Rica is the dominant country for all four families.
 For these four Diptera families, we do not yet have a complete clean download plan. Current status:
 
 1. Use family-level downloads for Diptera from Ceratopogonidae downward. This part is done locally, aside from stale failed-log entries.
-2. Sciaridae is being downloaded country by country with `Scripts/download_bold_sciaridae_by_country.py`; every country-level Sciaridae query is below the cap in the current BOLD summary.
-3. Chironomidae and Phoridae are also likely feasible country by country because their largest country-level counts are below 1M.
-4. Cecidomyiidae still needs a second split inside Costa Rica, probably by province/state or another BOLD field, because Costa Rica alone exceeds 1M.
+2. Chironomidae, Phoridae, and Sciaridae have country-by-country download scripts; every country-level query for these families is below the cap in the current BOLD summary.
+3. Cecidomyiidae has a country-by-country script for all positive country/ocean buckets except Costa Rica.
+4. Costa Rica Cecidomyiidae still needs a second split, probably by province/state or another BOLD field, because Costa Rica alone exceeds 1M. A capped diagnostic script exists, but it should not be treated as complete coverage.
 5. Audit summed split counts against BOLD v5 family summary counts before treating any over-cap family as complete.
 
 Until then, the capped Cecidomyiidae file is diagnostic only and should not be treated as random or complete.

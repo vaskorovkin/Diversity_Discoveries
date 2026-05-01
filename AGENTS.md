@@ -20,7 +20,9 @@ This repository is a research data project. Preserve downloaded data and never r
 - `Scripts/download_bold_insect_orders_small.py` downloads selected smaller insect orders one order at a time.
 - `Scripts/download_bold_coleoptera_by_family.py`, `download_bold_hemiptera_by_family.py`, `download_bold_hymenoptera_by_family.py`, and `download_bold_lepidoptera_by_family.py` download large insect orders one family at a time.
 - `Scripts/download_bold_diptera_from_ceratopogonidae.py` downloads manageable Diptera families while intentionally skipping the four over-cap families: Cecidomyiidae, Chironomidae, Phoridae, and Sciaridae.
-- `Scripts/download_bold_sciaridae_by_country.py` downloads Sciaridae one country/ocean value at a time.
+- `Scripts/download_bold_chironomidae_by_country.py`, `download_bold_phoridae_by_country.py`, and `download_bold_sciaridae_by_country.py` download over-cap Diptera families one country/ocean value at a time.
+- `Scripts/download_bold_cecidomyiidae_except_costa_rica_by_country.py` downloads all positive Cecidomyiidae country/ocean buckets except Costa Rica, because Costa Rica alone is over the BOLD cap.
+- `Scripts/download_bold_cecidomyiidae_costa_rica_capped.py` downloads a capped Costa Rica Cecidomyiidae diagnostic extract; do not treat it as complete.
 - `Scripts/download_bold_non_insect_arthropods_and_microbes.py` downloads selected non-insect arthropod groups plus Bacteria and logs zero-record BOLD v5 groups.
 - `Scripts/audit_bold_downloads.py` audits local BOLD TSVs against their summary JSON files.
 - `Scripts/audit_bold_taxon_coverage.py` audits the intended taxon coverage plan against local manifests and files without hitting BOLD.
@@ -76,9 +78,13 @@ Run remaining animal phyla in small paste-safe batches:
 python3 Scripts/download_bold_animals_except_acm.py --phyla Chaetognatha Ctenophora Entoprocta --retries 2 --retry-sleep 300
 ```
 
-Download Sciaridae by country/ocean:
+Download Chironomidae, Phoridae, or Sciaridae by country/ocean:
 
 ```bash
+python3 Scripts/download_bold_cecidomyiidae_except_costa_rica_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
+python3 Scripts/download_bold_cecidomyiidae_costa_rica_capped.py
+python3 Scripts/download_bold_chironomidae_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
+python3 Scripts/download_bold_phoridae_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
 python3 Scripts/download_bold_sciaridae_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
 ```
 

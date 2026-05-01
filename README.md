@@ -18,7 +18,7 @@ The GitHub repository intentionally excludes large data, generated outputs, PDFs
 
 Downloaded BOLD groups include Fungi, Plantae, Mollusca, Chordata, selected smaller insect orders, animal phyla excluding Arthropoda/Chordata/Mollusca, non-insect arthropod groups, and Bacteria. Large insect orders are split family by family where needed: Coleoptera, Hemiptera, Hymenoptera, Lepidoptera, and manageable Diptera families from Ceratopogonidae downward. Raw BOLD TSV files are under `Data/raw/bold/`.
 
-Current caveat: four Diptera families remain unresolved because each exceeds the 1,000,000-record BOLD query cap at the family level: Cecidomyiidae, Chironomidae, Phoridae, and Sciaridae. Sciaridae is now being handled by country-level requests; the other three still need final split plans. See `diptera_oversized_family_problem.md`.
+Current caveat: four Diptera families remain unresolved because each exceeds the 1,000,000-record BOLD query cap at the family level: Cecidomyiidae, Chironomidae, Phoridae, and Sciaridae. Chironomidae, Phoridae, Sciaridae, and non-Costa-Rica Cecidomyiidae now have country-level request scripts; Costa Rica Cecidomyiidae still needs a further split. See `diptera_oversized_family_problem.md`.
 
 ## Core Commands
 
@@ -58,9 +58,22 @@ BOLD can return transient `403 Forbidden` or `503 Service Unavailable` errors af
 
 Rows in BOLD TSV downloads are marker/sequence records, not necessarily unique specimens. It is normal for data rows to exceed the BOLD summary specimen count.
 
+## Plant And Discovery Stack
+
+BOLD is not sufficient as the main plant layer. For plants, the project should use herbarium/specimen and botanical-name infrastructure alongside barcode data:
+
+- Plant sampling: GBIF preserved specimens/herbarium records as the main global layer, with iDigBio as a US-heavy complement and BIEN as a cleaned botanical occurrence/trait/range complement.
+- Plant name cleaning: WCVP/POWO/IPNI/World Flora Online for accepted names and synonyms; Kew MPNS for medicinal, herbal drug, common-name, and pharmacological-name disambiguation.
+- Plant chemistry and discovery outcomes: COCONUT, LOTUS, KNApSAcK, and where accessible NAPRALERT for plant natural products and plant-metabolite links; PubChem and ChEMBL for compound bioactivity and assay outcomes.
+
 ## Next Steps
 
 1. Finish split plans for the four oversized Diptera families and audit summed split counts against BOLD v5 family summaries.
 2. Add clean/minimal TSV builders for Plantae, Mollusca, Chordata, insect orders, and country/family split downloads.
 3. Build grid-cell/year sampling panels from geocoded records.
-4. Link sampling layers to discovery data such as ENA/NCBI, COCONUT, NPAtlas, PubChem, ChEMBL, patents, and publications.
+4. Link sampling layers to discovery data and broader sequencing effort:
+   ENA for Europe/EMBL-EBI submissions; DDBJ for Japan-linked submissions;
+   NCBI GenBank/SRA/BioSample for global sequencing records; CNCB-NGDC GSA
+   and CNGBdb for China-linked sequencing data; plus COCONUT, NPAtlas,
+   PubChem, ChEMBL, patents, and publications for natural-product and
+   discovery proxies.

@@ -8,9 +8,13 @@
 - `download_bold_chordata.py`: global Chordata wrapper.
 - `download_bold_insect_orders_small.py`: selected smaller insect orders.
 - `download_bold_non_insect_arthropods_and_microbes.py`: selected non-insect arthropod orders/classes plus Chromista, Protozoa, Archaea, and Bacteria; one TSV per positive-count group.
+- `download_bold_cecidomyiidae_except_costa_rica_by_country.py`: Cecidomyiidae downloader split by country/ocean while excluding Costa Rica, which still exceeds the 1M cap.
+- `download_bold_cecidomyiidae_costa_rica_capped.py`: capped Costa Rica Cecidomyiidae diagnostic extract; useful as partial coverage only.
 - `download_bold_coleoptera_by_family.py`: Coleoptera downloader split into one BOLD request per family to avoid the 1M-record cap. Defaults: 61s between failed retry attempts and 21s after successful family downloads.
 - `download_bold_coleoptera_remaining_combined.py`: computes missing Coleoptera families from the manifest and downloads them with one combined BOLD query.
+- `download_bold_chironomidae_by_country.py`: Chironomidae downloader split into one BOLD request per country/ocean value.
 - `download_bold_diptera_from_ceratopogonidae.py`: Diptera family downloader that starts at Ceratopogonidae, leaving the four over-cap families for separate split plans.
+- `download_bold_phoridae_by_country.py`: Phoridae downloader split into one BOLD request per country/ocean value.
 - `download_bold_sciaridae_by_country.py`: Sciaridae downloader split into one BOLD request per country/ocean value.
 - `download_bold_hemiptera_by_family.py`: Hemiptera downloader split into one BOLD request per family to avoid the 1M-record cap. Defaults: 61s between failed retry attempts and 11s after successful family downloads.
 - `download_bold_hymenoptera_by_family.py`: Hymenoptera downloader split into one BOLD request per family to avoid the 1M-record cap. Defaults: 61s between failed retry attempts and 11s after successful family downloads.
@@ -40,9 +44,13 @@
 python3 Scripts/download_bold_fungi.py --query "tax:kingdom:Fungi" --stem bold_global_fungi --summary-only
 python3 Scripts/download_bold_plants.py
 python3 Scripts/download_bold_non_insect_arthropods_and_microbes.py
+python3 Scripts/download_bold_cecidomyiidae_except_costa_rica_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
+python3 Scripts/download_bold_cecidomyiidae_costa_rica_capped.py
 python3 Scripts/download_bold_coleoptera_by_family.py
 python3 Scripts/download_bold_coleoptera_remaining_combined.py
+python3 Scripts/download_bold_chironomidae_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
 python3 Scripts/download_bold_diptera_from_ceratopogonidae.py
+python3 Scripts/download_bold_phoridae_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
 python3 Scripts/download_bold_sciaridae_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
 python3 Scripts/download_bold_hemiptera_by_family.py
 python3 Scripts/download_bold_hymenoptera_by_family.py
