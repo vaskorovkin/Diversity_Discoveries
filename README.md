@@ -18,7 +18,12 @@ The GitHub repository intentionally excludes large data, generated outputs, PDFs
 
 Downloaded BOLD groups include Fungi, Plantae, Mollusca, Chordata, selected smaller insect orders, animal phyla excluding Arthropoda/Chordata/Mollusca, non-insect arthropod groups, and Bacteria. Large insect orders are split family by family where needed: Coleoptera, Hemiptera, Hymenoptera, Lepidoptera, and manageable Diptera families from Ceratopogonidae downward. Raw BOLD TSV files are under `Data/raw/bold/`.
 
-Current caveat: four Diptera families remain unresolved because each exceeds the 1,000,000-record BOLD query cap at the family level: Cecidomyiidae, Chironomidae, Phoridae, and Sciaridae. Chironomidae, Phoridae, Sciaridae, and non-Costa-Rica Cecidomyiidae now have country-level request scripts; Costa Rica Cecidomyiidae still needs a further split. See `diptera_oversized_family_problem.md`.
+Important note: Diptera is not fully complete. The remaining incomplete piece is
+Costa Rica (`C-R`) Cecidomyiidae. BOLD reports 1,122,446 Costa Rica
+Cecidomyiidae records, which exceeds the 1,000,000-record API cap. The capped
+Costa Rica diagnostic file is partial and must not be treated as complete.
+
+Current caveat: four Diptera families exceed the 1,000,000-record BOLD query cap at the family level: Cecidomyiidae, Chironomidae, Phoridae, and Sciaridae. Chironomidae, Phoridae, Sciaridae, and non-Costa-Rica Cecidomyiidae now have country-level request scripts; Costa Rica Cecidomyiidae still needs a further split or a BOLD bulk export. See `diptera_oversized_family_problem.md`.
 
 ## Core Commands
 

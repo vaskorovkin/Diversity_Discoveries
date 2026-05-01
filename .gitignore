@@ -13,6 +13,7 @@ Data/**/*.part
 
 # Generated outputs
 Output/
+Exhibits/
 
 # Local literature PDFs and other large binary references
 Literature/*.pdf

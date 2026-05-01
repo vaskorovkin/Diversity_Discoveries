@@ -14,6 +14,10 @@ Date: 2026-05-01
 
 Core BOLD downloads and family split scripts are in `Scripts/`. Large data are ignored by Git.
 
+Important warning: Diptera is not fully complete. The remaining incomplete
+piece is Costa Rica (`C-R`) Cecidomyiidae. The capped Costa Rica diagnostic
+download is partial and must not be used as complete coverage.
+
 Diptera status:
 
 - Manageable Diptera families in `Data/raw/bold/diptera_by_family/` are complete, excluding the four over-cap families.

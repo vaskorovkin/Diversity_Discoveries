@@ -1,6 +1,8 @@
 # Oversized Diptera Families In BOLD
 
-Current status: unresolved. We should not treat the four largest Diptera families as cleanly downloaded yet.
+Current status: unresolved. Important note: Diptera is not fully complete.
+The remaining incomplete piece is Costa Rica (`C-R`) Cecidomyiidae. We should
+not treat the capped Costa Rica Cecidomyiidae diagnostic extract as complete.
 
 ## Problem
 
