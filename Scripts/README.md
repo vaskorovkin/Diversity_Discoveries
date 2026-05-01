@@ -37,6 +37,7 @@
 
 - `map_bold_fungi_admin1.py`: maps geocoded Fungi records to Natural Earth admin-1 polygons.
 - `map_bold_fungi_grid.py`: maps geocoded Fungi records to equal-area grid cells. Baseline is 100 km.
+- `exhibits/`: exhibit pipeline scripts for BOLD count tables, time series, 100 km grid maps, admin-1 maps, and cell-level kingdom correlations.
 
 ## Examples
 
@@ -58,7 +59,7 @@ python3 Scripts/download_bold_lepidoptera_by_family.py
 python3 Scripts/audit_bold_downloads.py
 python3 Scripts/audit_bold_taxon_coverage.py
 python3 Scripts/summarize_bold_cecidomyiidae_new_world.py
-python3 Scripts/summarize_bold_tsv_genera.py Data/raw/bold/diptera_by_family/bold_global_diptera_family_cecidomyiidae_capped_records.tsv --output Output/audits/cecidomyiidae_capped_genus_counts.csv
+python3 Scripts/summarize_bold_tsv_genera.py Data/raw/bold/diagnostic_capped_redundant/cecidomyiidae_global_capped/bold_global_diptera_family_cecidomyiidae_capped_records.tsv --output Output/audits/cecidomyiidae_capped_genus_counts.csv
 python3 Scripts/map_bold_fungi_grid.py --cell-km 100
 python3 Scripts/summarize_bold_order_families_v4.py
 python3 Scripts/summarize_bold_diptera_large_family_genera_v4.py

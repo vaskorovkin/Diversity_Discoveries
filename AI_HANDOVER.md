@@ -16,7 +16,9 @@ Core BOLD downloads and family split scripts are in `Scripts/`. Large data are i
 
 Important warning: Diptera is not fully complete. The remaining incomplete
 piece is Costa Rica (`C-R`) Cecidomyiidae. The capped Costa Rica diagnostic
-download is partial and must not be used as complete coverage.
+download is partial and must not be used as complete coverage. It is included
+by default in the exhibit pipeline so the Costa Rica Cecidomyiidae cluster is
+not dropped, but it remains capped at 1M records.
 
 Diptera status:
 
@@ -49,6 +51,45 @@ Chironomidae: country sum 1,643,776 vs family summary 1,647,619
 
 ## Useful Commands
 
+Run the exhibit pipeline:
+
+```bash
+python3 Scripts/exhibits/00_build_bold_minimal.py
+python3 Scripts/exhibits/01_tables_counts.py
+python3 Scripts/exhibits/02_timeseries.py
+python3 Scripts/exhibits/03_maps_grid.py
+python3 Scripts/exhibits/04_maps_admin1.py
+python3 Scripts/exhibits/05_cell_correlations.py
+python3 Scripts/exhibits/06_build_cell_year_panel.py
+```
+
+Main panel output:
+
+```text
+Exhibits/data/bold_grid100_cell_year_panel_upload_2005_2025.csv
+Exhibits/data/bold_grid100_cell_year_panel_upload_2005_2025_summary.csv
+```
+
+Current panel audit:
+
+```text
+land_cells: 14,566
+panel_rows: 305,886
+coordinate_rows_in_year_window: 17,439,280
+coordinate_rows_in_land_cells: 15,302,751
+coordinate_rows_outside_land_cells: 2,136,529
+total_records: 15,302,751
+animalia_records: 14,930,434
+plantae_records: 281,388
+fungi_records: 86,464
+bacteria_records: 4,465
+```
+
+The panel uses BOLD `sequence_upload_year`, 2005-2025, 100 km equal-area land
+cells, and zero-fills all land cell x year combinations. It is a strict
+land-cell panel; coastal/island/marine-adjacent records outside the land-cell
+universe are excluded for now.
+
 Local coverage audit:
 
 ```bash
@@ -80,11 +121,11 @@ Current prepared changes are code/docs only; data and output remain ignored.
 Suggested commit summary:
 
 ```text
-Expand BOLD Diptera split tooling and plant data notes
+Add BOLD exhibit pipeline and cell-year panel
 ```
 
 Suggested commit description:
 
 ```text
-Adds country-level BOLD downloaders for over-cap Diptera families, including Chironomidae, Phoridae, Sciaridae, and non-Costa-Rica Cecidomyiidae, plus a capped Costa Rica Cecidomyiidae diagnostic. Updates project docs and handover notes with current Diptera audit status, BOLD cap caveats, and the plant-focused sampling/discovery data stack.
+Adds exhibit scripts for BOLD minimal records, summary tables, time-series plots, grid/admin maps, cell-level correlations, and the 2005-2025 upload-year cell panel. Includes the capped Costa Rica Cecidomyiidae file by default while continuing to exclude redundant capped diagnostics, and documents the land-cell panel caveat for downstream Stata regressions.
 ```

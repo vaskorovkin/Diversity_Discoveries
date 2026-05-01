@@ -21,7 +21,8 @@ Downloaded BOLD groups include Fungi, Plantae, Mollusca, Chordata, selected smal
 Important note: Diptera is not fully complete. The remaining incomplete piece is
 Costa Rica (`C-R`) Cecidomyiidae. BOLD reports 1,122,446 Costa Rica
 Cecidomyiidae records, which exceeds the 1,000,000-record API cap. The capped
-Costa Rica diagnostic file is partial and must not be treated as complete.
+Costa Rica file is included in the exhibit pipeline so that this major cluster
+is not dropped, but it is partial and must not be treated as complete.
 
 Current caveat: four Diptera families exceed the 1,000,000-record BOLD query cap at the family level: Cecidomyiidae, Chironomidae, Phoridae, and Sciaridae. Chironomidae, Phoridae, Sciaridae, and non-Costa-Rica Cecidomyiidae now have country-level request scripts; Costa Rica Cecidomyiidae still needs a further split or a BOLD bulk export. See `diptera_oversized_family_problem.md`.
 
@@ -57,6 +58,48 @@ Import global BOLD Fungi into Stata:
 do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/02_import_bold_fungi_global.do"
 ```
 
+## Exhibit Pipeline
+
+The current Stata-ready BOLD panel is generated from compact exhibit files, not
+from raw TSVs directly. Run order:
+
+```bash
+python3 Scripts/exhibits/00_build_bold_minimal.py
+python3 Scripts/exhibits/01_tables_counts.py
+python3 Scripts/exhibits/02_timeseries.py
+python3 Scripts/exhibits/03_maps_grid.py
+python3 Scripts/exhibits/04_maps_admin1.py
+python3 Scripts/exhibits/05_cell_correlations.py
+python3 Scripts/exhibits/06_build_cell_year_panel.py
+```
+
+Main panel output:
+
+```text
+Exhibits/data/bold_grid100_cell_year_panel_upload_2005_2025.csv
+Exhibits/data/bold_grid100_cell_year_panel_upload_2005_2025_summary.csv
+```
+
+The panel uses BOLD `sequence_upload_year`, 2005-2025, 100 km equal-area land
+cells, and includes zero cell-years. It has outcomes for total records,
+Animalia, Plantae, Fungi, Bacteria, Plantae + Fungi, non-Chordata Animalia,
+Arthropoda, Insecta, and Chordata, with extensive-margin (`any_*`) and
+intensive-margin (`log1p_*`) versions.
+
+Current panel audit:
+
+```text
+Land cells: 14,566
+Panel rows: 305,886
+Coordinate records in 2005-2025: 17,439,280
+Records assigned to land cells: 15,302,751
+Coordinate records outside land-cell universe: 2,136,529
+```
+
+The panel is intentionally a strict land-cell panel. Some coastal, island, and
+marine/coastal records fall outside the land-cell universe and are not included
+in the current regression panel.
+
 ## BOLD API Notes
 
 BOLD can return transient `403 Forbidden` or `503 Service Unavailable` errors after many or large requests. Wait before retrying. The downloader scripts save one JSON summary and query token per request, plus a `.part` file during active downloads. A final `.tsv` file with no `.part` suffix means the stream finished.
@@ -73,9 +116,11 @@ BOLD is not sufficient as the main plant layer. For plants, the project should u
 
 ## Next Steps
 
-1. Finish split plans for the four oversized Diptera families and audit summed split counts against BOLD v5 family summaries.
-2. Add clean/minimal TSV builders for Plantae, Mollusca, Chordata, insect orders, and country/family split downloads.
-3. Build grid-cell/year sampling panels from geocoded records.
+1. Import the 2005-2025 upload-year cell panel into Stata and run first
+   extensive/intensive-margin sampling regressions.
+2. Decide whether to add a robustness panel based on collection year.
+3. Decide whether to create a second panel that includes all observed cells
+   plus land zero cells, rather than strict land-centroid cells only.
 4. Link sampling layers to discovery data and broader sequencing effort:
    ENA for Europe/EMBL-EBI submissions; DDBJ for Japan-linked submissions;
    NCBI GenBank/SRA/BioSample for global sequencing records; CNCB-NGDC GSA

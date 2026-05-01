@@ -36,7 +36,7 @@ This did not solve the problem. The v4 genus lists are not a full decomposition 
 
 We also downloaded a capped, non-random Cecidomyiidae extract:
 
-`Data/raw/bold/diptera_by_family/bold_global_diptera_family_cecidomyiidae_capped_records.tsv`
+`Data/raw/bold/diagnostic_capped_redundant/cecidomyiidae_global_capped/bold_global_diptera_family_cecidomyiidae_capped_records.tsv`
 
 The genus count from that capped file showed that most rows have blank genus:
 

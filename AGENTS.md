@@ -23,6 +23,8 @@ This repository is a research data project. Preserve downloaded data and never r
 - `Scripts/download_bold_chironomidae_by_country.py`, `download_bold_phoridae_by_country.py`, and `download_bold_sciaridae_by_country.py` download over-cap Diptera families one country/ocean value at a time.
 - `Scripts/download_bold_cecidomyiidae_except_costa_rica_by_country.py` downloads all positive Cecidomyiidae country/ocean buckets except Costa Rica, because Costa Rica alone is over the BOLD cap.
 - `Scripts/download_bold_cecidomyiidae_costa_rica_capped.py` downloads a capped Costa Rica Cecidomyiidae diagnostic extract; do not treat it as complete.
+- `Scripts/exhibits/00_build_bold_minimal.py` builds compact BOLD records for exhibits and regressions. It includes the capped Costa Rica Cecidomyiidae file by default, but excludes the redundant global capped Cecidomyiidae and old capped Hemiptera files.
+- `Scripts/exhibits/06_build_cell_year_panel.py` builds the main 100 km land-cell x upload-year panel for 2005-2025.
 - `Scripts/download_bold_non_insect_arthropods_and_microbes.py` downloads selected non-insect arthropod groups plus Bacteria and logs zero-record BOLD v5 groups.
 - `Scripts/audit_bold_downloads.py` audits local BOLD TSVs against their summary JSON files.
 - `Scripts/audit_bold_taxon_coverage.py` audits the intended taxon coverage plan against local manifests and files without hitting BOLD.
@@ -43,8 +45,9 @@ As of the latest coverage audit:
 - 818 were downloaded cleanly.
 - 16 were downloaded but still appear in stale failed-download logs from earlier BOLD 403/503 attempts.
 - 9 are BOLD v5 zero-record groups or tiny v4/v5 taxonomy mismatches.
-- 4 oversized Diptera families are intentionally excluded from the complete set for now: Cecidomyiidae, Chironomidae, Phoridae, and Sciaridae.
+- The over-cap Diptera families Chironomidae, Phoridae, and Sciaridae have country-level split downloads. Cecidomyiidae is split by country except Costa Rica, where the capped 1M-record file is included but incomplete.
 - The old order-level Hemiptera file is capped, but Hemiptera by-family downloads are now the relevant complete working version.
+- The current Stata-ready BOLD panel is `Exhibits/data/bold_grid100_cell_year_panel_upload_2005_2025.csv`. It has 305,886 rows: 14,566 land cells x 21 years. It uses upload year, zero-fills land cell-years, and excludes coordinate records outside the strict land-cell universe.
 
 ## Safe Workflow
 
@@ -57,7 +60,7 @@ git status --short --ignored
 Before committing:
 
 ```bash
-python3 -m py_compile Scripts/*.py
+python3 -m py_compile Scripts/*.py Scripts/exhibits/*.py
 python3 Scripts/audit_bold_taxon_coverage.py
 git status --short
 ```
@@ -92,4 +95,10 @@ Map Fungi sampling at 50, 100, or 200 km:
 
 ```bash
 python3 Scripts/map_bold_fungi_grid.py --cell-km 100
+```
+
+Build the main Stata-ready BOLD cell-year panel:
+
+```bash
+python3 Scripts/exhibits/06_build_cell_year_panel.py
 ```

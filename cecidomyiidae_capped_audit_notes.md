@@ -6,8 +6,8 @@ partial extract and must not be treated as complete.
 
 Two capped BOLD TSV files are relevant:
 
-- `Data/raw/bold/diptera_by_family/bold_global_diptera_family_cecidomyiidae_capped_records.tsv`
-- `Data/raw/bold/diptera_cecidomyiidae_costa_rica/bold_cecidomyiidae_costa_rica_capped_records.tsv`
+- `Data/raw/bold/diagnostic_capped_redundant/cecidomyiidae_global_capped/bold_global_diptera_family_cecidomyiidae_capped_records.tsv`
+- `Data/raw/bold/diptera_cecidomyiidae_costa_rica_capped/bold_cecidomyiidae_costa_rica_capped_records.tsv`
 
 Both contain exactly 1,000,000 data rows. The global capped extract contains
 765,476 Costa Rica rows. The Costa Rica capped extract contains 1,000,000

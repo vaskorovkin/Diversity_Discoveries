@@ -6,11 +6,11 @@ This script downloads a capped extract of 1M records. The BOLD API does not
 support date or coordinate filtering, so we cannot split Costa Rica further
 through the API.
 
-This file is intentionally separate from the global capped Cecidomyiidae file
-(bold_global_diptera_family_cecidomyiidae_capped_records.tsv), which contains
-765K Costa Rica records mixed with other countries. The two files may have
-different record compositions depending on BOLD's internal ordering, and their
-union may provide better coverage than either alone.
+This file is intentionally separate from the global capped Cecidomyiidae
+diagnostic file, which contains 765K Costa Rica records mixed with other
+countries. The two files may have different record compositions depending on
+BOLD's internal ordering, and their union may provide better coverage than
+either alone.
 
 Known gap: ~122K Costa Rica records cannot be downloaded through the API.
 """
@@ -38,7 +38,13 @@ from download_bold_fungi import (
 FAMILY = "Cecidomyiidae"
 COUNTRY = "Costa Rica"
 QUERY = f"tax:family:{FAMILY};geo:country/ocean:{COUNTRY}"
-DEFAULT_OUTDIR = PROJECT_ROOT / "Data" / "raw" / "bold" / "diptera_cecidomyiidae_costa_rica"
+DEFAULT_OUTDIR = (
+    PROJECT_ROOT
+    / "Data"
+    / "raw"
+    / "bold"
+    / "diptera_cecidomyiidae_costa_rica_capped"
+)
 DEFAULT_STEM = "bold_cecidomyiidae_costa_rica_capped"
 DEFAULT_TIMEOUT = 600
 
@@ -113,7 +119,7 @@ def main() -> int:
             f"The ~{gap:,} missing records cannot be obtained through the API.",
             f"",
             f"Possible complements:",
-            f"- Global capped file: diptera_by_family/bold_global_diptera_family_cecidomyiidae_capped_records.tsv",
+            f"- Global capped diagnostic file: diagnostic_capped_redundant/cecidomyiidae_global_capped/bold_global_diptera_family_cecidomyiidae_capped_records.tsv",
             f"  Contains 765K Costa Rica records; may have different composition.",
             f"- Contact BOLD for research bulk export.",
             f"",

@@ -21,7 +21,8 @@ GLOBAL_FILE = (
     / "Data"
     / "raw"
     / "bold"
-    / "diptera_by_family"
+    / "diagnostic_capped_redundant"
+    / "cecidomyiidae_global_capped"
     / "bold_global_diptera_family_cecidomyiidae_capped_records.tsv"
 )
 COSTA_RICA_FILE = (
@@ -29,7 +30,7 @@ COSTA_RICA_FILE = (
     / "Data"
     / "raw"
     / "bold"
-    / "diptera_cecidomyiidae_costa_rica"
+    / "diptera_cecidomyiidae_costa_rica_capped"
     / "bold_cecidomyiidae_costa_rica_capped_records.tsv"
 )
 OUTDIR = PROJECT_ROOT / "Output" / "audits"
