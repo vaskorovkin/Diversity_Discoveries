@@ -10,6 +10,7 @@ This project builds micro data for studying how biodiversity enters scientific s
 - `bold_taxon_size_notes.txt`: BOLD taxon size and coverage notes.
 - `Data/`: ignored local data downloads and processed files.
 - `Output/`: ignored local maps and audits.
+- `Exhibits/`: ignored generated exhibit tables, maps, and regression panels.
 - `Literature/`: ignored local PDFs.
 
 The GitHub repository intentionally excludes large data, generated outputs, PDFs, and temporary download files.
@@ -76,29 +77,48 @@ python3 Scripts/exhibits/06_build_cell_year_panel.py
 Main panel output:
 
 ```text
-Exhibits/data/bold_grid100_cell_year_panel_upload_2005_2025.csv
-Exhibits/data/bold_grid100_cell_year_panel_upload_2005_2025_summary.csv
+Exhibits/data/bold_grid100_cell_year_panel_collection_2005_2025.csv
+Exhibits/data/bold_grid100_cell_year_panel_collection_2005_2025_summary.csv
 ```
 
-The panel uses BOLD `sequence_upload_year`, 2005-2025, 100 km equal-area land
+The panel uses BOLD `collection_year`, 2005-2025, 100 km equal-area land
 cells, and includes zero cell-years. It has outcomes for total records,
 Animalia, Plantae, Fungi, Bacteria, Plantae + Fungi, non-Chordata Animalia,
 Arthropoda, Insecta, and Chordata, with extensive-margin (`any_*`) and
 intensive-margin (`log1p_*`) versions.
 
-Current panel audit:
+After regenerating the collection-year panel, check the audit summary at:
 
 ```text
-Land cells: 14,566
-Panel rows: 305,886
-Coordinate records in 2005-2025: 17,439,280
-Records assigned to land cells: 15,302,751
-Coordinate records outside land-cell universe: 2,136,529
+Exhibits/data/bold_grid100_cell_year_panel_collection_2005_2025_summary.csv
 ```
 
 The panel is intentionally a strict land-cell panel. Some coastal, island, and
 marine/coastal records fall outside the land-cell universe and are not included
 in the current regression panel.
+
+The first non-BOLD regressor is UCDP GED conflict, aggregated to the same 100 km
+land cells:
+
+```text
+Data/regressors/ucdp/ucdp_ged_100km_cell_year_2005_2024.csv
+Data/regressors/ucdp/ucdp_ged_100km_cell_year_2005_2024_summary.csv
+```
+
+It contains all UCDP GED events, best/low/high fatalities, civilian deaths,
+type splits for state/non-state/one-sided violence, and precision-filtered
+versions using `where_prec` 1-2. Logs and lags should be generated in Stata.
+
+Hansen Global Forest Change (tree-cover-weighted forest loss) is aggregated via
+Google Earth Engine:
+
+```text
+Data/regressors/hansen/hansen_forest_loss_100km_panel.csv
+```
+
+See `Scripts/gee_hansen_forest_loss_README.md` for the Earth Engine workflow.
+Hansen covers 2001-2023; variables include `baseline_forest_km2`,
+`forest_loss_km2`, `forest_loss_share`, `cumulative_loss_km2`, and lags.
 
 ## BOLD API Notes
 
@@ -116,9 +136,11 @@ BOLD is not sufficient as the main plant layer. For plants, the project should u
 
 ## Next Steps
 
-1. Import the 2005-2025 upload-year cell panel into Stata and run first
-   extensive/intensive-margin sampling regressions.
-2. Decide whether to add a robustness panel based on collection year.
+1. Merge the 2005-2025 BOLD collection-year panel with the 2005-2024 UCDP GED
+   conflict panel and run first extensive/intensive-margin sampling regressions
+   over the common 2005-2024 window.
+2. Finish Hansen Global Forest Change aggregation from Earth Engine and merge
+   annual tree-cover loss into the same cell-year panel.
 3. Decide whether to create a second panel that includes all observed cells
    plus land zero cells, rather than strict land-centroid cells only.
 4. Link sampling layers to discovery data and broader sequencing effort:

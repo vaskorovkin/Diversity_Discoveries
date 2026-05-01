@@ -38,5 +38,5 @@ Exhibits/maps/
 
 Maps use raw record counts with logarithmic color scales. Correlation tables
 use all 100 km land cells and therefore include true zero-sampling cells.
-The cell-year panel uses BOLD sequence upload year, 2005-2025, and includes all
+The cell-year panel uses BOLD collection year, 2005-2025, and includes all
 100 km land cells x years with zeros.

@@ -2,10 +2,10 @@
 
 Date: 2026-05-01
 
-This note lists candidate regressors for cell-level and cell-year regressions of biodiversity sampling/discovery outcomes. The main current outcome is the BOLD 100 km land-cell x upload-year panel:
+This note lists candidate regressors for cell-level and cell-year regressions of biodiversity sampling/discovery outcomes. The main current outcome is the BOLD 100 km land-cell x collection-year panel:
 
 ```text
-Exhibits/data/bold_grid100_cell_year_panel_upload_2005_2025.csv
+Exhibits/data/bold_grid100_cell_year_panel_collection_2005_2025.csv
 ```
 
 The central empirical problem is that observed sampling is not only biodiversity. It is approximately:
@@ -125,10 +125,34 @@ The useful empirical tests are comparative:
    - forest loss area
    - forest loss share of baseline forest
    - lagged/cumulative loss
+
+   Current status: implemented via Google Earth Engine in
+   `Scripts/gee_hansen_forest_loss_100km.js`. Uses tree-cover-weighted method
+   (loss area = sum of treecover2000/100 × pixel area for loss pixels). Output:
+
+   ```text
+   Data/regressors/hansen/hansen_forest_loss_100km_panel.csv
+   ```
+
+   Variables: `baseline_forest_km2`, `forest_loss_km2`, `forest_loss_share`,
+   `cumulative_loss_km2`, `cumulative_loss_share`, and 1-2 year lags. Covers
+   2001-2023.
+
 2. Aggregate UCDP GED to cells by year:
    - event count
    - fatalities
    - any conflict
+
+   Current status: implemented in `Scripts/aggregate_ucdp_ged_100km.py` and
+   run on `Data/raw/ucdp/GEDEvent_v25_1.csv`. Output:
+
+   ```text
+   Data/regressors/ucdp/ucdp_ged_100km_cell_year_2005_2024.csv
+   Data/regressors/ucdp/ucdp_ged_100km_cell_year_2005_2024_summary.csv
+   ```
+
+   The file contains raw event and fatality variables only; generate logs and
+   lags in Stata.
 3. Aggregate MODIS MCD64A1 to cells by year:
    - burned area
    - any burned area
@@ -142,4 +166,3 @@ The useful empirical tests are comparative:
    - hotspot indicator
    - protected-area share
    - modeled richness/intactness when available
-

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build a zero-filled BOLD cell-year panel for Stata regressions.
 
-The main panel uses BOLD sequence upload year, 2005-2025 by default. It bins
+The main panel uses BOLD collection year, 2005-2025 by default. It bins
 coordinate records to the same 100 km equal-area cells used by the map and
 correlation scripts, then expands to all land cells x years with zeros.
 """
@@ -46,7 +46,7 @@ INPUT_COLUMNS = [
     "has_coord",
     "latitude",
     "longitude",
-    "sequence_upload_year",
+    "collection_year",
 ]
 
 
@@ -55,7 +55,7 @@ def cell_label(cell_km: float) -> str:
 
 
 def default_output(cell_km: float, start_year: int, end_year: int) -> Path:
-    return EXHIBIT_DATA / f"bold_grid{cell_label(cell_km)}_cell_year_panel_upload_{start_year}_{end_year}.csv"
+    return EXHIBIT_DATA / f"bold_grid{cell_label(cell_km)}_cell_year_panel_collection_{start_year}_{end_year}.csv"
 
 
 def default_summary(output: Path) -> Path:
@@ -126,7 +126,7 @@ def aggregate_records(
         coord_mask = chunk["has_coord"].fillna("") == "1"
         stats["coordinate_rows"] += int(coord_mask.sum())
 
-        years = pd.to_numeric(chunk["sequence_upload_year"], errors="coerce")
+        years = pd.to_numeric(chunk["collection_year"], errors="coerce")
         year_mask = years.between(start_year, end_year)
         sub = chunk.loc[coord_mask & year_mask].copy()
         sub_years = years.loc[coord_mask & year_mask].astype(int).to_numpy()
