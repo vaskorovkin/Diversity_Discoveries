@@ -203,15 +203,19 @@ The useful empirical tests are comparative:
    Audit: 14,566 unique land cells; 2,430 cells inside any hotspot; all 36
    hotspot names represented; no cell centroid matched multiple hotspots.
 
-   Current status for protected-area share: script prepared but not run because
-   no local WDPA/Protected Planet polygon file is present. Script:
+   Current status for protected-area share: script prepared and local May 2026
+   WDPA/WDOECM polygon geodatabase is present. Script:
 
    ```text
    Scripts/aggregate_wdpa_protected_share_100km.py
    ```
 
-   Expected output after downloading WDPA:
+   Expected output:
 
    ```text
    Data/regressors/baseline_geography/wdpa_protected_share_100km_cells.csv
    ```
+
+   This is a snapshot regressor, not a time-varying protected-area panel. Use
+   it as baseline geography/control/heterogeneity. A dynamic protected-area
+   measure would require `STATUS_YR` and/or historical WDPA snapshots.

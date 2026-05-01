@@ -134,12 +134,17 @@ Data/regressors/baseline_geography/cepf_hotspots_100km_cells.csv
 This file has one row per BOLD land cell with `cepf_hotspot_any`,
 `cepf_hotspot_count`, and `cepf_hotspot_names`.
 
-A WDPA/Protected Planet protected-area share script is prepared, but it requires
-a local WDPA polygon download before it can be run:
+A WDPA/Protected Planet protected-area share script is prepared for the local
+May 2026 WDPA/WDOECM polygon geodatabase:
 
 ```text
 Scripts/aggregate_wdpa_protected_share_100km.py
 ```
+
+The output is a May 2026 snapshot, `protected_share_c`, not a historical
+cell-year protected-area panel. It is appropriate as a baseline control or
+heterogeneity variable. A time-varying protected-area measure would require a
+separate build using `STATUS_YR` and/or historical WDPA releases.
 
 Hansen Global Forest Change (tree-cover-weighted forest loss) is aggregated via
 Google Earth Engine:

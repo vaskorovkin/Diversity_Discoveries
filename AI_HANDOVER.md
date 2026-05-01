@@ -155,18 +155,23 @@ unique_hotspot_names_hit: 36
 cells_matching_multiple_hotspots: 0
 ```
 
-WDPA/Protected Planet protected-area share is not run yet because no WDPA file
-is currently local. The prepared script is:
+WDPA/Protected Planet protected-area share is currently running or ready to run
+from the local May 2026 WDPA/WDOECM polygon geodatabase. The script is:
 
 ```text
 Scripts/aggregate_wdpa_protected_share_100km.py
 ```
 
-Expected use after downloading a WDPA polygon GPKG/SHP:
+Current local input:
 
 ```bash
-python3 Scripts/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public.gpkg
+python3 Scripts/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 ```
+
+The WDPA output is a May 2026 snapshot by cell, not a historical
+protected-area panel. Treat it as baseline geography/control/heterogeneity. A
+dynamic protected-area variable needs a separate method using `STATUS_YR` and/or
+historical WDPA snapshots.
 
 Hansen Global Forest Change is being aggregated via Google Earth Engine:
 

@@ -6,7 +6,7 @@
 - `download_baseline_geography.py`: downloads the raw RESOLVE ecoregions and CEPF hotspot files used by the static baseline geography overlays. See `Scripts/baseline_geography_README.md`.
 - `aggregate_resolve_ecoregions_100km.py`: assigns RESOLVE 2017 ecoregion, biome, and realm to each BOLD 100 km land cell by centroid overlay.
 - `aggregate_cepf_hotspots_100km.py`: assigns CEPF/Conservation International biodiversity hotspot indicators to each BOLD 100 km land cell by centroid overlay.
-- `aggregate_wdpa_protected_share_100km.py`: computes protected-area area/share for each BOLD 100 km land cell from a local WDPA polygon GPKG/SHP.
+- `aggregate_wdpa_protected_share_100km.py`: computes May 2026 WDPA protected-area area/share for each BOLD 100 km land cell from a local WDPA polygon GPKG/SHP. This is a snapshot regressor, not a historical panel.
 - `gee_hansen_forest_loss_100km.js`: Google Earth Engine script to aggregate Hansen Global Forest Change to 100 km cells using tree-cover-weighted method. See `Scripts/gee_hansen_forest_loss_README.md`.
 - `merge_hansen_exports.py`: merges Earth Engine CSV exports into a complete cell-year panel with lags.
 - `gee_modis_burned_area_100km.js`: Google Earth Engine script to aggregate MODIS MCD64A1 burned area to 100 km cells.
@@ -81,5 +81,5 @@ python3 Scripts/aggregate_ucdp_ged_100km.py
 python3 Scripts/download_baseline_geography.py
 python3 Scripts/aggregate_resolve_ecoregions_100km.py
 python3 Scripts/aggregate_cepf_hotspots_100km.py
-python3 Scripts/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public.gpkg
+python3 Scripts/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 ```

@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import time
 from pathlib import Path
+from typing import Optional
 
 import geopandas as gpd
 import pandas as pd
@@ -24,14 +25,35 @@ DEFAULT_OUTPUT = PROJECT_ROOT / "Data" / "regressors" / "baseline_geography" / "
 AREA_CRS = "EPSG:6933"
 
 
-def filter_wdpa(gdf: gpd.GeoDataFrame, include_marine: bool) -> gpd.GeoDataFrame:
+def detect_polygon_layer(path: Path) -> Optional[str]:
+    try:
+        layers = gpd.list_layers(path)
+    except Exception:
+        return None
+    if len(layers) <= 1:
+        return None
+    polygon_layers = layers[layers["geometry_type"].astype(str).str.contains("Polygon", na=False)]
+    if polygon_layers.empty:
+        return None
+    layer = str(polygon_layers.iloc[0]["name"])
+    print(f"Using polygon layer: {layer}", flush=True)
+    return layer
+
+
+def filter_wdpa(gdf: gpd.GeoDataFrame, include_marine: bool, include_oecm: bool) -> gpd.GeoDataFrame:
     out = gdf.copy()
     if "STATUS" in out.columns:
         status = out["STATUS"].astype(str).str.lower().str.strip()
         out = out[~status.eq("proposed")].copy()
+    if not include_oecm and "SITE_TYPE" in out.columns:
+        site_type = out["SITE_TYPE"].astype(str).str.upper().str.strip()
+        out = out[site_type.eq("PA")].copy()
     if not include_marine and "MARINE" in out.columns:
         marine = pd.to_numeric(out["MARINE"], errors="coerce")
         out = out[marine.ne(2)].copy()
+    if not include_marine and "REALM" in out.columns:
+        realm = out["REALM"].astype(str).str.lower().str.strip()
+        out = out[~realm.eq("marine")].copy()
     out = out[out.geometry.notna()].copy()
     out = out[out.geometry.geom_type.isin(["Polygon", "MultiPolygon"])].copy()
     out["geometry"] = out.geometry.make_valid()
@@ -42,9 +64,11 @@ def filter_wdpa(gdf: gpd.GeoDataFrame, include_marine: bool) -> gpd.GeoDataFrame
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--wdpa", type=Path, required=True, help="Local WDPA polygon GPKG/SHP path.")
+    parser.add_argument("--layer", default=None, help="Optional layer name for GDB/GPKG inputs. Defaults to first polygon layer.")
     parser.add_argument("--land-cells", type=Path, default=LAND_CELLS)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--include-marine", action="store_true", help="Keep WDPA records marked fully marine.")
+    parser.add_argument("--include-oecm", action="store_true", help="Keep OECM records when the input is a combined WDPA/WDOECM file.")
     parser.add_argument("--progress-every", type=int, default=500)
     args = parser.parse_args()
 
@@ -58,10 +82,11 @@ def main() -> int:
     cells = gpd.read_file(args.land_cells).to_crs(AREA_CRS)
     cells["cell_area_km2"] = cells.geometry.area / 1_000_000
 
+    layer = args.layer or detect_polygon_layer(args.wdpa)
     print(f"Reading WDPA polygons: {args.wdpa}", flush=True)
-    wdpa = gpd.read_file(args.wdpa)
+    wdpa = gpd.read_file(args.wdpa, layer=layer) if layer else gpd.read_file(args.wdpa)
     print(f"Raw WDPA rows: {len(wdpa):,}", flush=True)
-    wdpa = filter_wdpa(wdpa, include_marine=args.include_marine).to_crs(AREA_CRS)
+    wdpa = filter_wdpa(wdpa, include_marine=args.include_marine, include_oecm=args.include_oecm).to_crs(AREA_CRS)
     print(f"Filtered WDPA polygon rows: {len(wdpa):,}", flush=True)
 
     spatial_index = wdpa.sindex

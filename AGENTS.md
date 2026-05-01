@@ -29,7 +29,7 @@ This repository is a research data project. Preserve downloaded data and never r
 - `Scripts/download_baseline_geography.py` downloads raw RESOLVE ecoregions and CEPF hotspot inputs for the static baseline geography overlays. See `Scripts/baseline_geography_README.md`.
 - `Scripts/aggregate_resolve_ecoregions_100km.py` assigns RESOLVE 2017 ecoregion, biome, and realm to each 100 km land cell by centroid overlay.
 - `Scripts/aggregate_cepf_hotspots_100km.py` assigns CEPF/Conservation International biodiversity hotspot indicators to each 100 km land cell by centroid overlay.
-- `Scripts/aggregate_wdpa_protected_share_100km.py` computes protected-area share by 100 km cell from a local WDPA polygon GPKG/SHP. It has not been run yet because WDPA is not local.
+- `Scripts/aggregate_wdpa_protected_share_100km.py` computes May 2026 WDPA protected-area share by 100 km cell from the local WDPA/WDOECM polygon geodatabase. This is a snapshot regressor, not a historical panel.
 - Baseline-geography geospatial dependencies are listed in `requirements_baseline_geography.txt`.
 - `Scripts/download_bold_non_insect_arthropods_and_microbes.py` downloads selected non-insect arthropod groups plus Bacteria and logs zero-record BOLD v5 groups.
 - `Scripts/audit_bold_downloads.py` audits local BOLD TSVs against their summary JSON files.
@@ -57,7 +57,7 @@ As of the latest coverage audit:
 - The current UCDP regressor panel is `Data/regressors/ucdp/ucdp_ged_100km_cell_year_2005_2024.csv`. It has 291,320 rows: 14,566 land cells x 20 years. Merge with BOLD over the common 2005-2024 window.
 - The current static baseline geography file is `Data/regressors/baseline_geography/resolve_ecoregions_100km_cells.csv`. It has 14,566 unique cells, 14,291 RESOLVE matches, 1,243 explicit `Rock and Ice` cells, and 275 unmatched cells.
 - The current hotspot file is `Data/regressors/baseline_geography/cepf_hotspots_100km_cells.csv`. It has 14,566 unique cells, 2,430 cells in any hotspot, and all 36 hotspot names are represented.
-- WDPA protected-area share is script-ready but not run. It needs a local Protected Planet / WDPA polygon file.
+- WDPA protected-area share uses the local May 2026 WDPA/WDOECM geodatabase under `Data/raw/baseline_geography/wdpa/`. Treat its output as a static snapshot unless a separate historical build is created.
 
 ## Safe Workflow
 

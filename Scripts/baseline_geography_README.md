@@ -1,7 +1,9 @@
 # Baseline Geography Replication Notes
 
-This folder contains scripts to reproduce the static baseline geography layers
-used with the BOLD 100 km land-cell grid.
+This folder contains scripts to reproduce baseline geography layers used with
+the BOLD 100 km land-cell grid. RESOLVE and CEPF are static by construction.
+The current WDPA script uses a May 2026 snapshot, so it is static in the current
+outputs even though protected areas can change over time.
 
 ## Python Dependencies
 
@@ -109,13 +111,32 @@ Current expected audits:
 ## WDPA / Protected Planet
 
 WDPA is not downloaded by `download_baseline_geography.py` because Protected
-Planet requires a separate user download and terms workflow. After placing a
-local WDPA polygon GPKG/SHP under `Data/raw/baseline_geography/wdpa/`, run
-the script with the actual local filename. For example:
+Planet requires a separate user download and terms workflow. Use the polygon
+geodatabase/GPKG/SHP download, not the CSV-only download. The CSV file contains
+attributes but no polygon geometry, so it cannot be used to compute protected
+area share.
+
+After placing or extracting the local WDPA polygon file under
+`Data/raw/baseline_geography/wdpa/`, run the script with the actual local
+filename. For the May 2026 public WDPA/WDOECM geodatabase currently used here:
 
 ```bash
-python3 Scripts/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public.gpkg
+python3 Scripts/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 ```
+
+The script automatically selects the polygon layer in a FileGDB/GPKG. By
+default it excludes proposed sites, fully marine sites where identifiable, and
+OECM-only records in combined WDPA/WDOECM files. Add `--include-oecm` if the
+target variable should include OECMs as conserved areas, and `--include-marine`
+if marine protected areas should be counted in coastal land cells.
+
+This output is a snapshot measure, conceptually `protected_share_c` as of the
+downloaded WDPA release. It should be used as a baseline control or
+heterogeneity variable. It is not a cell-year protection shock. To build a
+dynamic protected-area panel, use `STATUS_YR` and/or historical WDPA releases;
+current polygons applied backward by `STATUS_YR <= year` would be only an
+approximation because it does not recover historical boundary changes or
+downgrading/degazettement/reduction.
 
 Output:
 
