@@ -66,6 +66,10 @@ import delimited "`proj'/Data/regressors/baseline_geography/globio_msa_100km_cel
 tempfile globio
 save `globio'
 
+import delimited "`proj'/Data/regressors/worldbank/worldbank_gdp_pcap_panel.csv", clear
+tempfile wbgdp
+save `wbgdp'
+
 * -------------------------------------------------------------------
 * 2. Merge panels 1:1 on cell_id year
 * -------------------------------------------------------------------
@@ -109,6 +113,11 @@ rename _merge _merge_grip
 merge m:1 cell_id using `globio'
 rename _merge _merge_globio
 
+* --- Country-year regressors (iso_a3 × year; requires iso_a3 from RESOLVE) ---
+
+merge m:1 iso_a3 year using `wbgdp'
+rename _merge _merge_wbgdp
+
 * -------------------------------------------------------------------
 * 4. Save
 * -------------------------------------------------------------------
@@ -130,6 +139,7 @@ tab _merge_cepf
 tab _merge_wdpa_static
 tab _merge_grip
 tab _merge_globio
+tab _merge_wbgdp
 
 describe
 summarize

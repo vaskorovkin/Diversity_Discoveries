@@ -15,8 +15,9 @@ Data/**/*.part
 Output/
 /Exhibits/
 
-# Local literature PDFs and other large binary references
-Literature/*.pdf
+# Local literature and logs
+Literature/
+Logs/
 
 # LaTeX build products
 Notes/*.aux
