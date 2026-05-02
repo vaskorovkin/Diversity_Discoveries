@@ -169,9 +169,94 @@ python3 Scripts/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline
 ```
 
 The WDPA output is a May 2026 snapshot by cell, not a historical
-protected-area panel. Treat it as baseline geography/control/heterogeneity. A
-dynamic protected-area variable needs a separate method using `STATUS_YR` and/or
-historical WDPA snapshots.
+protected-area panel. Treat it as baseline geography/control/heterogeneity.
+
+For a time-varying protected-area panel using STATUS_YR:
+
+```bash
+python3 Scripts/aggregate_wdpa_protected_panel_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+```
+
+Output:
+
+```text
+Data/regressors/wdpa/wdpa_protected_panel_100km.csv
+```
+
+Variables: `protected_area_km2`, `protected_share`, `any_protected`,
+`new_protection_km2`. Covers 2001-2024. Generate lags/deltas in Stata.
+
+Limitations: uses current polygon boundaries applied backward; STATUS_YR is
+designation year, not exact boundary history; downgrading/degazettement not
+captured. Suitable for first-pass treatment analysis.
+
+The v1 script (`aggregate_wdpa_protected_panel_100km.py`) uses dissolve+overlay
+and takes hours. The v2 script (`aggregate_wdpa_protected_panel_100km_v2.py`)
+uses sjoin+clip and finishes in ~2 minutes. Use v2.
+
+TerraClimate climate anomalies (drought, heat, precipitation):
+
+```bash
+python3 Scripts/download_terraclimate.py --skip-existing
+python3 Scripts/aggregate_terraclimate_100km.py
+```
+
+Download: `Data/raw/terraclimate/` (PDSI, tmax, ppt NetCDFs, ~4km, 1981-2023)
+
+Baseline years (1981-2000) are downloaded separately:
+
+```bash
+python3 Scripts/download_terraclimate_baseline.py --skip-existing
+```
+
+Output: `Data/regressors/terraclimate/terraclimate_100km_panel.csv`
+
+Variables: `pdsi_mean`, `pdsi_anomaly` (drought), `tmax_mean`, `tmax_anomaly`
+(heat), `ppt_mean`, `ppt_anomaly` (precipitation). Anomalies relative to
+1981-2010 baseline. Covers 2001-2023.
+
+CHIRPS precipitation anomalies (tropical/subtropical focus):
+
+```bash
+python3 Scripts/download_chirps.py --skip-existing
+python3 Scripts/aggregate_chirps_100km.py
+```
+
+Download: `Data/raw/chirps/` (annual GeoTIFFs, ~5km, 1981-2023 for baseline)
+Output: `Data/regressors/chirps/chirps_100km_panel.csv`
+
+Variables: `chirps_precip_mm`, `chirps_precip_anomaly`. Coverage: 50°S-50°N
+only (polar cells will have NaN). Anomalies relative to 1981-2010 baseline.
+
+GRIP4 road density (baseline accessibility, pre-computed raster):
+
+```bash
+python3 Scripts/download_grip_roads.py
+python3 Scripts/aggregate_grip_roads_100km.py
+```
+
+Download: `Data/raw/grip/` (~3.5MB, no login required)
+Output: `Data/regressors/baseline_geography/grip_roads_100km_cells.csv`
+
+Variables: `road_density_m_per_km2`, `road_density_km_per_km2`, `any_road`,
+`log_road_density`. Static baseline from GRIP4 (~8km pre-computed density).
+Use as accessibility control/interaction.
+
+Alternative: gROADS v1 scripts exist (`download_groads.py`,
+`aggregate_groads_100km.py`) but require manual SEDAC download and are slower.
+
+GLOBIO4 MSA (Mean Species Abundance) biodiversity intactness:
+
+```bash
+python3 Scripts/download_globio_msa.py --types overall
+python3 Scripts/aggregate_globio_msa_100km.py
+```
+
+Download: `Data/raw/globio/` (~6GB for overall MSA)
+Output: `Data/regressors/baseline_geography/globio_msa_100km_cells.csv`
+
+Variables: `msa_overall` (0-1 scale, 1 = pristine). Static 2015 baseline from
+GLOBIO4/PBL (Schipper et al. 2020). Mean MSA across cells: 0.58.
 
 Hansen Global Forest Change is being aggregated via Google Earth Engine:
 
@@ -228,6 +313,32 @@ Data/regressors/modis/modis_burned_area_100km_panel.csv
 Variables: `burned_area_km2`, `any_burned`, `cumulative_burned_km2`, and 1-2
 year lags. Covers 2001-2023.
 
+## Stata Merge
+
+All regressors are merged into a single analysis panel via:
+
+```stata
+do "DoFiles/merge_all_regressors.do"
+```
+
+Output: `Data/analysis/BOLD_regressor_panel.dta`
+Log: `Logs/merge_all_regressors.log`
+
+The do-file:
+- Starts from the BOLD collection-year panel (2005-2025)
+- Merges panel regressors 1:1 on `cell_id year` (UCDP, Hansen, MODIS,
+  TerraClimate, CHIRPS, WDPA panel)
+- Merges static baselines m:1 on `cell_id` (RESOLVE, CEPF, WDPA static,
+  GRIP roads, GLOBIO MSA)
+- Drops Antarctica (`continent == "Antarctica"`) and 7 date-line edge cells
+  (`cell_area_km2 > 10001`)
+- Final panel: 14,559 cells × 25 years (2001-2025), 151 variables
+
+Panel year ranges differ: BOLD 2005-2025, UCDP 2005-2024, Hansen/MODIS/
+TerraClimate/CHIRPS 2001-2023, WDPA 2001-2024. The union is 2001-2025;
+variables are missing outside their source's range. For analysis, restrict to
+`year >= 2005` for BOLD outcomes.
+
 Local coverage audit:
 
 ```bash
@@ -265,20 +376,21 @@ Current prepared changes are code/docs only; data and output remain ignored.
 Suggested commit summary:
 
 ```text
-Add baseline geography, Hansen, and MODIS regressors
+Complete regressor pipeline and Stata merge
 ```
 
 Suggested commit description:
 
 ```text
-Adds reproducible download and aggregation scripts for static baseline geography
-regressors: RESOLVE 2017 ecoregions, CEPF biodiversity hotspots, and WDPA
-protected-area share. Records source metadata and hashes for reproducibility.
+Adds download and aggregation scripts for all regressor datasets: TerraClimate
+climate anomalies (PDSI/tmax/ppt with 1981-2010 baseline), CHIRPS precipitation,
+GRIP4 road density, GLOBIO4 MSA biodiversity intactness, and time-varying WDPA
+protected-area panel. Includes fast v2 WDPA panel script using sjoin+clip.
 
-Adds Hansen Global Forest Change and MODIS MCD64A1 burned area aggregation via
-Google Earth Engine, producing tree-cover-weighted baseline forest,
-annual/cumulative forest loss (2001-2023), and annual burned area (2001-2023).
+Adds Stata merge do-file (DoFiles/merge_all_regressors.do) that builds the
+complete analysis panel (BOLD_regressor_panel.dta) from all outcome and regressor
+CSVs. Drops Antarctica and date-line edge cells. Logs to Logs/.
 
-Updates README, handover, agent, and regressor documentation with new workflows
-and audit results. Adds geospatial Python dependency notes.
+Updates all documentation: AI_HANDOVER.md, Scripts/README.md, DoFiles/README.md,
+and regressor_dataset_options.md.
 ```

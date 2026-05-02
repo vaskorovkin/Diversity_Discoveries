@@ -17,12 +17,14 @@ from typing import Optional
 
 import geopandas as gpd
 import pandas as pd
+from shapely.errors import GEOSException
 
 
 PROJECT_ROOT = Path("/Users/vasilykorovkin/Documents/Diversity_Discoveries")
 LAND_CELLS = PROJECT_ROOT / "Exhibits" / "data" / "bold_grid100_land_cells.geojson"
 DEFAULT_OUTPUT = PROJECT_ROOT / "Data" / "regressors" / "baseline_geography" / "wdpa_protected_share_100km_cells.csv"
 AREA_CRS = "EPSG:6933"
+POLYGON_TYPES = ["Polygon", "MultiPolygon"]
 
 
 def detect_polygon_layer(path: Path) -> Optional[str]:
@@ -54,11 +56,59 @@ def filter_wdpa(gdf: gpd.GeoDataFrame, include_marine: bool, include_oecm: bool)
     if not include_marine and "REALM" in out.columns:
         realm = out["REALM"].astype(str).str.lower().str.strip()
         out = out[~realm.eq("marine")].copy()
-    out = out[out.geometry.notna()].copy()
-    out = out[out.geometry.geom_type.isin(["Polygon", "MultiPolygon"])].copy()
-    out["geometry"] = out.geometry.make_valid()
+    return repair_polygons(out)
+
+
+def repair_polygons(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    out = gdf[gdf.geometry.notna()].copy()
     out = out[~out.geometry.is_empty].copy()
+    out["geometry"] = out.geometry.make_valid()
+    out = out.explode(ignore_index=True)
+    out = out[out.geometry.notna()].copy()
+    out = out[~out.geometry.is_empty].copy()
+    out = out[out.geometry.geom_type.isin(POLYGON_TYPES)].copy()
     return out
+
+
+def union_area_km2(candidates: gpd.GeoDataFrame, cell_geom) -> tuple[float, bool]:
+    """Return unioned protected area inside a cell.
+
+    The boolean flags whether a slower topology-repair fallback was needed.
+    """
+    try:
+        unioned = candidates.geometry.union_all()
+        clipped = unioned.intersection(cell_geom)
+        return clipped.area / 1_000_000, False
+    except (AttributeError, GEOSException, ValueError):
+        pass
+
+    clipped_parts = []
+    for geom in candidates.geometry:
+        if geom is None or geom.is_empty:
+            continue
+        try:
+            clipped = geom.intersection(cell_geom)
+        except GEOSException:
+            try:
+                clipped = geom.buffer(0).intersection(cell_geom)
+            except GEOSException:
+                continue
+        if not clipped.is_empty:
+            clipped_parts.append(clipped)
+
+    if not clipped_parts:
+        return 0.0, True
+
+    clipped_series = gpd.GeoSeries(clipped_parts, crs=AREA_CRS).make_valid()
+    clipped_series = clipped_series[~clipped_series.is_empty]
+    clipped_series = clipped_series[clipped_series.geom_type.isin(POLYGON_TYPES)]
+    if clipped_series.empty:
+        return 0.0, True
+    try:
+        unioned = clipped_series.union_all()
+    except (AttributeError, GEOSException, ValueError):
+        unioned = clipped_series.buffer(0).union_all()
+    return unioned.area / 1_000_000, True
 
 
 def main() -> int:
@@ -87,11 +137,14 @@ def main() -> int:
     wdpa = gpd.read_file(args.wdpa, layer=layer) if layer else gpd.read_file(args.wdpa)
     print(f"Raw WDPA rows: {len(wdpa):,}", flush=True)
     wdpa = filter_wdpa(wdpa, include_marine=args.include_marine, include_oecm=args.include_oecm).to_crs(AREA_CRS)
+    wdpa = wdpa[wdpa.geometry.notna()].copy()
+    wdpa = wdpa[~wdpa.geometry.is_empty].copy()
     print(f"Filtered WDPA polygon rows: {len(wdpa):,}", flush=True)
 
     spatial_index = wdpa.sindex
     rows: list[dict[str, object]] = []
     start = time.time()
+    fallback_cells = 0
     for i, row in enumerate(cells.itertuples(index=False), start=1):
         cell_geom = row.geometry
         candidate_idx = list(spatial_index.query(cell_geom, predicate="intersects"))
@@ -99,12 +152,8 @@ def main() -> int:
         n_candidates = len(candidate_idx)
         if candidate_idx:
             candidates = wdpa.iloc[candidate_idx]
-            try:
-                unioned = candidates.geometry.union_all()
-            except AttributeError:
-                unioned = candidates.geometry.unary_union
-            clipped = unioned.intersection(cell_geom)
-            protected_area_km2 = clipped.area / 1_000_000
+            protected_area_km2, used_fallback = union_area_km2(candidates, cell_geom)
+            fallback_cells += int(used_fallback)
 
         cell_area_km2 = float(row.cell_area_km2)
         protected_share = protected_area_km2 / cell_area_km2 if cell_area_km2 > 0 else 0.0
@@ -135,6 +184,7 @@ def main() -> int:
     print(f"Rows: {len(out):,}; unique cells: {out['cell_id'].nunique():,}", flush=True)
     print(f"Cells with any protected area: {int(out['wdpa_any_protected'].sum()):,}", flush=True)
     print(f"Mean protected share: {out['wdpa_protected_share'].mean():.4f}", flush=True)
+    print(f"Cells requiring topology fallback: {fallback_cells:,}", flush=True)
     return 0
 
 

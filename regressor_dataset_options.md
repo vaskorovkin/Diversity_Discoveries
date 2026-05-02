@@ -171,6 +171,29 @@ The useful empirical tests are comparative:
    - annual precipitation anomaly
    - drought/water-deficit anomaly
    - heat anomaly
+
+   Current status: TerraClimate implemented in
+   `Scripts/download_terraclimate.py`, `Scripts/download_terraclimate_baseline.py`,
+   and `Scripts/aggregate_terraclimate_100km.py`. Output:
+
+   ```text
+   Data/regressors/terraclimate/terraclimate_100km_panel.csv
+   ```
+
+   Variables: `pdsi_mean`, `pdsi_anomaly`, `tmax_mean`, `tmax_anomaly`,
+   `ppt_mean`, `ppt_anomaly`. Anomalies relative to 1981-2010 baseline.
+   Covers 2001-2023.
+
+   CHIRPS implemented in `Scripts/download_chirps.py` and
+   `Scripts/aggregate_chirps_100km.py`. Output:
+
+   ```text
+   Data/regressors/chirps/chirps_100km_panel.csv
+   ```
+
+   Variables: `chirps_precip_mm`, `chirps_precip_anomaly`. Coverage: 50°S-50°N
+   only. Anomalies relative to 1981-2010 baseline.
+
 5. Add baseline geography:
    - ecoregion
    - biome/realm
@@ -217,5 +240,37 @@ The useful empirical tests are comparative:
    ```
 
    This is a snapshot regressor, not a time-varying protected-area panel. Use
-   it as baseline geography/control/heterogeneity. A dynamic protected-area
-   measure would require `STATUS_YR` and/or historical WDPA snapshots.
+   it as baseline geography/control/heterogeneity.
+
+   Current status for time-varying WDPA panel: implemented in
+   `Scripts/aggregate_wdpa_protected_panel_100km_v2.py` (fast sjoin+clip). Output:
+
+   ```text
+   Data/regressors/wdpa/wdpa_protected_panel_100km.csv
+   ```
+
+   Variables: `protected_area_km2`, `protected_share`, `any_protected`,
+   `new_protection_km2`. Covers 2001-2024.
+
+   Current status for GLOBIO MSA: implemented in
+   `Scripts/download_globio_msa.py` and `Scripts/aggregate_globio_msa_100km.py`.
+   Output:
+
+   ```text
+   Data/regressors/baseline_geography/globio_msa_100km_cells.csv
+   ```
+
+   Variable: `msa_overall` (0-1, 2015 baseline). Mean 0.58.
+
+   Current status for road density: implemented in
+   `Scripts/download_grip_roads.py` and `Scripts/aggregate_grip_roads_100km.py`.
+   Output:
+
+   ```text
+   Data/regressors/baseline_geography/grip_roads_100km_cells.csv
+   ```
+
+   Variables: `road_density_km_per_km2`, `any_road`, `log_road_density`.
+
+   All regressors are merged into `Data/analysis/BOLD_regressor_panel.dta` via
+   `DoFiles/merge_all_regressors.do`.

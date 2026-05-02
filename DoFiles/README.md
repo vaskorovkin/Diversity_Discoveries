@@ -1,24 +1,18 @@
 # Do-Files
 
-Run the pilot import from Stata with:
+Merge all regressor datasets into the BOLD panel:
 
 ```stata
-do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/01_import_bold_pilot.do"
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/merge_all_regressors.do"
 ```
 
-The do-file imports:
+The do-file imports all outcome and regressor CSVs, merges on `cell_id` (and
+`year` for panels), drops Antarctica and date-line edge cells, and saves:
 
 ```text
-Data/processed/bold/bold_trochilidae_costa_rica_minimal.tsv
+Data/analysis/BOLD_regressor_panel.dta
+Logs/merge_all_regressors.log
 ```
-
-and writes:
-
-```text
-Data/processed/bold/bold_trochilidae_costa_rica_minimal.dta
-```
-
-The minimal TSV is already cleaner than the raw BOLD export for Stata: it avoids the long sequence strings, nested list-looking primer fields, and bracketed coordinate field in the raw records.
 
 Run the global BOLD Fungi import and summary stats with:
 

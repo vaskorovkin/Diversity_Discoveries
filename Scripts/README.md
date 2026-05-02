@@ -7,6 +7,19 @@
 - `aggregate_resolve_ecoregions_100km.py`: assigns RESOLVE 2017 ecoregion, biome, and realm to each BOLD 100 km land cell by centroid overlay.
 - `aggregate_cepf_hotspots_100km.py`: assigns CEPF/Conservation International biodiversity hotspot indicators to each BOLD 100 km land cell by centroid overlay.
 - `aggregate_wdpa_protected_share_100km.py`: computes May 2026 WDPA protected-area area/share for each BOLD 100 km land cell from a local WDPA polygon GPKG/SHP. This is a snapshot regressor, not a historical panel.
+- `aggregate_wdpa_protected_panel_100km.py`: builds time-varying protected-area cell-year panel (2001-2024) using WDPA STATUS_YR designation year. Slow dissolve-based approach; see v2.
+- `aggregate_wdpa_protected_panel_100km_v2.py`: fast sjoin+clip approach to WDPA panel (same output, ~2 min vs hours). Preferred.
+- `download_terraclimate.py`: downloads TerraClimate NetCDF files (PDSI, tmax, ppt) for 2001-2023.
+- `download_terraclimate_baseline.py`: downloads TerraClimate baseline years (1981-2000) for proper 1981-2010 anomaly calculation.
+- `aggregate_terraclimate_100km.py`: aggregates TerraClimate data to 100 km cells with anomalies relative to 1981-2010 baseline.
+- `download_chirps.py`: downloads CHIRPS annual precipitation GeoTIFFs (1981-2023).
+- `aggregate_chirps_100km.py`: aggregates CHIRPS precipitation to 100 km cells with anomalies relative to 1981-2010 baseline.
+- `download_groads.py`: instructions and verification for gROADS v1 manual download from NASA SEDAC.
+- `aggregate_groads_100km.py`: computes road density (km/km²) per 100 km cell from gROADS shapefile.
+- `download_grip_roads.py`: downloads GRIP4 pre-computed road density rasters (~3.5MB, no login).
+- `aggregate_grip_roads_100km.py`: aggregates GRIP4 road density to 100 km cells (fast, uses raster).
+- `download_globio_msa.py`: downloads GLOBIO4 MSA (Mean Species Abundance) rasters for baseline biodiversity intactness.
+- `aggregate_globio_msa_100km.py`: aggregates GLOBIO MSA to 100 km cells.
 - `gee_hansen_forest_loss_100km.js`: Google Earth Engine script to aggregate Hansen Global Forest Change to 100 km cells using tree-cover-weighted method. See `Scripts/gee_hansen_forest_loss_README.md`.
 - `merge_hansen_exports.py`: merges Earth Engine CSV exports into a complete cell-year panel with lags.
 - `gee_modis_burned_area_100km.js`: Google Earth Engine script to aggregate MODIS MCD64A1 burned area to 100 km cells.
@@ -51,6 +64,10 @@
 - `map_bold_fungi_grid.py`: maps geocoded Fungi records to equal-area grid cells. Baseline is 100 km.
 - `exhibits/`: exhibit pipeline scripts for BOLD count tables, time series, 100 km grid maps, admin-1 maps, and cell-level kingdom correlations.
 
+## Stata Merge
+
+- `DoFiles/merge_all_regressors.do`: imports all outcome and regressor CSVs, merges panels 1:1 on `cell_id year` and static baselines m:1 on `cell_id`, drops Antarctica and date-line edge cells, saves `Data/analysis/BOLD_regressor_panel.dta`. Log output: `Logs/merge_all_regressors.log`.
+
 ## Examples
 
 ```bash
@@ -82,4 +99,14 @@ python3 Scripts/download_baseline_geography.py
 python3 Scripts/aggregate_resolve_ecoregions_100km.py
 python3 Scripts/aggregate_cepf_hotspots_100km.py
 python3 Scripts/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+python3 Scripts/download_terraclimate_baseline.py --skip-existing
+python3 Scripts/download_terraclimate.py --skip-existing
+python3 Scripts/aggregate_terraclimate_100km.py
+python3 Scripts/download_chirps.py --skip-existing
+python3 Scripts/aggregate_chirps_100km.py
+python3 Scripts/download_grip_roads.py
+python3 Scripts/aggregate_grip_roads_100km.py
+python3 Scripts/download_globio_msa.py --types overall
+python3 Scripts/aggregate_globio_msa_100km.py
 ```
