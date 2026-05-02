@@ -258,6 +258,19 @@ Output: `Data/regressors/baseline_geography/globio_msa_100km_cells.csv`
 Variables: `msa_overall` (0-1 scale, 1 = pristine). Static 2015 baseline from
 GLOBIO4/PBL (Schipper et al. 2020). Mean MSA across cells: 0.58.
 
+World Bank GDP per capita (country-year panel):
+
+```bash
+python3 Scripts/download_worldbank_gdp.py
+```
+
+Download: uses WB API v2 (no key), batches 50 countries per request.
+Output: `Data/regressors/worldbank/worldbank_gdp_pcap_panel.csv`
+
+Variables: `iso_a3`, `country_name`, `year`, `gdp_pcap_current_usd`.
+Covers 2001-2024, 217 countries. Merged m:1 on `iso_a3 year` after RESOLVE
+provides `iso_a3`. ~78% of cell-years match (miss = small islands, disputed).
+
 Hansen Global Forest Change is being aggregated via Google Earth Engine:
 
 ```text
@@ -330,6 +343,7 @@ The do-file:
   TerraClimate, CHIRPS, WDPA panel)
 - Merges static baselines m:1 on `cell_id` (RESOLVE, CEPF, WDPA static,
   GRIP roads, GLOBIO MSA)
+- Merges World Bank GDP m:1 on `iso_a3 year` (after RESOLVE provides `iso_a3`)
 - Drops Antarctica (`continent == "Antarctica"`) and 7 date-line edge cells
   (`cell_area_km2 > 10001`)
 - Final panel: 14,559 cells × 25 years (2001-2025), 151 variables
@@ -368,6 +382,54 @@ Run capped Costa Rica Cecidomyiidae diagnostic if needed:
 ```bash
 python3 Scripts/download_bold_cecidomyiidae_costa_rica_capped.py
 ```
+
+## Regression Analysis
+
+Main specification file:
+
+```stata
+do "DoFiles/reg_spec1.do"
+```
+
+Log: `Logs/reg_spec1.log`
+
+The do-file estimates 4 tables (8 columns each, 32 specifications total).
+Sample: 2005-2023. Dependent variables: `any_total` (extensive margin) and
+`log1p_total` (intensive margin). SE clustered at cell level.
+
+**Table 1** — Cell + Year FE:
+- Conflict (log(1+events) or 1[events>0]), forest loss, burned area, PDSI/tmax
+  anomalies, `protected_share`, GDP×PA interactions (linear + quadratic).
+- GDP main effects identified off within-country growth net of year FE.
+- GDP×PA interaction shows U-shaped PA effect across development levels.
+
+**Table 2** — Cell + Country×Year FE:
+- GDP main effects absorbed; GDP×PA interactions survive (cell-level variation).
+- Conflict attenuates ~25% but remains significant.
+- Burned area flips to significant negative (country-year FE removes
+  confounding seasonal/policy variation).
+
+**Table 3** — Table 2 + Biome×Year FE + Road×Year controls:
+- `i.resolve_biome_num#i.year` absorbed, `c.road_density_km_per_km2#i.year`
+  as regressors (suppressed from output).
+- Conflict robust; climate effects largely unchanged.
+
+**Table 4** — Table 3 + Conflict×MSA interaction:
+- `c.conflict#c.msa_overall`: positive coefficient — conflict reduces sampling
+  less in intact/remote areas (MSA is intactness, not richness).
+- Interpretation: conflict disrupts sampling where researchers already go
+  (degraded, accessible areas), not in pristine zones.
+
+Key findings across tables:
+- Conflict is the most robust shock: negative, significant at 1% in nearly all
+  specs, survives saturated FE. Sum of L0-L2 distributed lags typically 2-3×
+  the contemporaneous effect.
+- Forest loss is not significant.
+- Burned area is negative and significant with country×year FE.
+- PDSI (drought) is positive and significant — wetter conditions predict more
+  sampling. Cumulative L0-L2 effect is small and imprecise.
+- Tmax (heat) is inconsistent.
+- GDP×PA interactions are entirely cross-country (disappear in Table 2+).
 
 ## Commit Preparation
 
