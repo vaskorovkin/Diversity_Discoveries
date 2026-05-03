@@ -45,6 +45,9 @@ gen burned_share = burned_area_km2 / cell_area_km2
 gen log_gdp_pc = log(gdp_pcap_current_usd)
 gen log_gdp_pc_sq = log_gdp_pc^2
 
+sum richness_total
+gen richness_std = (richness_total - r(mean)) / r(sd)
+
 gen L1_pdsi_anomaly = L.pdsi_anomaly
 gen L2_pdsi_anomaly = L2.pdsi_anomaly
 gen L1_tmax_anomaly = L.tmax_anomaly
@@ -55,7 +58,7 @@ gen L2_tmax_anomaly = L2.tmax_anomaly
 * -------------------------------------------------------------------
 
 summarize any_total log1p_total ucdp_events_all ucdp_any_all ///
-          forest_loss_share burned_share pdsi_anomaly tmax_anomaly ///
+          forest_loss_share burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
           protected_share gdp_pcap_current_usd log_gdp_pc
 
 * -------------------------------------------------------------------
@@ -101,7 +104,7 @@ gen L2_conflict = L2.conflict
 qui {
 * (1) Extensive margin — contemporaneous
 eststo t1_1: reghdfe any_total conflict forest_loss_share ///
-        burned_share pdsi_anomaly tmax_anomaly ///
+        burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         c.log_gdp_pc##c.protected_share log_gdp_pc_sq c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num year) vce(cluster cell_id_num)
 estadd ysumm, mean sd
@@ -113,7 +116,7 @@ estadd local conflict_measure "log(1+events)"
 qui {
 * (2) Intensive margin — contemporaneous
 eststo t1_2: reghdfe log1p_total conflict forest_loss_share ///
-        burned_share pdsi_anomaly tmax_anomaly ///
+        burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         c.log_gdp_pc##c.protected_share log_gdp_pc_sq c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num year) vce(cluster cell_id_num)
 estadd ysumm, mean sd
@@ -127,7 +130,7 @@ qui {
 eststo t1_3: reghdfe any_total conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         c.log_gdp_pc##c.protected_share log_gdp_pc_sq c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num year) vce(cluster cell_id_num)
 estadd ysumm, mean sd
@@ -144,7 +147,7 @@ qui {
 eststo t1_4: reghdfe log1p_total conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         c.log_gdp_pc##c.protected_share log_gdp_pc_sq c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num year) vce(cluster cell_id_num)
 estadd ysumm, mean sd
@@ -168,7 +171,7 @@ gen L2_conflict = L2.ucdp_any_all
 qui {
 * (5) Extensive margin — contemporaneous
 eststo t1_5: reghdfe any_total conflict forest_loss_share ///
-        burned_share pdsi_anomaly tmax_anomaly ///
+        burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         c.log_gdp_pc##c.protected_share log_gdp_pc_sq c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num year) vce(cluster cell_id_num)
 estadd ysumm, mean sd
@@ -180,7 +183,7 @@ estadd local conflict_measure "1[events>0]"
 qui {
 * (6) Intensive margin — contemporaneous
 eststo t1_6: reghdfe log1p_total conflict forest_loss_share ///
-        burned_share pdsi_anomaly tmax_anomaly ///
+        burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         c.log_gdp_pc##c.protected_share log_gdp_pc_sq c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num year) vce(cluster cell_id_num)
 estadd ysumm, mean sd
@@ -194,7 +197,7 @@ qui {
 eststo t1_7: reghdfe any_total conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         c.log_gdp_pc##c.protected_share log_gdp_pc_sq c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num year) vce(cluster cell_id_num)
 estadd ysumm, mean sd
@@ -211,7 +214,7 @@ qui {
 eststo t1_8: reghdfe log1p_total conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         c.log_gdp_pc##c.protected_share log_gdp_pc_sq c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num year) vce(cluster cell_id_num)
 estadd ysumm, mean sd
@@ -228,12 +231,12 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 * -------------------------------------------------------------------
 
 esttab t1_*, keep(conflict forest_loss_share burned_share ///
-             pdsi_anomaly tmax_anomaly ///
+             pdsi_anomaly tmax_anomaly log1p_ntl ///
              log_gdp_pc log_gdp_pc_sq ///
              protected_share c.log_gdp_pc#c.protected_share ///
              c.log_gdp_pc_sq#c.protected_share) ///
     order(conflict forest_loss_share burned_share ///
-          pdsi_anomaly tmax_anomaly ///
+          pdsi_anomaly tmax_anomaly log1p_ntl ///
           log_gdp_pc log_gdp_pc_sq ///
           protected_share c.log_gdp_pc#c.protected_share ///
           c.log_gdp_pc_sq#c.protected_share) ///
@@ -243,6 +246,7 @@ esttab t1_*, keep(conflict forest_loss_share burned_share ///
               burned_share "Burned area" ///
               pdsi_anomaly "PDSI anom." ///
               tmax_anomaly "Tmax anom." ///
+              log1p_ntl "NTL (log)" ///
               log_gdp_pc "ln(GDP pc)" ///
               log_gdp_pc_sq "ln(GDP pc)^2" ///
               protected_share "Prot. share" ///
@@ -285,7 +289,7 @@ gen L2_conflict = L2.conflict
 qui {
 * (1) Extensive margin — contemporaneous
 eststo t2_1: reghdfe any_total conflict forest_loss_share ///
-        burned_share pdsi_anomaly tmax_anomaly ///
+        burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num country_num#year) vce(cluster cell_id_num)
@@ -298,7 +302,7 @@ estadd local conflict_measure "log(1+events)"
 qui {
 * (2) Intensive margin — contemporaneous
 eststo t2_2: reghdfe log1p_total conflict forest_loss_share ///
-        burned_share pdsi_anomaly tmax_anomaly ///
+        burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num country_num#year) vce(cluster cell_id_num)
@@ -313,7 +317,7 @@ qui {
 eststo t2_3: reghdfe any_total conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num country_num#year) vce(cluster cell_id_num)
@@ -331,7 +335,7 @@ qui {
 eststo t2_4: reghdfe log1p_total conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num country_num#year) vce(cluster cell_id_num)
@@ -356,7 +360,7 @@ gen L2_conflict = L2.ucdp_any_all
 qui {
 * (5) Extensive margin — contemporaneous
 eststo t2_5: reghdfe any_total conflict forest_loss_share ///
-        burned_share pdsi_anomaly tmax_anomaly ///
+        burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num country_num#year) vce(cluster cell_id_num)
@@ -369,7 +373,7 @@ estadd local conflict_measure "1[events>0]"
 qui {
 * (6) Intensive margin — contemporaneous
 eststo t2_6: reghdfe log1p_total conflict forest_loss_share ///
-        burned_share pdsi_anomaly tmax_anomaly ///
+        burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num country_num#year) vce(cluster cell_id_num)
@@ -384,7 +388,7 @@ qui {
 eststo t2_7: reghdfe any_total conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num country_num#year) vce(cluster cell_id_num)
@@ -402,7 +406,7 @@ qui {
 eststo t2_8: reghdfe log1p_total conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share, ///
         absorb(cell_id_num country_num#year) vce(cluster cell_id_num)
@@ -420,11 +424,11 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 * -------------------------------------------------------------------
 
 esttab t2_*, keep(conflict forest_loss_share burned_share ///
-             pdsi_anomaly tmax_anomaly ///
+             pdsi_anomaly tmax_anomaly log1p_ntl ///
              protected_share c.log_gdp_pc#c.protected_share ///
              c.log_gdp_pc_sq#c.protected_share) ///
     order(conflict forest_loss_share burned_share ///
-          pdsi_anomaly tmax_anomaly ///
+          pdsi_anomaly tmax_anomaly log1p_ntl ///
           protected_share c.log_gdp_pc#c.protected_share ///
           c.log_gdp_pc_sq#c.protected_share) ///
     se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
@@ -433,6 +437,7 @@ esttab t2_*, keep(conflict forest_loss_share burned_share ///
               burned_share "Burned area" ///
               pdsi_anomaly "PDSI anom." ///
               tmax_anomaly "Tmax anom." ///
+              log1p_ntl "NTL (log)" ///
               protected_share "Prot. share" ///
               c.log_gdp_pc#c.protected_share "ln(GDP pc) x Prot." ///
               c.log_gdp_pc_sq#c.protected_share "ln(GDP pc)^2 x Prot.") ///
@@ -473,7 +478,7 @@ gen L2_conflict = L2.conflict
 qui {
 * (1) Extensive margin — contemporaneous
 eststo t3_1: reghdfe any_total conflict forest_loss_share ///
-        burned_share pdsi_anomaly tmax_anomaly ///
+        burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -490,7 +495,7 @@ estadd local conflict_measure "log(1+events)"
 qui {
 * (2) Intensive margin — contemporaneous
 eststo t3_2: reghdfe log1p_total conflict forest_loss_share ///
-        burned_share pdsi_anomaly tmax_anomaly ///
+        burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -509,7 +514,7 @@ qui {
 eststo t3_3: reghdfe any_total conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -531,7 +536,7 @@ qui {
 eststo t3_4: reghdfe log1p_total conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -560,7 +565,7 @@ gen L2_conflict = L2.ucdp_any_all
 qui {
 * (5) Extensive margin — contemporaneous
 eststo t3_5: reghdfe any_total conflict forest_loss_share ///
-        burned_share pdsi_anomaly tmax_anomaly ///
+        burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -577,7 +582,7 @@ estadd local conflict_measure "1[events>0]"
 qui {
 * (6) Intensive margin — contemporaneous
 eststo t3_6: reghdfe log1p_total conflict forest_loss_share ///
-        burned_share pdsi_anomaly tmax_anomaly ///
+        burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -596,7 +601,7 @@ qui {
 eststo t3_7: reghdfe any_total conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -618,7 +623,7 @@ qui {
 eststo t3_8: reghdfe log1p_total conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -640,11 +645,11 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 * -------------------------------------------------------------------
 
 esttab t3_*, keep(conflict forest_loss_share burned_share ///
-             pdsi_anomaly tmax_anomaly ///
+             pdsi_anomaly tmax_anomaly log1p_ntl ///
              protected_share c.log_gdp_pc#c.protected_share ///
              c.log_gdp_pc_sq#c.protected_share) ///
     order(conflict forest_loss_share burned_share ///
-          pdsi_anomaly tmax_anomaly ///
+          pdsi_anomaly tmax_anomaly log1p_ntl ///
           protected_share c.log_gdp_pc#c.protected_share ///
           c.log_gdp_pc_sq#c.protected_share) ///
     se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
@@ -653,6 +658,7 @@ esttab t3_*, keep(conflict forest_loss_share burned_share ///
               burned_share "Burned area" ///
               pdsi_anomaly "PDSI anom." ///
               tmax_anomaly "Tmax anom." ///
+              log1p_ntl "NTL (log)" ///
               protected_share "Prot. share" ///
               c.log_gdp_pc#c.protected_share "ln(GDP pc) x Prot." ///
               c.log_gdp_pc_sq#c.protected_share "ln(GDP pc)^2 x Prot.") ///
@@ -694,7 +700,7 @@ gen L2_conflict = L2.conflict
 qui {
 * (1) Extensive margin — contemporaneous
 eststo t4_1: reghdfe any_total conflict c.conflict#c.msa_overall ///
-        forest_loss_share burned_share pdsi_anomaly tmax_anomaly ///
+        forest_loss_share burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -711,7 +717,7 @@ estadd local conflict_measure "log(1+events)"
 qui {
 * (2) Intensive margin — contemporaneous
 eststo t4_2: reghdfe log1p_total conflict c.conflict#c.msa_overall ///
-        forest_loss_share burned_share pdsi_anomaly tmax_anomaly ///
+        forest_loss_share burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -731,7 +737,7 @@ eststo t4_3: reghdfe any_total conflict L1_conflict L2_conflict ///
         c.conflict#c.msa_overall c.L1_conflict#c.msa_overall c.L2_conflict#c.msa_overall ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -755,7 +761,7 @@ eststo t4_4: reghdfe log1p_total conflict L1_conflict L2_conflict ///
         c.conflict#c.msa_overall c.L1_conflict#c.msa_overall c.L2_conflict#c.msa_overall ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -785,7 +791,7 @@ gen L2_conflict = L2.ucdp_any_all
 qui {
 * (5) Extensive margin — contemporaneous
 eststo t4_5: reghdfe any_total conflict c.conflict#c.msa_overall ///
-        forest_loss_share burned_share pdsi_anomaly tmax_anomaly ///
+        forest_loss_share burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -802,7 +808,7 @@ estadd local conflict_measure "1[events>0]"
 qui {
 * (6) Intensive margin — contemporaneous
 eststo t4_6: reghdfe log1p_total conflict c.conflict#c.msa_overall ///
-        forest_loss_share burned_share pdsi_anomaly tmax_anomaly ///
+        forest_loss_share burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -822,7 +828,7 @@ eststo t4_7: reghdfe any_total conflict L1_conflict L2_conflict ///
         c.conflict#c.msa_overall c.L1_conflict#c.msa_overall c.L2_conflict#c.msa_overall ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -846,7 +852,7 @@ eststo t4_8: reghdfe log1p_total conflict L1_conflict L2_conflict ///
         c.conflict#c.msa_overall c.L1_conflict#c.msa_overall c.L2_conflict#c.msa_overall ///
         forest_loss_share burned_share ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
-        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
         protected_share c.log_gdp_pc#c.protected_share ///
         c.log_gdp_pc_sq#c.protected_share ///
         c.road_density_km_per_km2#i.year, ///
@@ -870,12 +876,12 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 
 esttab t4_*, keep(conflict c.conflict#c.msa_overall ///
              forest_loss_share burned_share ///
-             pdsi_anomaly tmax_anomaly ///
+             pdsi_anomaly tmax_anomaly log1p_ntl ///
              protected_share c.log_gdp_pc#c.protected_share ///
              c.log_gdp_pc_sq#c.protected_share) ///
     order(conflict c.conflict#c.msa_overall ///
           forest_loss_share burned_share ///
-          pdsi_anomaly tmax_anomaly ///
+          pdsi_anomaly tmax_anomaly log1p_ntl ///
           protected_share c.log_gdp_pc#c.protected_share ///
           c.log_gdp_pc_sq#c.protected_share) ///
     se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
@@ -885,6 +891,7 @@ esttab t4_*, keep(conflict c.conflict#c.msa_overall ///
               burned_share "Burned area" ///
               pdsi_anomaly "PDSI anom." ///
               tmax_anomaly "Tmax anom." ///
+              log1p_ntl "NTL (log)" ///
               protected_share "Prot. share" ///
               c.log_gdp_pc#c.protected_share "ln(GDP pc) x Prot." ///
               c.log_gdp_pc_sq#c.protected_share "ln(GDP pc)^2 x Prot.") ///
@@ -904,6 +911,241 @@ esttab t4_*, keep(conflict c.conflict#c.msa_overall ///
           fmt(%s %s %s %s %s %s %s %s ///
               %s %9.4f %9.4f %9.0fc %9.4f %s %s %s %s)) ///
     title("Table 4: Conflict x Biodiversity Intactness (MSA)") ///
+    mtitles("Any" "log(1+N)" "Any" "log(1+N)" "Any" "log(1+N)" "Any" "log(1+N)") ///
+    mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
+            pattern(1 0 1 0 1 0 1 0)) ///
+    compress
+
+* ===================================================================
+* TABLE 5: Table 3 + Conflict × Species Richness (IUCN) interaction
+* ===================================================================
+
+est clear
+
+drop conflict L1_conflict L2_conflict
+
+* -------------------------------------------------------------------
+* Panel A: conflict = log(1 + events)
+* -------------------------------------------------------------------
+
+gen conflict = log(1 + ucdp_events_all)
+gen L1_conflict = L.conflict
+gen L2_conflict = L2.conflict
+
+qui {
+* (1) Extensive margin — contemporaneous
+eststo t5_1: reghdfe any_total conflict c.conflict#c.richness_std ///
+        forest_loss_share burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local conflict_measure "log(1+events)"
+}
+
+qui {
+* (2) Intensive margin — contemporaneous
+eststo t5_2: reghdfe log1p_total conflict c.conflict#c.richness_std ///
+        forest_loss_share burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local conflict_measure "log(1+events)"
+}
+
+qui {
+* (3) Extensive margin — with lags
+eststo t5_3: reghdfe any_total conflict L1_conflict L2_conflict ///
+        c.conflict#c.richness_std c.L1_conflict#c.richness_std c.L2_conflict#c.richness_std ///
+        forest_loss_share burned_share ///
+        pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
+add_sum_rows, name(conflict_rich_sum) expr(c.conflict#c.richness_std + c.L1_conflict#c.richness_std + c.L2_conflict#c.richness_std)
+add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
+add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
+}
+
+qui {
+* (4) Intensive margin — with lags
+eststo t5_4: reghdfe log1p_total conflict L1_conflict L2_conflict ///
+        c.conflict#c.richness_std c.L1_conflict#c.richness_std c.L2_conflict#c.richness_std ///
+        forest_loss_share burned_share ///
+        pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
+add_sum_rows, name(conflict_rich_sum) expr(c.conflict#c.richness_std + c.L1_conflict#c.richness_std + c.L2_conflict#c.richness_std)
+add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
+add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
+}
+
+* -------------------------------------------------------------------
+* Panel B: conflict = 1[any events]
+* -------------------------------------------------------------------
+
+drop conflict L1_conflict L2_conflict
+gen conflict = ucdp_any_all
+gen L1_conflict = L.ucdp_any_all
+gen L2_conflict = L2.ucdp_any_all
+
+qui {
+* (5) Extensive margin — contemporaneous
+eststo t5_5: reghdfe any_total conflict c.conflict#c.richness_std ///
+        forest_loss_share burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local conflict_measure "1[events>0]"
+}
+
+qui {
+* (6) Intensive margin — contemporaneous
+eststo t5_6: reghdfe log1p_total conflict c.conflict#c.richness_std ///
+        forest_loss_share burned_share pdsi_anomaly tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local conflict_measure "1[events>0]"
+}
+
+qui {
+* (7) Extensive margin — with lags
+eststo t5_7: reghdfe any_total conflict L1_conflict L2_conflict ///
+        c.conflict#c.richness_std c.L1_conflict#c.richness_std c.L2_conflict#c.richness_std ///
+        forest_loss_share burned_share ///
+        pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local conflict_measure "1[events>0]"
+add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
+add_sum_rows, name(conflict_rich_sum) expr(c.conflict#c.richness_std + c.L1_conflict#c.richness_std + c.L2_conflict#c.richness_std)
+add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
+add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
+}
+
+qui {
+* (8) Intensive margin — with lags
+eststo t5_8: reghdfe log1p_total conflict L1_conflict L2_conflict ///
+        c.conflict#c.richness_std c.L1_conflict#c.richness_std c.L2_conflict#c.richness_std ///
+        forest_loss_share burned_share ///
+        pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local conflict_measure "1[events>0]"
+add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
+add_sum_rows, name(conflict_rich_sum) expr(c.conflict#c.richness_std + c.L1_conflict#c.richness_std + c.L2_conflict#c.richness_std)
+add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
+add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
+}
+
+* -------------------------------------------------------------------
+* Display Table 5
+* -------------------------------------------------------------------
+
+esttab t5_*, keep(conflict c.conflict#c.richness_std ///
+             forest_loss_share burned_share ///
+             pdsi_anomaly tmax_anomaly log1p_ntl ///
+             protected_share c.log_gdp_pc#c.protected_share ///
+             c.log_gdp_pc_sq#c.protected_share) ///
+    order(conflict c.conflict#c.richness_std ///
+          forest_loss_share burned_share ///
+          pdsi_anomaly tmax_anomaly log1p_ntl ///
+          protected_share c.log_gdp_pc#c.protected_share ///
+          c.log_gdp_pc_sq#c.protected_share) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    varlabels(conflict "Conflict" ///
+              c.conflict#c.richness_std "Conflict x Richness (SD)" ///
+              forest_loss_share "Forest loss" ///
+              burned_share "Burned area" ///
+              pdsi_anomaly "PDSI anom." ///
+              tmax_anomaly "Tmax anom." ///
+              log1p_ntl "NTL (log)" ///
+              protected_share "Prot. share" ///
+              c.log_gdp_pc#c.protected_share "ln(GDP pc) x Prot." ///
+              c.log_gdp_pc_sq#c.protected_share "ln(GDP pc)^2 x Prot.") ///
+    stats(conflict_sum_txt conflict_sum_se_txt ///
+          conflict_rich_sum_txt conflict_rich_sum_se_txt ///
+          pdsi_sum_txt pdsi_sum_se_txt ///
+          tmax_sum_txt tmax_sum_se_txt ///
+          conflict_measure ymean ysd N r2 ///
+          fe_cell fe_cy fe_biome_yr road_yr, ///
+          labels("Sum conflict L0-L2" " " ///
+                 "Sum conflict x Rich. L0-L2" " " ///
+                 "Sum PDSI L0-L2" " " ///
+                 "Sum tmax L0-L2" " " ///
+                 "Conflict measure" "Dep. var. mean" "Dep. var. SD" ///
+                 "Obs." "R-sq." "Cell FE" "Country x Year FE" ///
+                 "Biome x Year FE" "Road dens. x Year") ///
+          fmt(%s %s %s %s %s %s %s %s ///
+              %s %9.4f %9.4f %9.0fc %9.4f %s %s %s %s)) ///
+    title("Table 5: Conflict x Species Richness (IUCN)") ///
     mtitles("Any" "log(1+N)" "Any" "log(1+N)" "Any" "log(1+N)" "Any" "log(1+N)") ///
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
