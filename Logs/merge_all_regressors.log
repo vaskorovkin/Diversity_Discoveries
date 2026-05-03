@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/vasilykorovkin/Documents/Diversity_Discoveries/Logs/merge_all_regressors.log
   log type:  text
- opened on:   2 May 2026, 17:52:25
+ opened on:   3 May 2026, 10:49:19
 
 . 
 . * -------------------------------------------------------------------
@@ -16,7 +16,7 @@
 . tempfile BOLD
 
 . save `BOLD'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000001 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.000001 saved
 
 . 
 . * --- Panel regressors (cell_id × year) ---
@@ -27,7 +27,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000001 saved
 . tempfile ucdp
 
 . save `ucdp'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000002 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.000002 saved
 
 . 
 . import delimited "`proj'/Data/regressors/hansen/hansen_forest_loss_100km_panel.csv", clear
@@ -36,7 +36,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000002 saved
 . tempfile hansen
 
 . save `hansen'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000003 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.000003 saved
 
 . 
 . import delimited "`proj'/Data/regressors/modis/modis_burned_area_100km_panel.csv", clear
@@ -45,7 +45,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000003 saved
 . tempfile modis
 
 . save `modis'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000004 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.000004 saved
 
 . 
 . import delimited "`proj'/Data/regressors/terraclimate/terraclimate_100km_panel.csv", clear
@@ -54,7 +54,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000004 saved
 . tempfile terraclimate
 
 . save `terraclimate'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000005 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.000005 saved
 
 . 
 . import delimited "`proj'/Data/regressors/chirps/chirps_100km_panel.csv", clear
@@ -63,7 +63,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000005 saved
 . tempfile chirps
 
 . save `chirps'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000006 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.000006 saved
 
 . 
 . import delimited "`proj'/Data/regressors/wdpa/wdpa_protected_panel_100km.csv", clear
@@ -72,7 +72,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000006 saved
 . tempfile wdpa_panel
 
 . save `wdpa_panel'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000007 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.000007 saved
 
 . 
 . * --- Static baselines (cell_id only) ---
@@ -83,7 +83,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000007 saved
 . tempfile resolve
 
 . save `resolve'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000008 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.000008 saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/cepf_hotspots_100km_cells.csv", clear
@@ -92,7 +92,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000008 saved
 . tempfile cepf
 
 . save `cepf'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000009 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.000009 saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/wdpa_protected_share_100km_cells.csv", clear
@@ -101,7 +101,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.000009 saved
 . tempfile wdpa_static
 
 . save `wdpa_static'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.00000a saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.00000a saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/grip_roads_100km_cells.csv", clear
@@ -110,7 +110,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.00000a saved
 . tempfile grip
 
 . save `grip'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.00000b saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.00000b saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/globio_msa_100km_cells.csv", clear
@@ -119,7 +119,54 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.00000b saved
 . tempfile globio
 
 . save `globio'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.00000c saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.00000c saved
+
+. 
+. import delimited "`proj'/Data/regressors/worldbank/worldbank_gdp_pcap_panel.csv", clear
+(4 vars, 5,029 obs)
+
+. tempfile wbgdp
+
+. save `wbgdp'
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.00000d saved
+
+. 
+. import delimited "`proj'/Data/regressors/nightlights/nightlights_100km_panel.csv", clear
+(8 vars, 276,754 obs)
+
+. tempfile ntl
+
+. save `ntl'
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.00000e saved
+
+. 
+. import delimited "`proj'/Data/regressors/acled/acled_100km_cell_year_2005_2024.csv", clear
+(20 vars, 291,320 obs)
+
+. tempfile acled
+
+. save `acled'
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.00000f saved
+
+. 
+. * --- Static baselines: species richness ---
+. 
+. import delimited "`proj'/Data/regressors/baseline_geography/species_richness_100km_cells.csv", clear
+(8 vars, 14,566 obs)
+
+. tempfile richness
+
+. save `richness'
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.00000g saved
+
+. 
+. import delimited "`proj'/Data/regressors/baseline_geography/species_richness_birds_100km_cells.csv", clear
+(5 vars, 14,566 obs)
+
+. tempfile richness_birds
+
+. save `richness_birds'
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_73745.00000h saved
 
 . 
 . * -------------------------------------------------------------------
@@ -213,6 +260,34 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.00000c saved
 . rename _merge _merge_wdpa_panel
 
 . 
+. merge 1:1 cell_id year using `ntl'
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                        87,396
+        from master                    87,396  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                           276,754  (_merge==3)
+    -----------------------------------------
+
+. rename _merge _merge_ntl
+
+. 
+. merge 1:1 cell_id year using `acled'
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                        72,830
+        from master                    72,830  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                           291,320  (_merge==3)
+    -----------------------------------------
+
+. rename _merge _merge_acled
+
+. 
 . * -------------------------------------------------------------------
 . * 3. Merge static baselines m:1 on cell_id
 . * -------------------------------------------------------------------
@@ -272,12 +347,59 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_62352.00000c saved
 . rename _merge _merge_globio
 
 . 
+. merge m:1 cell_id using `richness'
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                           364,150  (_merge==3)
+    -----------------------------------------
+
+. rename _merge _merge_richness
+
+. 
+. merge m:1 cell_id using `richness_birds'
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                             0
+    matched                           364,150  (_merge==3)
+    -----------------------------------------
+
+. rename _merge _merge_richness_birds
+
+. 
+. * --- Country-year regressors (iso_a3 × year; requires iso_a3 from RESOLVE) ---
+. 
+. merge m:1 iso_a3 year using `wbgdp'
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                       100,510
+        from master                    98,660  (_merge==1)
+        from using                      1,850  (_merge==2)
+
+    matched                           265,490  (_merge==3)
+    -----------------------------------------
+
+. rename _merge _merge_wbgdp
+
+. 
 . * -------------------------------------------------------------------
 . * 4. Save
 . * -------------------------------------------------------------------
 . 
+. drop if continent=="Antarctica"
+(22,575 observations deleted)
+
+. drop if cell_area_km2>10001
+(2,025 observations deleted)
+
+. 
 . compress
-  (0 bytes saved)
+  variable cell_area_km2 was float now int
+  variable country_name was str30 now str24
+  (2,731,200 bytes saved)
 
 . save "`proj'/Data/analysis/BOLD_regressor_panel.dta", replace
 file /Users/vasilykorovkin/Documents/Diversity_Discoveries/Data/analysis/BOLD_regressor_panel.dta saved
@@ -287,103 +409,146 @@ file /Users/vasilykorovkin/Documents/Diversity_Discoveries/Data/analysis/BOLD_re
 
             _merge_ucdp |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-        master only (1) |     14,566        4.76        4.76
-            matched (3) |    291,320       95.24      100.00
+        master only (1) |     13,484        4.76        4.76
+            matched (3) |    269,680       95.24      100.00
 ------------------------+-----------------------------------
-                  Total |    305,886      100.00
+                  Total |    283,164      100.00
 
 . tab _merge_hansen
 
           _merge_hansen |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-        master only (1) |     29,132        8.00        8.00
-         using only (2) |     58,264       16.00       24.00
-            matched (3) |    276,754       76.00      100.00
+        master only (1) |     26,968        7.90        7.90
+         using only (2) |     58,236       17.06       24.96
+            matched (3) |    256,196       75.04      100.00
 ------------------------+-----------------------------------
-                  Total |    364,150      100.00
+                  Total |    341,400      100.00
 
 . tab _merge_modis
 
            _merge_modis |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-        master only (1) |     29,132        8.00        8.00
-            matched (3) |    335,018       92.00      100.00
+        master only (1) |     26,968        7.90        7.90
+            matched (3) |    314,432       92.10      100.00
 ------------------------+-----------------------------------
-                  Total |    364,150      100.00
+                  Total |    341,400      100.00
 
 . tab _merge_terraclimate
 
     _merge_terraclimate |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-        master only (1) |     29,132        8.00        8.00
-            matched (3) |    335,018       92.00      100.00
+        master only (1) |     26,968        7.90        7.90
+            matched (3) |    314,432       92.10      100.00
 ------------------------+-----------------------------------
-                  Total |    364,150      100.00
+                  Total |    341,400      100.00
 
 . tab _merge_chirps
 
           _merge_chirps |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-        master only (1) |     29,132        8.00        8.00
-            matched (3) |    335,018       92.00      100.00
+        master only (1) |     26,968        7.90        7.90
+            matched (3) |    314,432       92.10      100.00
 ------------------------+-----------------------------------
-                  Total |    364,150      100.00
+                  Total |    341,400      100.00
 
 . tab _merge_wdpa_panel
 
       _merge_wdpa_panel |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-        master only (1) |     14,566        4.00        4.00
-            matched (3) |    349,584       96.00      100.00
+        master only (1) |     13,484        3.95        3.95
+            matched (3) |    327,916       96.05      100.00
 ------------------------+-----------------------------------
-                  Total |    364,150      100.00
+                  Total |    341,400      100.00
 
 . tab _merge_resolve
 
          _merge_resolve |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-            matched (3) |    364,150      100.00      100.00
+            matched (3) |    341,400      100.00      100.00
 ------------------------+-----------------------------------
-                  Total |    364,150      100.00
+                  Total |    341,400      100.00
 
 . tab _merge_cepf
 
             _merge_cepf |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-            matched (3) |    364,150      100.00      100.00
+            matched (3) |    341,400      100.00      100.00
 ------------------------+-----------------------------------
-                  Total |    364,150      100.00
+                  Total |    341,400      100.00
 
 . tab _merge_wdpa_static
 
      _merge_wdpa_static |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-            matched (3) |    364,150      100.00      100.00
+            matched (3) |    341,400      100.00      100.00
 ------------------------+-----------------------------------
-                  Total |    364,150      100.00
+                  Total |    341,400      100.00
 
 . tab _merge_grip
 
             _merge_grip |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-            matched (3) |    364,150      100.00      100.00
+            matched (3) |    341,400      100.00      100.00
 ------------------------+-----------------------------------
-                  Total |    364,150      100.00
+                  Total |    341,400      100.00
 
 . tab _merge_globio
 
           _merge_globio |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-            matched (3) |    364,150      100.00      100.00
+            matched (3) |    341,400      100.00      100.00
 ------------------------+-----------------------------------
-                  Total |    364,150      100.00
+                  Total |    341,400      100.00
+
+. tab _merge_wbgdp
+
+           _merge_wbgdp |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+        master only (1) |     76,050       22.28       22.28
+            matched (3) |    265,350       77.72      100.00
+------------------------+-----------------------------------
+                  Total |    341,400      100.00
+
+. tab _merge_ntl
+
+             _merge_ntl |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+        master only (1) |     85,204       24.96       24.96
+            matched (3) |    256,196       75.04      100.00
+------------------------+-----------------------------------
+                  Total |    341,400      100.00
+
+. tab _merge_acled
+
+           _merge_acled |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+        master only (1) |     71,720       21.01       21.01
+            matched (3) |    269,680       78.99      100.00
+------------------------+-----------------------------------
+                  Total |    341,400      100.00
+
+. tab _merge_richness
+
+        _merge_richness |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+            matched (3) |    341,400      100.00      100.00
+------------------------+-----------------------------------
+                  Total |    341,400      100.00
+
+. tab _merge_richness_birds
+
+  _merge_richness_birds |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+            matched (3) |    341,400      100.00      100.00
+------------------------+-----------------------------------
+                  Total |    341,400      100.00
 
 . 
 . describe
 
 Contains data from /Users/vasilykorovkin/Documents/Diversity_Discoveries/Data/analysis/BOLD_regressor_panel.dta
-  obs:       364,150                          
- vars:           151                          2 May 2026 17:52
+  obs:       341,400                          
+ vars:           185                          3 May 2026 10:49
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
               storage   display    value
 variable name   type    format     label      variable label
@@ -510,6 +675,28 @@ protected_share float   %9.0g
 any_protected   byte    %8.0g                 
 new_protectio~2 float   %9.0g                 
 _merge_wdpa_p~l byte    %23.0g     _merge     
+ntl_mean        float   %9.0g                 
+log1p_ntl       float   %9.0g                 
+any_light       byte    %8.0g                 
+l1_log1p_ntl    float   %9.0g                 L1_log1p_ntl
+_merge_ntl      byte    %23.0g     _merge     
+acled_events_~l int     %8.0g                 
+acled_fatalit~l int     %8.0g                 
+acled_events~es int     %8.0g                 
+acled_fatali~es int     %8.0g                 
+acled_events~ns int     %8.0g                 
+acled_fatali~ns int     %8.0g                 
+acled_events~ac int     %8.0g                 
+acled_fatali~ac int     %8.0g                 
+acled_event~sts int     %8.0g                 
+acled_fatal~sts int     %8.0g                 
+acled_event~ots int     %8.0g                 
+acled_fatal~ots int     %8.0g                 
+acled_events~ic int     %8.0g                 
+acled_fatali~ic int     %8.0g                 
+acled_any_all   byte    %8.0g                 
+acled_any_vio~t byte    %8.0g                 
+_merge_acled    byte    %23.0g     _merge     
 resolve_eco_id  int     %8.0g                 
 resolve_eco_n~e str65   %65s                  
 resolve_biome~m byte    %8.0g                 
@@ -526,7 +713,7 @@ cepf_hotspot_~s str45   %45s
 cepf_hotspot_~t byte    %8.0g                 
 cepf_hotspot_~y byte    %8.0g                 
 _merge_cepf     byte    %23.0g     _merge     
-cell_area_km2   float   %9.0g                 
+cell_area_km2   int     %9.0g                 
 wdpa_candidat~s long    %8.0g                 
 wdpa_protecte~2 float   %9.0g                 
 wdpa_protecte~e float   %9.0g                 
@@ -539,6 +726,18 @@ log_road_dens~y float   %9.0g
 _merge_grip     byte    %23.0g     _merge     
 msa_overall     float   %9.0g                 
 _merge_globio   byte    %23.0g     _merge     
+richness_mamm~s int     %8.0g                 
+richness_amph~s int     %8.0g                 
+richness_rept~s int     %8.0g                 
+richness_total  int     %8.0g                 
+log1p_richnes~l float   %9.0g                 
+_merge_richness byte    %23.0g     _merge     
+richness_birds  int     %8.0g                 
+log1p_richnes~s float   %9.0g                 
+_merge_richn~ds byte    %23.0g     _merge     
+country_name    str24   %24s                  
+gdp_pcap_curr~d float   %9.0g                 
+_merge_wbgdp    byte    %23.0g     _merge     
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Sorted by: 
 
@@ -547,191 +746,231 @@ Sorted by:
     Variable |        Obs        Mean    Std. Dev.       Min        Max
 -------------+---------------------------------------------------------
      cell_id |          0
-      cell_x |    364,150    19.72916     78.4315       -174        173
-      cell_y |    364,150    18.46533     41.1358        -73         72
-        year |    364,150        2013    7.211112       2001       2025
-centroid_lon |    305,886    20.96584    81.28775  -179.8183   179.8183
+      cell_x |    341,400    18.33782    77.87874       -173        172
+      cell_y |    341,400    24.37773    35.16585        -73         72
+        year |    341,400    2012.868    7.261686       2001       2025
+centroid_lon |    283,164    19.23282    80.60752  -178.7819   178.7819
 -------------+---------------------------------------------------------
-centroid_lat |    305,886    16.56843    39.21053  -80.94885   80.94885
+centroid_lat |    283,164     23.8568    30.57534  -54.25486   80.94885
    continent |          0
      country |          0
       iso_a3 |          0
-drop_rich_~g |    305,886    .3797885    .4853349          0          1
+drop_rich_~g |    283,164     .409819     .491801          0          1
 -------------+---------------------------------------------------------
-total_reco~s |    305,886    47.62199    2354.841          0     505254
-animalia_r~s |    305,886    47.00939    2353.613          0     505254
-plantae_re~s |    305,886    .4892378    16.72468          0       3764
-fungi_reco~s |    305,886    .1149088     3.92071          0        949
-bacteria_r~s |    305,886    .0084574    .7462831          0        261
+total_reco~s |    283,164    51.42764    2447.458          0     505254
+animalia_r~s |    283,164    50.76606    2446.182          0     505254
+plantae_re~s |    283,164    .5283687    17.38212          0       3764
+fungi_reco~s |    283,164      .12408    4.074798          0        949
+bacteria_r~s |    283,164     .009136    .7756436          0        261
 -------------+---------------------------------------------------------
-plantae_fu~s |    305,886    .6041466    17.24408          0       3764
-non_chorda~s |    305,886    46.52746    2353.209          0     505254
-arthropoda~s |    305,886    46.11932    2352.288          0     505238
-insecta_re~s |    305,886    45.37209    2339.309          0     503438
-chordata_r~s |    305,886    .4819214     6.80405          0        784
+plantae_fu~s |    283,164    .6524488    17.92163          0       3764
+non_chorda~s |    283,164    50.24805    2445.763          0     505254
+arthropoda~s |    283,164    49.81758    2444.807          0     505238
+insecta_re~s |    283,164    49.01269    2431.318          0     503438
+chordata_r~s |    283,164    .5180108    7.054785          0        784
 -------------+---------------------------------------------------------
-   any_total |    305,886    .1676115    .3735215          0          1
- log1p_total |    305,886    .3916663    1.092069          0   13.13282
-any_animalia |    305,886     .157732    .3644901          0          1
-log1p_anim~a |    305,886    .3662581    1.059768          0   13.13282
- any_plantae |    305,886    .0178302    .1323341          0          1
+   any_total |    283,164    .1806621    .3847386          0          1
+ log1p_total |    283,164     .422116    1.128075          0   13.13282
+any_animalia |    283,164    .1700145    .3756462          0          1
+log1p_anim~a |    283,164    .3947068    1.095052          0   13.13282
+ any_plantae |    283,164    .0192362    .1373544          0          1
 -------------+---------------------------------------------------------
-log1p_plan~e |    305,886    .0352012    .3141085          0   8.233503
-   any_fungi |    305,886    .0123608    .1104901          0          1
- log1p_fungi |    305,886    .0180944    .1952816          0   6.856462
-any_bacteria |    305,886    .0010592    .0325284          0          1
-log1p_bact~a |    305,886    .0015307    .0565832          0   5.568345
+log1p_plan~e |    283,164    .0379908    .3262041          0   8.233503
+   any_fungi |    283,164    .0133456      .11475          0          1
+ log1p_fungi |    283,164    .0195318     .202822          0   6.856462
+any_bacteria |    283,164    .0011442    .0338069          0          1
+log1p_bact~a |    283,164    .0016536    .0588079          0   5.568345
 -------------+---------------------------------------------------------
-any_planta~i |    305,886    .0277456    .1642434          0          1
-log1p_plan~i |    305,886    .0506091    .3644122          0   8.233503
-any_non_ch~a |    305,886     .140062    .3470519          0          1
-log1p_non_~a |    305,886    .3261104    1.015028          0   13.13282
-any_arthro~a |    305,886    .1328665    .3394309          0          1
+any_planta~i |    283,164    .0299473    .1704423          0          1
+log1p_plan~i |    283,164    .0546323    .3783534          0   8.233503
+any_non_ch~a |    283,164    .1509796    .3580297          0          1
+log1p_non_~a |    283,164     .351435    1.049487          0   13.13282
+any_arthro~a |    283,164    .1433904    .3504712          0          1
 -------------+---------------------------------------------------------
-log1p_arth~a |    305,886    .3065391    .9873019          0   13.13279
- any_insecta |    305,886    .1232649    .3287415          0          1
-log1p_inse~a |    305,886    .2836761    .9565895          0   13.12922
-any_chordata |    305,886    .0356898    .1855158          0          1
-log1p_chor~a |    305,886    .0651744    .3989573          0   6.665684
+log1p_arth~a |    283,164     .330806    1.021808          0   13.13279
+ any_insecta |    283,164    .1331278    .3397134          0          1
+log1p_inse~a |    283,164    .3063968    .9906814          0   13.12922
+any_chordata |    283,164    .0384265    .1922239          0          1
+log1p_chor~a |    283,164    .0701309    .4133084          0   6.665684
 -------------+---------------------------------------------------------
-ucdp_event~l |    291,320    1.015052     25.9656          0       4615
-ucdp_best_~l |    291,320    6.994889    410.7797          0     157240
-ucdp_low_all |    291,320    6.426346    405.4641          0     157370
-ucdp_high_~l |    291,320    8.497189     408.396          0     156242
-ucdp_death~l |    291,320    1.323133    55.21235          0      17805
+ucdp_event~l |    269,680    1.096503    26.98563          0       4615
+ucdp_best_~l |    269,680    7.556181     426.938          0     157240
+ucdp_low_all |    269,680    6.942016     421.414          0     157370
+ucdp_high_~l |    269,680    9.179031    424.4581          0     156242
+ucdp_death~l |    269,680    1.429305     57.3835          0      17805
 -------------+---------------------------------------------------------
-ucd~ts_state |    291,320    .7310518     24.0785          0       4484
-ucdp~t_state |    291,320    5.416453    406.5268          0     157240
-ucdp~w_state |    291,320    5.084941    401.9386          0     157370
-ucdp~h_state |    291,320    6.676758    403.1341          0     156242
-ucd~ns_state |    291,320    .7149389    49.65467          0      17117
+ucd~ts_state |    269,680    .7897137    25.02501          0       4484
+ucdp~t_state |    269,680    5.851086    422.5197          0     157240
+ucdp~w_state |    269,680    5.492973    417.7513          0     157370
+ucdp~h_state |    269,680    7.212522    418.9919          0     156242
+ucd~ns_state |    269,680    .7723079    51.60804          0      17117
 -------------+---------------------------------------------------------
-~ts_nonstate |    291,320    .1621001    5.206254          0        883
-u~t_nonstate |    291,320    1.005695    30.21979          0       6493
-u~w_nonstate |    291,320    .8195901    25.45538          0       5719
-u~h_nonstate |    291,320    1.135295    32.81245          0       7935
-~ns_nonstate |    291,320    .0559522    7.466991          0       3690
+~ts_nonstate |    269,680    .1751075    5.410897          0        883
+u~t_nonstate |    269,680    1.086395    31.40747          0       6493
+u~w_nonstate |    269,680    .8853567    26.45589          0       5719
+u~h_nonstate |    269,680    1.226394    34.10191          0       7935
+~ns_nonstate |    269,680     .060442    7.760782          0       3690
 -------------+---------------------------------------------------------
-ucdp_event~d |    291,320    .1219003    1.996438          0        248
-ucdp_best_~d |    291,320    .5727413     13.6182          0       1618
-ucdp_low_o~d |    291,320    .5218145     12.5734          0       1589
-ucdp_high_~d |    291,320    .6851366    16.67449          0       2853
-ucdp_death~d |    291,320    .5522415    13.10493          0       1618
+ucdp_event~d |    269,680     .131682    2.074683          0        248
+ucdp_best_~d |    269,680    .6186999    14.15304          0       1618
+ucdp_low_o~d |    269,680    .5636866    13.06723          0       1589
+ucdp_high_~d |    269,680    .7401142    17.32942          0       2853
+ucdp_death~d |    269,680    .5965552     13.6196          0       1618
 -------------+---------------------------------------------------------
-u~ts_precise |    291,320    .7336743    22.92299          0       4523
-uc~t_precise |    291,320    3.490402    107.3195          0      23014
-ucdp_low_p~e |    291,320     3.18029     95.0487          0      19125
-uc~h_precise |    291,320    4.369566    148.9691          0      40527
-ucdp_deat~se |    291,320    1.088593    40.66243          0       6537
+u~ts_precise |    269,680    .7925467    23.82398          0       4523
+uc~t_precise |    269,680    3.770484    111.5375          0      23014
+ucdp_low_p~e |    269,680    3.435487     98.7842          0      19125
+uc~h_precise |    269,680    4.720194    154.8253          0      40527
+ucdp_deat~se |    269,680    1.175946    42.26119          0       6537
 -------------+---------------------------------------------------------
-ucdp_event.. |    291,320    .5122099    21.22156          0       4392
-ucdp_best_.. |    291,320    2.499684    98.75721          0      23005
-ucdp_low_s.. |    291,320    2.266412     86.6868          0      19116
-ucdp_high_.. |    291,320    3.220369    140.5752          0      40525
-ucdp_death~c |    291,320    .5870864    34.45403          0       5960
+ucdp_event.. |    269,680    .5533113    22.05606          0       4392
+ucdp_best_.. |    269,680    2.700267    102.6404          0      23005
+ucdp_low_s.. |    269,680    2.448276    90.09525          0      19116
+ucdp_high_.. |    269,680    3.478782    146.1035          0      40525
+ucdp_death~c |    269,680    .6341961     35.8093          0       5960
 -------------+---------------------------------------------------------
-ucdp_event.. |    291,320    .1320816    4.680453          0        883
-ucdp_best_.. |    291,320    .5235926    20.82961          0       6493
-ucdp_low_n.. |    291,320    .4876253    19.10902          0       5719
-ucdp_high_.. |    291,320    .5956165    23.61208          0       7935
-ucdp_dea~e_p |    291,320    .0515447    7.426466          0       3690
+ucdp_event.. |    269,680    .1426802    4.864463          0        883
+ucdp_best_.. |    269,680    .5656074    21.64866          0       6493
+ucdp_low_n.. |    269,680    .5267539     19.8604          0       5719
+ucdp_high_.. |    269,680    .6434107    24.54053          0       7935
+ucdp_dea~e_p |    269,680    .0556808    7.718665          0       3690
 -------------+---------------------------------------------------------
-ucdp_event.. |    291,320    .0893828    1.701711          0        244
-ucdp_best_.. |    291,320    .4671255    12.30295          0       1412
-ucdp_low_o~e |    291,320    .4262529    11.30457          0       1403
-ucdp_high_.. |    291,320    .5535803    15.20633          0       2853
-ucdp_dea~d_p |    291,320    .4499622    11.79432          0       1412
+ucdp_event.. |    269,680    .0965552    1.768474          0        244
+ucdp_best_.. |    269,680    .5046092     12.7863          0       1412
+ucdp_low_o~e |    269,680    .4604568    11.74871          0       1403
+ucdp_high_.. |    269,680    .5980013    15.80382          0       2853
+ucdp_dea~d_p |    269,680    .4860687    12.25768          0       1412
 -------------+---------------------------------------------------------
-ucdp_any_all |    291,320    .0543389    .2266855          0          1
-ucdp~y_state |    291,320    .0343402    .1821019          0          1
-u~y_nonstate |    291,320    .0154366    .1232818          0          1
-ucdp_any_o~d |    291,320     .025151     .156584          0          1
-ucdp_any_p~e |    291,320    .0431656    .2032301          0          1
+ucdp_any_all |    269,680    .0586992    .2350613          0          1
+ucdp~y_state |    269,680    .0370958     .188997          0          1
+u~y_nonstate |    269,680    .0166753     .128052          0          1
+ucdp_any_o~d |    269,680    .0271692    .1625767          0          1
+ucdp_any_p~e |    269,680    .0466293     .210844          0          1
 -------------+---------------------------------------------------------
-ucdp_any_s.. |    291,320    .0269154    .1618366          0          1
-ucdp_any_n.. |    291,320    .0119868    .1088264          0          1
-ucdp_any_o~e |    291,320    .0196485    .1387894          0          1
- _merge_ucdp |    305,886    2.904762    .4259184          1          3
-baseline_f~2 |    335,018    2250.207    7134.269          0   571114.4
+ucdp_any_s.. |    269,680    .0290752    .1680177          0          1
+ucdp_any_n.. |    269,680    .0129487    .1130533          0          1
+ucdp_any_o~e |    269,680    .0212252    .1441344          0          1
+ _merge_ucdp |    283,164    2.904762    .4259185          1          3
+baseline_f~2 |    314,432     2278.93    2830.667          0   9990.967
 -------------+---------------------------------------------------------
-forest_los~2 |    335,018    11.62624    52.38684          0   5891.565
-forest_los~e |    335,018    .0029202    .0089049          0          1
-cumula~s_km2 |    335,018    127.3839     541.949          0    75868.8
-cumulative~e |    335,018    .0340808    .0677418          0          1
-l1_forest_~2 |    320,452    11.48201     51.6944          0   5891.565
+forest_los~2 |    314,432    11.80298    36.39944          0   1817.702
+forest_los~e |    314,432    .0031096    .0091593          0          1
+cumula~s_km2 |    314,432    129.4724    333.6854          0   5540.599
+cumulative~e |    314,432    .0362932    .0693416          0          1
+l1_forest_~2 |    299,873    11.68585    35.24546          0   1787.021
 -------------+---------------------------------------------------------
-l2_forest_~2 |    305,886    11.43661     51.0715          0   5506.387
-l1_forest_~e |    320,452    .0028985    .0087627          0          1
-l2_forest_~e |    305,886    .0029051    .0088067          0          1
-_merge_han~n |    364,150        2.68    .6144925          1          3
-burned_are~2 |    335,018    276.1273    1379.309          0   174656.7
+l2_forest_~2 |    285,314      11.683    35.25523          0   1787.021
+l1_forest_~e |    299,873    .0030956    .0090242          0          1
+l2_forest_~e |    285,314    .0031128    .0090827          0          1
+_merge_han~n |    341,400    2.671435    .6153014          1          3
+burned_are~2 |    314,432     283.535    882.1465          0   9447.813
 -------------+---------------------------------------------------------
-  any_burned |    335,018    .5388606    .4984883          0          1
-cumula~d_km2 |    335,018    3476.072    19054.47          0    2950673
-l1_burned_~2 |    320,452    276.6511    1382.792          0   174656.7
-l2_burned_~2 |    305,886    278.9989    1391.879          0   174656.7
-l1_any_bur~d |    320,452    .5381368    .4985442          0          1
+  any_burned |    314,432    .5737743    .4945282          0          1
+cumula~d_km2 |    314,432    3569.112    11693.13          0   171211.5
+l1_burned_~2 |    299,873    284.9213    884.6298          0   9447.813
+l2_burned_~2 |    285,314    288.2689    890.7717          0   9447.813
+l1_any_bur~d |    299,873       .5747    .4943893          0          1
 -------------+---------------------------------------------------------
-l2_any_bur~d |    305,886    .5384163    .4985228          0          1
-_merge_modis |    364,150        2.84    .5425871          1          3
-   pdsi_mean |    335,018    -.919394    2.613958  -15.02607    13.0447
-pdsi_anomaly |    335,018    -.677869    2.334884  -13.59249   13.28168
-   tmax_mean |    335,018    16.34524     18.4091  -49.49867   40.11292
+l2_any_bur~d |    285,314    .5768697    .4940566          0          1
+_merge_modis |    341,400    2.842015    .5394545          1          3
+   pdsi_mean |    314,432   -1.045462     2.60443  -15.02607    13.0447
+pdsi_anomaly |    314,432   -.7468264    2.343439  -13.59249   13.28168
+   tmax_mean |    314,432    19.26587    14.67331   -48.7894   40.11292
 -------------+---------------------------------------------------------
-tmax_anomaly |    335,018    .6159791    .7993627   -3.24704    6.28665
-    ppt_mean |    335,018    60.19379    61.92505   .0002083   671.5046
- ppt_anomaly |    335,018   -.9431117    13.70992  -133.0157    307.777
-_merge_ter~e |    364,150        2.84    .5425871          1          3
-chirps_pre~m |    235,518    910.3694    850.4693          0   8091.736
+tmax_anomaly |    314,432    .6321289    .7944979   -3.24704    6.28665
+    ppt_mean |    314,432    63.20442    62.63366   .0002083   671.5046
+ ppt_anomaly |    314,432   -1.032897    14.10678  -133.0157    307.777
+_merge_ter~e |    341,400    2.842015    .5394545          1          3
+chirps_pre~m |    235,495    910.3572    850.5095          0   8091.736
 -------------+---------------------------------------------------------
-chirps_pre~y |    235,518    18.20966    182.6178  -2900.662   2780.291
-_merge_chi~s |    364,150        2.84    .5425871          1          3
-protected_~2 |    349,584    1544.961    10299.48          0   682930.5
-protected_~e |    349,584    .1341045    .2417489          0          1
-any_protec~d |    349,584    .5963631     .490627          0          1
+chirps_pre~y |    235,495    18.21181    182.6249  -2900.662   2780.291
+_merge_chi~s |    341,400    2.842015    .5394545          1          3
+protected_~2 |    327,916    1309.343    2261.152          0      10000
+protected_~e |    327,916    .1309343    .2261152          0          1
+any_protec~d |    327,916    .6351078    .4814007          0          1
 -------------+---------------------------------------------------------
-new_protec~2 |    349,584    75.80273    1865.919          0   569361.6
-_merge_wdp~l |    364,150        2.92    .3919189          1          3
-resolve_ec~d |    357,275    435.5285    291.1668          0        846
+new_protec~2 |    327,916    66.03287    521.2281          0      10000
+_merge_wdp~l |    341,400    2.921008    .3895451          1          3
+    ntl_mean |    256,196    6.775048    5.666139          0   57.46442
+   log1p_ntl |    256,196    1.653066    1.029512          0   4.068419
+   any_light |    256,196    .8040094    .3969621          0          1
+-------------+---------------------------------------------------------
+l1_log1p_ntl |    242,712    1.717434    1.017022          0   4.068419
+  _merge_ntl |    341,400    2.500855    .8655323          1          3
+acled_even~l |    269,680    8.236773    108.7316          0      17447
+acled_fata~l |    269,680    6.551327     145.271          0      29313
+acled_eve~es |    269,680    1.375475    32.63381          0       6807
+-------------+---------------------------------------------------------
+acled_fat~es |    269,680    3.544434    89.06373          0      22231
+acled_eve~ns |    269,680    1.512648     63.4212          0      10717
+acled_fat~ns |    269,680    1.536599    70.43635          0      21973
+acled_eve~ac |    269,680    .9330799     9.94823          0        678
+acled_fat~ac |    269,680    1.302996    19.57056          0       3932
+-------------+---------------------------------------------------------
+acled_ev~sts |    269,680    3.303515    30.45072          0       3154
+acled_fa~sts |    269,680    .0229828    1.643554          0        533
+acled_ev~ots |    269,680     .532939    13.63445          0       3011
+acled_fa~ots |    269,680    .1259604    3.834732          0       1009
+acled_eve~ic |    269,680     .579116    10.80487          0       1677
+-------------+---------------------------------------------------------
+acled_fat~ic |    269,680    .0183551     .720143          0        190
+acled_any_~l |    269,680    .1811258    .3851231          0          1
+acled_any_~t |    269,680    .1091034    .3117695          0          1
+_merge_acled |    341,400    2.579848    .8147261          1          3
+resolve_ec~d |    335,142    464.0127    277.6182          0        846
+-------------+---------------------------------------------------------
 resol~o_name |          0
-resolve_bi~m |    357,275     7.62193    4.016453          1         14
--------------+---------------------------------------------------------
+resolve_bi~m |    335,142    7.399586    4.048677          1         14
 resolve_bi~e |          0
 resolve_re~m |          0
 resolve_~ome |          0
- resolve_nnh |    357,275    2.408929    1.090742          0          4
+-------------+---------------------------------------------------------
+ resolve_nnh |    335,142    2.567419    .9283152          0          4
 resolve_nn~e |          0
--------------+---------------------------------------------------------
 resolve_li~e |          0
-resolve_ma~d |    364,150    .9811204    .1360999          0          1
-resolve_ro~e |    364,150    .0853357     .279381          0          1
-_merge_res~e |    364,150           3           0          3          3
+resolve_ma~d |    341,400    .9816696    .1341434          0          1
+resolve_ro~e |    341,400    .0265583    .1607888          0          1
+-------------+---------------------------------------------------------
+_merge_res~e |    341,400           3           0          3          3
 cepf_hotsp~s |          0
+cepf_hotsp~t |    341,400    .1778705    .3824043          0          1
+cepf_hotsp~y |    341,400    .1778705    .3824043          0          1
+ _merge_cepf |    341,400           3           0          3          3
 -------------+---------------------------------------------------------
-cepf_hotsp~t |    364,150    .1668269    .3728217          0          1
-cepf_hotsp~y |    364,150    .1668269    .3728217          0          1
- _merge_cepf |    364,150           3           0          3          3
-cell_area_~2 |    364,150    11659.66    75689.44      10000    3463506
-wdpa_candi~s |    364,150     80.2637    827.2972          0      42506
+cell_area_~2 |    341,400       10000           0      10000      10000
+wdpa_candi~s |    341,400    77.65873    713.7391          0      42506
+wdpa_prote~2 |    341,400    1478.673    2345.495          0      10000
+wdpa_prote~e |    341,400    .1478673    .2345495          0          1
+wdpa_any_p~d |    341,400    .6893292    .4627689          0          1
 -------------+---------------------------------------------------------
-wdpa_prote~2 |    364,150    1561.108    8526.604          0   479675.5
-wdpa_prote~e |    364,150    .1386806    .2298883          0          1
-wdpa_any_p~d |    364,150    .6469175    .4779287          0          1
-_merge_wdp~c |    364,150           3           0          3          3
-r~_m_per_km2 |    364,150    159.8668    352.5283          0   10169.35
+_merge_wdp~c |    341,400           3           0          3          3
+r~_m_per_km2 |    341,400    170.5063    361.5866          0   10169.35
+r~km_per_km2 |    341,400    .1705063    .3615866          0   10.16935
+    any_road |    341,400    .8726567    .3333576          0          1
+log_road_d~y |    341,400    3.846877     1.94887          0   9.227232
 -------------+---------------------------------------------------------
-r~km_per_km2 |    364,150    .1598668    .3525283          0   10.16935
-    any_road |    364,150    .8186187    .3853343          0          1
-log_road_d~y |    364,150    3.607926    2.102842          0   9.227232
- _merge_grip |    364,150           3           0          3          3
- msa_overall |    364,125    .5796136     .247549   .2007575   .9222696
+ _merge_grip |    341,400           3           0          3          3
+ msa_overall |    341,375    .5568617    .2388749   .2007575   .9222696
+_merge_glo~o |    341,400           3           0          3          3
+richness_m~s |    341,400    69.48986     49.1653          0        252
+richness_a~s |    341,400    18.75234    25.63008          0        206
 -------------+---------------------------------------------------------
-_merge_glo~o |    364,150           3           0          3          3
+richness_r~s |    341,400    45.14697     44.8955          0        224
+richness_t~l |    341,400    133.3892    111.6456          0        593
+log1p_rich~l |    341,400    4.517194    .9958514          0   6.386879
+_merge_ri~ss |    341,400           3           0          3          3
+richness_b~s |    341,400    200.0831    141.7207          0        938
+-------------+---------------------------------------------------------
+log1p_rich~s |    341,400    4.942397    1.089561          0   6.844815
+_merge_ri~ds |    341,400           3           0          3          3
+country_name |          0
+gdp_pcap_c~d |    265,350    18115.11    20853.34     147.23     112895
+_merge_wbgdp |    341,400    2.554482    .8321972          1          3
 
 . 
 . log close
       name:  <unnamed>
        log:  /Users/vasilykorovkin/Documents/Diversity_Discoveries/Logs/merge_all_regressors.log
   log type:  text
- closed on:   2 May 2026, 17:52:36
+ closed on:   3 May 2026, 10:49:32
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------

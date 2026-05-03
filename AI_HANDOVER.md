@@ -271,6 +271,58 @@ Variables: `iso_a3`, `country_name`, `year`, `gdp_pcap_current_usd`.
 Covers 2001-2024, 217 countries. Merged m:1 on `iso_a3 year` after RESOLVE
 provides `iso_a3`. ~78% of cell-years match (miss = small islands, disputed).
 
+Harmonized nighttime lights (cell-level income proxy):
+
+```bash
+# Run GEE script, download export, then:
+python3 Scripts/merge_nightlights_exports.py
+```
+
+Uses Li, Zhou et al. (2020) harmonized NTL dataset — DMSP calibrated to
+VIIRS-equivalent scale for a consistent 2005-2023 series. GEE assets:
+`projects/sat-io/open-datasets/Harmonized_NTL/dmsp` (2005-2013) and
+`viirs` (2014-2021), extended with raw VIIRS DNB for 2022-2023.
+
+Output: `Data/regressors/nightlights/nightlights_100km_panel.csv`
+Variables: `ntl_mean`, `log1p_ntl`, `any_light`. No sensor dummy needed.
+
+ACLED conflict events (alternative to UCDP):
+
+```bash
+# Option 1: API download with Bearer token
+python3 Scripts/download_acled.py --token-file Data/raw/acled/acled_token.json
+# Option 2: manual CSV export from https://acleddata.com/data-export-tool/
+# Then:
+python3 Scripts/aggregate_acled_100km.py --acled "Data/raw/acled/ACLED Data_2026-05-02.csv"
+```
+
+Output: `Data/regressors/acled/acled_100km_cell_year_2005_2024.csv`
+Variables: `acled_events_all`, `acled_fatalities_all`, `acled_any_all`,
+`acled_any_violent`, plus per-type counts (battles, explosions, vac,
+protests, riots, strategic). Much richer than UCDP: 2.2M events vs 296K,
+includes protests and riots.
+
+Species richness baseline (IUCN/BirdLife range maps):
+
+```bash
+# Mammals, amphibians, reptiles (run together):
+python3 Scripts/aggregate_species_richness_100km.py
+# Birds (separate terminal — BOTW is 9 GB):
+python3 Scripts/aggregate_species_richness_birds_100km.py
+```
+
+Input: IUCN range map shapefiles in `Data/raw/iucn_ranges/{MAMMALS,AMPHIBIANS,REPTILES}/`
+and BirdLife BOTW GeoPackage in `Data/raw/iucn_ranges/BOTW/`.
+Filters: extant, native, resident/breeding (standard macroecology practice).
+
+Output: `Data/regressors/baseline_geography/species_richness_100km_cells.csv`
+(mammals + amphibians + reptiles) and
+`Data/regressors/baseline_geography/species_richness_birds_100km_cells.csv`.
+
+Plant richness not yet available — Kier et al. (2005) supplementary data
+gives vascular plant richness per WWF ecoregion but the Wiley download link
+is broken and ecoregion IDs need a crosswalk to RESOLVE 2017.
+
 Hansen Global Forest Change is being aggregated via Google Earth Engine:
 
 ```text

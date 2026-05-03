@@ -70,6 +70,24 @@ import delimited "`proj'/Data/regressors/worldbank/worldbank_gdp_pcap_panel.csv"
 tempfile wbgdp
 save `wbgdp'
 
+import delimited "`proj'/Data/regressors/nightlights/nightlights_100km_panel.csv", clear
+tempfile ntl
+save `ntl'
+
+import delimited "`proj'/Data/regressors/acled/acled_100km_cell_year_2005_2024.csv", clear
+tempfile acled
+save `acled'
+
+* --- Static baselines: species richness ---
+
+import delimited "`proj'/Data/regressors/baseline_geography/species_richness_100km_cells.csv", clear
+tempfile richness
+save `richness'
+
+import delimited "`proj'/Data/regressors/baseline_geography/species_richness_birds_100km_cells.csv", clear
+tempfile richness_birds
+save `richness_birds'
+
 * -------------------------------------------------------------------
 * 2. Merge panels 1:1 on cell_id year
 * -------------------------------------------------------------------
@@ -94,6 +112,12 @@ rename _merge _merge_chirps
 merge 1:1 cell_id year using `wdpa_panel'
 rename _merge _merge_wdpa_panel
 
+merge 1:1 cell_id year using `ntl'
+rename _merge _merge_ntl
+
+merge 1:1 cell_id year using `acled'
+rename _merge _merge_acled
+
 * -------------------------------------------------------------------
 * 3. Merge static baselines m:1 on cell_id
 * -------------------------------------------------------------------
@@ -112,6 +136,12 @@ rename _merge _merge_grip
 
 merge m:1 cell_id using `globio'
 rename _merge _merge_globio
+
+merge m:1 cell_id using `richness'
+rename _merge _merge_richness
+
+merge m:1 cell_id using `richness_birds'
+rename _merge _merge_richness_birds
 
 * --- Country-year regressors (iso_a3 × year; requires iso_a3 from RESOLVE) ---
 
@@ -140,6 +170,10 @@ tab _merge_wdpa_static
 tab _merge_grip
 tab _merge_globio
 tab _merge_wbgdp
+tab _merge_ntl
+tab _merge_acled
+tab _merge_richness
+tab _merge_richness_birds
 
 describe
 summarize

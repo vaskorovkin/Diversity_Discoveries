@@ -21,6 +21,13 @@
 - `download_globio_msa.py`: downloads GLOBIO4 MSA (Mean Species Abundance) rasters for baseline biodiversity intactness.
 - `aggregate_globio_msa_100km.py`: aggregates GLOBIO MSA to 100 km cells.
 - `download_worldbank_gdp.py`: downloads World Bank GDP per capita (current US$, WDI indicator NY.GDP.PCAP.CD) for all countries, 2001-2024. Uses WB API v2, no key required. Output: `Data/regressors/worldbank/worldbank_gdp_pcap_panel.csv`.
+- `gee_nightlights_100km.js`: Google Earth Engine script to aggregate Li et al. (2020) harmonized nighttime lights to 100 km cells. Consistent VIIRS-equivalent scale 2005-2023. Cell-level income proxy. See `Scripts/gee_nightlights_README.md`.
+- `merge_nightlights_exports.py`: merges harmonized nightlights GEE export into a cell-year panel with log-radiance.
+- `download_acled.py`: downloads ACLED conflict events via API (requires free ACLED account, Bearer token via `--token` or `--token-file`). Year-by-year download, full global coverage 2005-2024. Alternative: manually export CSV from ACLED data export tool.
+- `aggregate_acled_100km.py`: aggregates ACLED events to 100 km cells. Event counts and fatalities by type (battles, explosions, violence against civilians, protests, riots). Plus `acled_any_violent` indicator.
+- `download_species_richness.py`: instructions and verification for IUCN Red List species range map downloads (manual, free account). Covers mammals, amphibians, reptiles.
+- `aggregate_species_richness_100km.py`: computes baseline species richness per 100 km cell from IUCN range map shapefiles (mammals, amphibians, reptiles). Handles multi-part shapefiles. Spatial join with IUCN filters (extant, native, resident/breeding).
+- `aggregate_species_richness_birds_100km.py`: separate bird species richness script for BirdLife BOTW GeoPackage (~9 GB). Run in a separate terminal to avoid RAM exhaustion.
 - `gee_hansen_forest_loss_100km.js`: Google Earth Engine script to aggregate Hansen Global Forest Change to 100 km cells using tree-cover-weighted method. See `Scripts/gee_hansen_forest_loss_README.md`.
 - `merge_hansen_exports.py`: merges Earth Engine CSV exports into a complete cell-year panel with lags.
 - `gee_modis_burned_area_100km.js`: Google Earth Engine script to aggregate MODIS MCD64A1 burned area to 100 km cells.
