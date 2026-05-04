@@ -1,0 +1,655 @@
+I have a list of 633 people who collected biological specimens for the BOLD (Barcode of Life Data Systems) database. For each person, I need:
+1. Their most likely **institutional affiliation** (university, museum, research institute, etc.)
+2. Their **country** (ISO 3166-1 alpha-3 code, e.g., USA, CAN, GBR, DEU, BRA, AUS)
+
+Rules:
+- These are biologists, taxonomists, entomologists, ecologists, or field collectors — not economists or physicists.
+- If the name is clearly a project, team, or organization (e.g., "BIO Collections Staff", "BIOBus 2012", "CBG Collections Staff"), write: ORGANIZATION | — | —
+- If the name is a single word or too ambiguous to identify (e.g., "Micheal", "Kung"), write: AMBIGUOUS | — | —
+- If you genuinely don't know, write: UNKNOWN | — | —
+- If there are two plausible people, give your best guess for the one most likely to be a BOLD contributor, and note the ambiguity in parentheses.
+- Use the CURRENT (most recent) primary affiliation.
+
+Format each line exactly as:
+<number>. <name> | <institution> | <country_iso3>
+
+Example output:
+1. W.Hallwachs | University of Pennsylvania | USA
+2. D.Janzen | University of Pennsylvania | USA
+3. J.A.Solano | Area de Conservacion Guanacaste | CRI
+
+Here is the list:
+
+1. W.Hallwachs
+2. D.Janzen
+3. J.A.Solano
+4. M.Obando
+5. M.Zuniga Siles
+6. R. Zuniga
+7. O.Masis
+8. I.Chacon
+9. J. Porras Quiros
+10. Buntika Butcher
+11. Dimby Raharinjanahary
+12. CBG Collections Staff
+13. S.Stroud
+14. G.Blanco
+15. BIOBus 2012
+16. Diego Inclan
+17. M. N'Zore
+18. Santosh Mazumdar
+19. Joseph Hubert Masoy
+20. Micheal
+21. A.Azofeifa A
+22. Baker
+23. Austin
+24. Laine
+25. Jesse
+26. M. Camara
+27. M. Soumah
+28. BIObus 2014
+29. Vanessa Kadosoe
+30. ICFC Manu
+31. BIObus 2013
+32. Pablo Tubaro
+33. Kung
+34. Giar-Ann
+35. Korneyev
+36. Severyn
+37. Jones
+38. Jacob
+39. Perez
+40. Julia
+41. Tim Wardlaw
+42. T.H. Ringsby
+43. B.-E. Saether
+44. Michel N'Zore
+45. Paul Hebert
+46. Vu Van Lien
+47. Maples
+48. Benjamin
+49. Isidro Chacon
+50. BIO Collections Staff
+51. Dan Janzen
+52. Horna Lowell
+53. Eva
+54. D. H. Janzen
+55. W. Hallwachs
+56. S. Stroud
+57. Thibaud Decaens
+58. Rafael Ojeda Flores
+59. Eddie P. Mondejar
+60. M. Ochem
+61. Naila Nazir Khan
+62. R.Franco
+63. John Wilson
+64. Tang
+65. Nathan
+66. M. Conte
+67. Mat Seidensticker
+68. H.Cambronero
+69. Jen
+70. Hilary Bayer
+71. S.Rios
+72. DH Janzen
+73. W Hallwachs
+74. National Ecological Observatory Network
+75. United States
+76. Lufuno Nenungwi
+77. A. Ouedraogo
+78. P.Hebert
+79. Michelle D`Souza
+80. Chrystal Simon
+81. Ian Hogg
+82. S. Cannings
+83. M. Bangoura
+84. D. Camara
+85. Mailyn Gonzalez
+86. Sandra Garces-Carrera
+87. Dr. Akhtar Rasool
+88. Mr. Ikram Ullah
+89. Miss Aheeba Malik
+90. A.P. Konan
+91. O. Ouattara
+92. G.M. Dizo
+93. Armin Niessner
+94. S. Korneyev
+95. B. Maples
+96. Denise Crosbie
+97. R.Pojar
+98. Nomndeni Nkosi
+99. Constance Mathoho
+100. Luke L. Powell
+101. Pitoon Kongnoo et al.
+102. Joshua Kohn
+103. Mpho Mathalauga
+104. B. Bukowski
+105. D. Lijtmaer
+106. P. Tubaro
+107. A.E.R. N'Guessan
+108. V. Sawadogo
+109. S. Kone
+110. S. Sodre
+111. Pagi Toko
+112. P. Hebert
+113. Herman Staude
+114. S.F. Sylla
+115. Graeme Cocks
+116. Christina Boser
+117. Axel Hausman
+118. Deer
+119. Ellie
+120. Monki Siza
+121. BIO Collections
+122. Philip Mokau
+123. Walter Mabatha
+124. Rachel
+125. G. Sellmayer
+126. Yipan
+127. E. Stur
+128. T. Ekrem
+129. M. Bou Dagher Kharrat
+130. C. Haber
+131. C. Saliba
+132. P.Tubaro
+133. D.Lijtmaer
+134. Saul-Gershenz
+135. Leslie
+136. Gershenz
+137. Norman
+138. Lou-Nita Le Roux Joubert
+139. Abel Verduzco
+140. F.Tremblay
+141. F.Quesada
+142. A.Ahmadi
+143. A.R. Tape
+144. A.V. Dadie
+145. A. Bance
+146. O. Kouame
+147. Etai Kahana
+148. Heraty lab
+149. Samy Zalat
+150. Huemer P.
+151. M. Macary
+152. F. Sylla
+153. A. Soumah
+154. Angelica Diaz-Pulido
+155. G. Kung
+156. Eric Malgas
+157. M.G. Conte
+158. N. Soumah
+159. Margaret Kinnaird
+160. D.Iles
+161. Muhammad Tufail
+162. Paul Harris
+163. Deborah Beaumont
+164. S. Plehi
+165. A. Kramo
+166. Z. Sawadogo
+167. B. Ganame
+168. M.Brown
+169. Philile Dlamini
+170. Rulik et al
+171. Paul Ayles
+172. Lufund Chantal Muthelu
+173. Marko Mutanen
+174. Erin Rivera
+175. N. Morea
+176. Y. Cabrera
+177. J. Diaz
+178. Y. Medina
+179. A. Dussan
+180. A. Lasso
+181. C. Dussan
+182. Parks Canada
+183. TDH/EYK/NAA/BAA
+184. W. el Houjeir
+185. R. Kahale
+186. J. Porras Quir??s
+187. Cavan Harpur
+188. Medo Toure
+189. C.J. Bennett
+190. Alec Naidoo
+191. Weary
+192. Brandt
+193. W.Porras
+194. V. Penevi
+195. Park rangers of Parque Exploradores
+196. Albert Smith
+197. Koehler
+198. Jorge L. Leon-Cortes
+199. Wonga Komanisi
+200. Deidre Koopman
+201. BIObus 2010
+202. Arif Khan
+203. Stuart Warrington
+204. Marlucia Martins
+205. Evan Perry
+206. O.El-Ansary
+207. A.Voronkov
+208. S.Ferreira
+209. Sbonelo Mathebula
+210. Stephanie Church
+211. Eric Chaves
+212. Bernard Martin
+213. Heidi Brown
+214. Sean Locke
+215. L.Gardiner
+216. Ross Stewart
+217. Malik Ghulam Sarwar
+218. Mfumaneko Mdengethunga
+219. Adjoua Philomene Konan
+220. Ouanadion Ouattara
+221. Araissa Ouedraogo
+222. Gbaguehi Marguerite Dizo
+223. Sabila Afzal
+224. James Sones
+225. Riffat Sultana
+226. Biobus 2011
+227. T. Roslin
+228. Sylvie Plehi
+229. Avire Kramo
+230. Zourata Sawadogo
+231. Balkissa Ganame
+232. L.Attard
+233. K.Greenham
+234. BIObus 2008
+235. Agnes Tibane
+236. Park Staff
+237. Farkhanda Manzoor
+238. Dr. Ahktar Rasool
+239. Mr. Numan
+240. R. Sultana
+241. Heraty Lab
+242. J. Jones
+243. J. Perez
+244. Mikko Pentinsaari
+245. M.Otway
+246. Gergin Blagoev
+247. B.L.Fisher et al.
+248. Michael Sharkey
+249. Joe Nkuna
+250. Aya Ela Roseline N'Guessan
+251. Veronique Sawadogo
+252. Sounougou Kone
+253. Salimata Sodre
+254. Tyler Zemlak
+255. M. Akhtar
+256. R.Sultana
+257. D.Faser
+258. L. Ramsay
+259. V.Acuna
+260. P.M. Heath
+261. M.Hutchinson
+262. R.Pringle
+263. P.D.N. Hebert
+264. Magda Bou Dagher Kharrat
+265. Julia G. Betz
+266. Diana Phan
+267. Allinghman
+268. Jisming See Shi Wei
+269. S.Devita
+270. I. Iliev
+271. Tatsiana Lipinksaya
+272. A.Y. Yoboue
+273. G.J. Gadjelou
+274. A. Traore
+275. M. Traore
+276. Jonathan Banks
+277. T. Roslin et al. leg.
+278. E. Horna Lowell
+279. S. Derkarabetian
+280. W. Porras
+281. Becky Nichols
+282. Luciano Cagnolo
+283. Kristina J. Anderson
+284. D.Whitaker
+285. deWaard
+286. Rendani Nethengwe
+287. Nazir Ahmed
+288. Masae Ishihara
+289. O.Ermakov
+290. V.Vekhnik
+291. G.Palacios
+292. J.B.Sullivan
+293. Cathy
+294. J.Porras Quiros
+295. Allingham
+296. Peter Farrell
+297. Bontle
+298. B.McLean
+299. Tanaka Muradzikwa
+300. Neil Hammatt
+301. Neil Brougham
+302. B. Naday
+303. M. Oprandi
+304. L. Grevstad
+305. Hector Barrios
+306. Yves Basset
+307. Charlotte Targett
+308. John Barratt
+309. Anita Barratt
+310. Binatang Research Center
+311. P.Sinkins
+312. P.Demontigny
+313. K. Bhagaloo
+314. Peter Cale
+315. Robert Copeland
+316. Piotr Gadawski
+317. Michal Grabowski
+318. Tomasz Rewicz
+319. B. Afful
+320. Darrin Bausch
+321. K.Kerr
+322. Muhammad Rafique
+323. Jamie
+324. J.McCormick
+325. J.Sones
+326. Alice Calvente
+327. K. Seydel
+328. S. V. Triapitsyn
+329. BIObus 2009
+330. R.Reid
+331. Marius Snyders
+332. A.R. Kouassi
+333. A.A. Konan
+334. A.L. Kouassi
+335. R.D.Ward
+336. Danny Govender
+337. BioBus 2011
+338. Kara Layton
+339. ICFC Wayqecha
+340. Biobus 2010
+341. B.Wijdeven
+342. R.Owchar
+343. K. Dominguez
+344. S. Heacox
+345. J. Heraty
+346. Carol Taylor
+347. Sinethemba
+348. Sithembiso
+349. J. G. Betz
+350. D. Phan
+351. Elise Vasquez
+352. A. Hausmann
+353. Parks Canada Staff
+354. Jessica Ortiz
+355. Philile Khuzwayo
+356. Amanda Msomi
+357. Sindiswa Ntenga
+358. Ntombenhlf Shange
+359. Niina Kiljunen
+360. Doczkal
+361. Schmidt
+362. Voith
+363. Brenden Bertrand
+364. J. Das
+365. local collector
+366. J.Sabir
+367. Shirley Butland
+368. Carlos Lopez Vaamonde
+369. gusaneros
+370. Angeline Reine Tape
+371. Adjoua Viviane Dadie
+372. Aminata Bance
+373. Offoumou Kouame
+374. Chenxi Liu
+375. Trish Shute
+376. Stone Barns Center
+377. Nokuphila Buthelezi
+378. Palombar
+379. F.Lui
+380. Bob Ward
+381. I.Chac??n
+382. Nkateko Rikhotso
+383. Claire Carvell
+384. Ellie Grove
+385. Nadine Mitschunas
+386. M.Rafique
+387. Q.Abbas
+388. G. Cocks
+389. POLAR staff
+390. Diann Black Layne
+391. Robert Bryden
+392. Jeremy deWaard
+393. Carlos Lopez-Vaamonde
+394. J. Bayer
+395. D.Erasmus
+396. D.Huber
+397. C.Shrimpton
+398. Zhaofu Yang
+399. S.Miller
+400. Ouattara Aminata
+401. S. Camara
+402. J Wang
+403. M. Sharkey
+404. Paul D.N. Hebert
+405. V. Albu
+406. M. Tiusanen
+407. Penelope Whitehorn
+408. James Belebes
+409. Darroch Whitaker
+410. Salmon Jemma
+411. Lawniczak Mara
+412. Teltscher Fiona
+413. CBH staff
+414. Jeff Howard
+415. Tomas Ramabulana
+416. A.M.Sabir
+417. Val Albu
+418. R. Kaartinen
+419. G. Varkonyi
+420. Lindokuhle Gumede
+421. Arif Muhammad Khan
+422. Nicole Labine
+423. Harold Brenner
+424. Philip Hebert
+425. Gloria Sihezar
+426. B. Weary
+427. Jobe
+428. Anele Mangwane
+429. Reliance
+430. Mtumaneko
+431. Sigwe
+432. S.Kumar
+433. S. Behrens
+434. R. Popko
+435. Donald Hobern
+436. A.Samejo
+437. Jeremiah Garber
+438. Zodwa Sibuyi
+439. C.S. Guppy
+440. M. Loua
+441. Deirdre Kerdraon
+442. Chris Johnstone
+443. Jose Perez
+444. Karen
+445. K. McCabe
+446. L. Janke
+447. B. McClenaghan
+448. N.Dudley
+449. J. Hughes
+450. N.Bloomfield
+451. SzuYang Wu
+452. Tswireletso
+453. Thembu
+454. Barry Yates
+455. Ndwakhulu Mutobvu
+456. Yanega
+457. Doug
+458. K.Cox
+459. E. Mitchell
+460. B. Bekins
+461. R.Labbee
+462. V.Levesque-Beaudin
+463. J.Webb
+464. Randi Mulder
+465. A.Sritharan
+466. Elda Araya
+467. Alex Smith
+468. Emma Sylvester
+469. D. Doczkal
+470. Sandra Visage
+471. Glenn Fine
+472. Frode Odegaard
+473. Catalina Estrada Montes
+474. Manuel Rios
+475. Godfrey Baloyi
+476. E.Hansen
+477. S.G.Cannings
+478. Kjurstens
+479. Emma
+480. Heraty
+481. John
+482. Josh Palumbo
+483. C. Erseus
+484. M.I. Bozdas
+485. Vusi Sambo
+486. Qamar Abbas
+487. Wieser
+488. Ch.
+489. P.Langan
+490. R. Allingham
+491. Carolina Cano
+492. Ross Jeffree
+493. Ecoreg Solutions
+494. Eddie Sibuyi
+495. Amoin Yvonne Yoboue
+496. Galohonon Juliette Gadjelou
+497. Anatou Traore
+498. Mafilany Traore
+499. Lucia Rios
+500. William Kunin
+501. Marco Millan Valera
+502. E.D.Edwards
+503. Vince Cloward
+504. J.Sibbald
+505. Tomasz Mamos
+506. Andrzej Zawal
+507. Mary Whitley
+508. M. Alex Smith
+509. Rodolphe Rougerie
+510. B.L.Fisher
+511. D.H.Janzen
+512. Daniel Handfield
+513. S. Schmidt
+514. I.F.B.Common
+515. Rulik et al.
+516. Mateusz Puchalski
+517. Aleksandra Bankowska
+518. Aya Rinadine Kouassi
+519. Awa Ouedraogo
+520. Affoue Angele Konan
+521. Affoue Leontine Kouassi
+522. lgt. W.Stark
+523. T.Davison
+524. J.Brewster
+525. E.Zakharov
+526. Dr. Shah Jahan
+527. Elizabeth Biro
+528. Zhiguang Yang
+529. D. Thomson
+530. Dania M.
+531. Evgeny Zakharov
+532. M. Makary
+533. Dr. Andreas H. Segerer
+534. S. Akhtar
+535. Maxim Larrivee
+536. Calixto Moraga
+537. Solny Adalsteinsson
+538. BIObus 2015
+539. Jukka Salmela
+540. Mark Dreiling
+541. Manuel Pereira
+542. Roster Moraga
+543. Leivur Janus Hansen
+544. Riffat
+545. Santosh
+546. Jose Cortez
+547. Gunnar Brehm
+548. A.Orocu
+549. Helen Clark
+550. Erica McAlister
+551. Elen Griffith
+552. Francesca Anderson
+553. Thomas Zechmeister
+554. H. Staude
+555. J. Samaroo
+556. Melanie
+557. Roberta Tesar
+558. Julia Oliveira
+559. G. Harwood
+560. Ethel Aberg
+561. Dalton Mabasa
+562. Harry Ramirez
+563. Dino Martins
+564. Cyndi Smith
+565. Paula Leitman
+566. E. Friedrich
+567. Hardage
+568. Scott
+569. Daijiang Li
+570. African Lion Safari Staff
+571. S.Chisholm
+572. Adrian Guadamuz
+573. Lora Todorova
+574. Rianna Badesha
+575. Lira Valencia
+576. Minor Carmona
+577. M.Rizwan
+578. Elieth Cantillano
+579. Anabelle Cordoba
+580. H. Bayer
+581. M.Anwer
+582. D.Crossland
+583. K.Rowter
+584. Hannah Dale
+585. Osvaldo Espinoza
+586. N. Bloomfield
+587. C.Wong
+588. Finote Gijsman
+589. Frederick Erii
+590. Roberto Espinoza
+591. Kaia Harbour
+592. Petrona Rios
+593. C.McKinnon
+594. Kathleen O`Sullivan
+595. Mariano Pereira
+596. Jorgen Naalisvaara
+597. Richard Wilson
+598. Kitching
+599. Ashton
+600. Adrian Vasquez
+601. Kai Berggren
+602. B.F.Carr
+603. J.L.Carr
+604. Freddy Quesada
+605. Hilary Zaranek
+606. Mike Ashworth
+607. Bill Urwin
+608. Fred Giles
+609. Georgina Shuckburgh
+610. Dion Bell
+611. Joseph Bourke-Trotham
+612. Jenny Vickers
+613. J.Cossey
+614. Schmid-Egger
+615. Guillermo Pereira
+616. Christian Wieser
+617. A.Floren
+618. B. Sharp
+619. J.McIntosh
+620. Meurel Baloyi
+621. S.Monckton
+622. Ricardo Calero
+623. Allan D. Connell
+624. J. Cossey
+625. T. Shute
+626. W.Pope
+627. S. Jugsu
+628. A. Watwanich
+629. Keith Pickthorn
+630. Sam Buckland
+631. P. Oboyski
+632. J. deWaard
+633. Rob Walker

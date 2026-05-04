@@ -568,24 +568,90 @@ Key findings across tables:
 
 Current prepared changes are code/docs only; data and output remain ignored.
 
-Suggested commit summary:
+## Collector Affiliation Pipeline (Parachute Science Analysis)
 
-```text
-Complete regressor pipeline and Stata merge
-```
+Goal: classify BOLD collectors as foreign or domestic relative to where they
+collect, to measure "parachute science" — researchers who collect specimens in
+countries other than their own.
 
-Suggested commit description:
+### Pipeline steps
 
-```text
-Adds download and aggregation scripts for all regressor datasets: TerraClimate
-climate anomalies (PDSI/tmax/ppt with 1981-2010 baseline), CHIRPS precipitation,
-GRIP4 road density, GLOBIO4 MSA biodiversity intactness, and time-varying WDPA
-protected-area panel. Includes fast v2 WDPA panel script using sjoin+clip.
+1. **Extract top collectors** (`09_institution_country_mapping.py`):
+   Reads `bold_minimal_records.csv`, counts collector strings, outputs
+   `bold_top500_collectors.csv` (raw collector strings with record counts).
 
-Adds Stata merge do-file (DoFiles/merge_all_regressors.do) that builds the
-complete analysis panel (BOLD_regressor_panel.dta) from all outcome and regressor
-CSVs. Drops Antarctica and date-line edge cells. Logs to Logs/.
+2. **Split to individuals** (`11_build_collector_individuals.py`):
+   Splits comma-separated collector strings (e.g., "D.Janzen, W.Hallwachs")
+   into person-level rows. Output: `bold_top500_collector_individuals.csv`
+   (633 unique individuals, covering ~85% of all BOLD records with a
+   collector field).
 
-Updates all documentation: AI_HANDOVER.md, Scripts/README.md, DoFiles/README.md,
-and regressor_dataset_options.md.
-```
+3. **LLM affiliation guesses**: The prompt file
+   `Data/processed/bold/prompt_collector_affiliations.txt` was pasted into
+   ChatGPT and Claude separately. Both returned institution + country for
+   each name. Saved as:
+   - `bold_collectors_affiliations_gpt.csv` (81.5% matched, aggressive)
+   - `bold_collectors_affiliations_claude.csv` (43.0% matched, cautious but
+     gives country even when institution is unknown)
+
+4. **Merge** (`11_merge_collector_affiliations.py`):
+   Merges GPT + Claude answers. Status categories:
+   - AGREED (231): both gave same country → accept
+   - GPT_ONLY (257): GPT matched, Claude UNKNOWN → accept GPT
+   - CLAUDE_ONLY (13): Claude matched, GPT didn't → accept Claude
+   - REVIEWED (28): both answered but disagreed → manually resolved
+   - ORG (33): organizations/teams, not people
+   - AMBIGUOUS (37): single-word names, can't identify
+   - UNRESOLVED (34): neither matched (15 have country from Claude's name-pattern guess)
+   Output: `bold_collector_affiliations_merged.csv`
+
+5. **Manual review**: 28 DISAGREE rows resolved by hand. Key decisions:
+   - Home institution country is coded (not collecting country)
+   - Trish/T. Shute → CAN (CBG Guelph, verified from BOLD records)
+   - Carolina Cano → CRI (ACG/Janzen project, verified from BOLD records)
+   - Marco Millan Valera → GBR (Wellcome Sanger, verified from BOLD records)
+   - Joseph Hubert Masoy → MDG (Claude was correct; GPT said PNG)
+   - GPT hallucinated "Parks Canada" for several UK-based volunteers (rows 606-613)
+   - SANBI vs SANParks distinction matters (different South African orgs)
+
+6. **Fill remaining countries** (`12_fill_missing_countries.py`):
+   For the ~89 collectors without LLM country, infers country from BOLD
+   record data. Three methods, applied in priority order:
+   - ORGs: hardcoded lookup table (BIOBus→CAN, Parks Canada→CAN, ICFC Manu→PER, etc.)
+   - BOLD institution field: maps `inst` values to countries (e.g., "University of Guelph"→CAN)
+   - Co-collector inference: finds other names in the same collector string
+     that already have resolved countries, votes by frequency
+
+### Retired scripts
+
+The following scripts were superseded by the LLM-based approach and removed:
+- `10_researcher_affiliation_search.py` — Brave Search API lookup (low accuracy, API key dependent)
+- `12_collector_country_from_bold.py` — added BOLD collecting-country columns, but redundant since the regression compares LLM home country vs cell country directly
+- `12_search_collector_affiliations.py` — wrapper around the old search approach
+- `infer_affiliations_from_search.py` — original Google/DuckDuckGo search script
+
+### Coverage as of 2026-05-04
+
+- 633 unique individuals extracted from top-500 raw collector strings
+- 544/633 (86%) have a country assignment after LLM merge + manual review
+- 89 without country: 37 ambiguous single-word names, 33 organizations, 19 truly unresolved
+- `12_fill_missing_countries.py` should bring coverage to ~99.7% (631/633)
+  using BOLD co-collector and institution data
+- Only 2 names (Allinghman #267, Kjurstens #478) have zero BOLD records
+
+### Key findings from LLM comparison
+
+- GPT is much more aggressive (81.5% vs 43% coverage) but occasionally
+  hallucinates institutions (Parks Canada for UK volunteers)
+- Claude is cautious but provides useful country guesses from name patterns
+  (West African surnames → CIV/BFA/GIN)
+- Country agreement where both answered: 87% (366/421)
+- Both LLMs know well-published taxonomists well; both fail on
+  parataxonomists and field technicians
+
+### Next steps
+
+- Run `12_fill_missing_countries.py` to fill remaining ~89 countries
+- Build foreign/domestic panel variables: for each cell-year, count records
+  by collectors whose home country ≠ cell country
+- Add `foreign_share`, `domestic_share` to the regression panel
