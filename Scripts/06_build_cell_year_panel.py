@@ -49,7 +49,6 @@ INPUT_COLUMNS = [
     "longitude",
     "collection_year",
     "bin_uri",
-    "bin_created_date",
 ]
 
 
@@ -185,13 +184,10 @@ def aggregate_records(
                 bin_uri = sub.loc[land_idx, "bin_uri"].fillna("").to_numpy()
                 bin_has = bin_uri != ""
                 if bin_has.any():
-                    bin_created = sub.loc[land_idx, "bin_created_date"].fillna("").to_numpy()
-                    bin_year = np.array([s[:4] if len(s) >= 4 and s[:4].isdigit() else "" for s in bin_created])
                     bdf = pd.DataFrame({
                         "cell_id": work["cell_id"].to_numpy()[bin_has],
                         "year": work["year"].to_numpy()[bin_has],
                         "bin_uri": bin_uri[bin_has],
-                        "bin_year": bin_year[bin_has],
                     })
                     bin_chunks.append(bdf.drop_duplicates())
 
@@ -214,7 +210,9 @@ def aggregate_records(
     if bin_chunks:
         all_bins = pd.concat(bin_chunks, ignore_index=True).drop_duplicates()
         n_bins = all_bins.groupby(["cell_id", "year"])["bin_uri"].nunique().reset_index(name="n_bins")
-        new_mask = all_bins["bin_year"] == all_bins["year"].astype(str)
+        global_first = all_bins.groupby("bin_uri")["year"].min().rename("first_year")
+        all_bins = all_bins.merge(global_first, on="bin_uri")
+        new_mask = all_bins["year"] == all_bins["first_year"]
         n_new_bins = (
             all_bins.loc[new_mask]
             .groupby(["cell_id", "year"])["bin_uri"]

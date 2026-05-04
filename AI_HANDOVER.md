@@ -77,9 +77,12 @@ Data/processed/bold/bold_grid100_cell_year_panel_collection_2005_2025_summary.cs
 ```
 
 The panel uses BOLD `collection_year`, 2005-2025, 100 km equal-area land
-cells, and zero-fills all land cell x year combinations. It is a strict
-land-cell panel; coastal/island/marine-adjacent records outside the land-cell
-universe are excluded for now.
+cells, and zero-fills all land cell x year combinations. BIN outcomes:
+`n_bins` = distinct BINs sampled per cell-year; `n_new_bins` = BINs whose
+global first appearance (earliest collection year across all cells) is that
+year, credited to every cell that collected the BIN in its first year. It is
+a strict land-cell panel; coastal/island/marine-adjacent records outside the
+land-cell universe are excluded for now.
 
 UCDP GED conflict has been aggregated to the same 100 km land cells:
 
@@ -491,7 +494,7 @@ do "DoFiles/reg_spec1.do"
 
 Log: `Logs/reg_spec1.log`
 
-The do-file estimates 4 tables (8 columns each, 32 specifications total).
+The do-file estimates 5 tables (8 columns each, 40 specifications total).
 Sample: 2005-2023. Dependent variables: `any_total` (extensive margin) and
 `log1p_total` (intensive margin). SE clustered at cell level.
 
@@ -517,6 +520,38 @@ Sample: 2005-2023. Dependent variables: `any_total` (extensive margin) and
   less in intact/remote areas (MSA is intactness, not richness).
 - Interpretation: conflict disrupts sampling where researchers already go
   (degraded, accessible areas), not in pristine zones.
+
+**Table 5** — Table 3 + Conflict×Richness (IUCN) interaction:
+- `c.conflict#c.richness_std`: negative coefficient — conflict reduces sampling
+  more in species-rich cells (richness_std is standardized IUCN total richness).
+
+### BIN Outcome Regressions (`reg_spec_bin.do`)
+
+Log: `Logs/reg_spec_bin.log`
+
+Replaces total-record LHS with BIN outcomes: `n_bins` (distinct BINs sampled)
+and `n_new_bins` (globally new BINs first observed in that cell-year). Five
+tables mirroring the main spec structure, including a sampling-effort control
+table. Key finding: conflict effect on new BIN discovery is almost entirely
+mediated by reduced sampling volume (the coefficient flips sign when
+conditioning on `log1p_total`).
+
+### Organism Heterogeneity (`reg_spec_organisms.do`)
+
+Log: `Logs/reg_spec_organisms.log`
+
+Runs Table 3 spec with Chordata, Insecta, and Plantae+Fungi as LHS. Key
+finding: the aggregate conflict effect is driven by insect sampling; Chordata
+sampling is conflict-proof. Plantae+Fungi shows a moderate conflict effect
+but is distinctively sensitive to climate shocks (Tmax, PDSI).
+
+### Benchmarking Decomposition (`reg_spec_benchmark.do`)
+
+Log: `Logs/reg_spec_benchmark.log`
+
+Compact 8-column table: conflict → sampling (cols 1-2), conflict → discovery
+(cols 3-4), conflict → discovery|effort (cols 5-6), and intensive-margin only
+(cols 7-8, restricted to `total_records > 0`).
 
 Key findings across tables:
 - Conflict is the most robust shock: negative, significant at 1% in nearly all

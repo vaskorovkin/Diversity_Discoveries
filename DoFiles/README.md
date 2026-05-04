@@ -56,6 +56,8 @@ The do-file loads `Data/analysis/BOLD_regressor_panel.dta`, restricts to
   as regressors.
 - **Table 4** (Table 3 + Conflict×MSA interaction): adds `c.conflict#c.msa_overall`
   to test whether conflict effects vary with biodiversity intactness.
+- **Table 5** (Table 3 + Conflict×Richness interaction): adds
+  `c.conflict#c.richness_std` (standardized IUCN species richness).
 
 Each table has 8 columns: {Any, log(1+N)} × {Contemporaneous, With Lags} ×
 {log(1+events), 1[events>0]} conflict measures. Lag specifications include
@@ -65,3 +67,55 @@ Standard errors clustered at cell level. Logs saved to `Logs/reg_spec1.log`.
 
 Legacy files `reg_spec1_global_south.do` and `reg_spec1_country_year_fe.do` are
 superseded by `reg_spec1.do`.
+
+### BIN Outcome Regressions
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_spec_bin.do"
+```
+
+Replaces total-record LHS with BIN (Barcode Index Number) outcomes.
+`n_bins` = distinct BINs sampled per cell-year (species richness of sampling);
+`n_new_bins` = globally new BINs first observed in that cell-year (discovery).
+
+- **Table 1**: n_bins — Country×Year + Biome×Year FE (mirrors reg_spec1 Table 3)
+- **Table 2**: n_new_bins — same FE structure
+- **Table 3**: n_bins — Conflict × Richness interaction (mirrors reg_spec1 Table 5)
+- **Table 4**: n_new_bins — Conflict × Richness interaction
+- **Table 5**: n_new_bins — sampling effort control (log1p_total), cols 1-4
+  without interaction, cols 5-8 with Conflict × Richness
+
+Logs saved to `Logs/reg_spec_bin.log`.
+
+### Organism Heterogeneity
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_spec_organisms.do"
+```
+
+Runs the Table 3 spec from reg_spec1 (Country×Year + Biome×Year FE) with
+kingdom/phylum-level LHS variables:
+
+- **Table 1**: Chordata records
+- **Table 2**: Insecta records
+- **Table 3**: Plantae + Fungi records
+
+Uses a `run_table` program to avoid repeating the 8-regression block.
+Logs saved to `Logs/reg_spec_organisms.log`.
+
+### Benchmarking: Sampling vs Discovery Decomposition
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_spec_benchmark.do"
+```
+
+Compact 8-column table comparing conflict coefficients across outcomes:
+
+- **Cols 1-2**: LHS = log1p_total (sampling volume)
+- **Cols 3-4**: LHS = log1p_n_new_bins (discovery)
+- **Cols 5-6**: LHS = log1p_n_new_bins controlling for log1p_total
+- **Cols 7-8**: Same as 5-6, restricted to cell-years with total_records > 0
+  (intensive margin only)
+
+All columns use log(1+events) conflict measure. Logs saved to
+`Logs/reg_spec_benchmark.log`.

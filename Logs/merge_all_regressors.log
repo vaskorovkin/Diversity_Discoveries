@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/vasilykorovkin/Documents/Diversity_Discoveries/Logs/merge_all_regressors.log
   log type:  text
- opened on:   3 May 2026, 22:08:35
+ opened on:   4 May 2026, 09:18:37
 
 . 
 . * -------------------------------------------------------------------
@@ -19,7 +19,7 @@
 . tempfile BOLD
 
 . save `BOLD'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000001 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000001 saved
 
 . 
 . * --- Panel regressors (cell_id × year) ---
@@ -30,7 +30,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000001 saved
 . tempfile ucdp
 
 . save `ucdp'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000002 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000002 saved
 
 . 
 . import delimited "`proj'/Data/regressors/hansen/hansen_forest_loss_100km_panel.csv", clear
@@ -39,7 +39,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000002 saved
 . tempfile hansen
 
 . save `hansen'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000003 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000003 saved
 
 . 
 . import delimited "`proj'/Data/regressors/modis/modis_burned_area_100km_panel.csv", clear
@@ -48,7 +48,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000003 saved
 . tempfile modis
 
 . save `modis'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000004 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000004 saved
 
 . 
 . import delimited "`proj'/Data/regressors/terraclimate/terraclimate_100km_panel.csv", clear
@@ -57,7 +57,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000004 saved
 . tempfile terraclimate
 
 . save `terraclimate'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000005 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000005 saved
 
 . 
 . import delimited "`proj'/Data/regressors/chirps/chirps_100km_panel.csv", clear
@@ -66,7 +66,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000005 saved
 . tempfile chirps
 
 . save `chirps'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000006 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000006 saved
 
 . 
 . import delimited "`proj'/Data/regressors/wdpa/wdpa_protected_panel_100km.csv", clear
@@ -75,7 +75,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000006 saved
 . tempfile wdpa_panel
 
 . save `wdpa_panel'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000007 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000007 saved
 
 . 
 . * --- Static baselines (cell_id only) ---
@@ -86,7 +86,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000007 saved
 . tempfile resolve
 
 . save `resolve'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000008 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000008 saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/cepf_hotspots_100km_cells.csv", clear
@@ -95,7 +95,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000008 saved
 . tempfile cepf
 
 . save `cepf'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000009 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000009 saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/wdpa_protected_share_100km_cells.csv", clear
@@ -104,7 +104,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.000009 saved
 . tempfile wdpa_static
 
 . save `wdpa_static'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000a saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000a saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/grip_roads_100km_cells.csv", clear
@@ -113,7 +113,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000a saved
 . tempfile grip
 
 . save `grip'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000b saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000b saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/globio_msa_100km_cells.csv", clear
@@ -122,7 +122,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000b saved
 . tempfile globio
 
 . save `globio'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000c saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000c saved
 
 . 
 . import delimited "`proj'/Data/regressors/worldbank/worldbank_gdp_pcap_panel.csv", clear
@@ -131,7 +131,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000c saved
 . tempfile wbgdp
 
 . save `wbgdp'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000d saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000d saved
 
 . 
 . import delimited "`proj'/Data/regressors/nightlights/nightlights_100km_panel.csv", clear
@@ -140,7 +140,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000d saved
 . tempfile ntl
 
 . save `ntl'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000e saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000e saved
 
 . 
 . import delimited "`proj'/Data/regressors/acled/acled_100km_cell_year_2005_2024.csv", clear
@@ -149,7 +149,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000e saved
 . tempfile acled
 
 . save `acled'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000f saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000f saved
 
 . 
 . import delimited "`proj'/Data/regressors/ibtracs/ibtracs_100km_cell_year_2005_2025.csv", clear
@@ -161,7 +161,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000f saved
 . tempfile ibtracs
 
 . save `ibtracs'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000g saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000g saved
 
 . 
 . import delimited "`proj'/Data/regressors/comcat/comcat_100km_cell_year_2005_2025.csv", clear
@@ -173,7 +173,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000g saved
 . tempfile comcat
 
 . save `comcat'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000h saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000h saved
 
 . 
 . * --- Static baselines: species richness ---
@@ -184,7 +184,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000h saved
 . tempfile richness
 
 . save `richness'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000i saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000i saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/species_richness_birds_100km_cells.csv", clear
@@ -193,7 +193,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000i saved
 . tempfile richness_birds
 
 . save `richness_birds'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_06756.00000j saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000j saved
 
 . 
 . * -------------------------------------------------------------------
@@ -613,7 +613,7 @@ file /Users/vasilykorovkin/Documents/Diversity_Discoveries/Data/analysis/BOLD_re
 
 Contains data from /Users/vasilykorovkin/Documents/Diversity_Discoveries/Data/analysis/BOLD_regressor_panel.dta
   obs:       327,916                          
- vars:           212                          3 May 2026 22:08
+ vars:           212                          4 May 2026 09:18
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
               storage   display    value
 variable name   type    format     label      variable label
@@ -862,7 +862,7 @@ insecta_re~s |    269,680    49.88927    2467.148          0     503438
 chordata_r~s |    269,680    .5426988    7.225156          0        784
 -------------+---------------------------------------------------------
       n_bins |    269,680    9.312014    266.9258          0      44252
-  n_new_bins |    269,680    .8518911    30.18557          0       4942
+  n_new_bins |    269,680    3.677822    115.5406          0      21206
    any_total |    269,680    .1880117    .3907223          0          1
  log1p_total |    269,680    .4395654    1.147025          0   13.13282
 any_animalia |    269,680    .1768689    .3815584          0          1
@@ -889,9 +889,9 @@ any_chordata |    269,680    .0402106    .1964532          0          1
 log1p_chor~a |    269,680    .0734172    .4226582          0   6.665684
   any_n_bins |    269,680    .1680399    .3739024          0          1
 log1p_n_bins |    269,680    .3100062    .8872988          0   10.69768
-any_n_new_~s |    269,680    .0354383    .1848852          0          1
+any_n_new_~s |    269,680    .1157891    .3199724          0          1
 -------------+---------------------------------------------------------
-log1p_n_ne~s |    269,680    .0556951    .3719389          0   8.505728
+log1p_n_ne~s |    269,680    .1872129    .6558422          0   9.962087
 ucdp_event~l |    269,680    1.096503    26.98563          0       4615
 ucdp_best_~l |    269,680    7.556181     426.938          0     157240
 ucdp_low_all |    269,680    6.942016     421.414          0     157370
@@ -1097,5 +1097,5 @@ _merge_wbgdp |    327,916    2.618402    .7858629          1          3
       name:  <unnamed>
        log:  /Users/vasilykorovkin/Documents/Diversity_Discoveries/Logs/merge_all_regressors.log
   log type:  text
- closed on:   3 May 2026, 22:08:50
+ closed on:   4 May 2026, 09:18:52
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
