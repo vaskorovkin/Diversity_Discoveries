@@ -34,7 +34,7 @@ def write_by_kingdom(path: Path, counter: dict[tuple[str, str], int], year_name:
             writer.writerow({"kingdom": kingdom, year_name: year, "record_count": count})
 
 
-def plot_series(counter: Counter, output: Path, title: str, ylabel: str, log1p: bool) -> None:
+def plot_series(counter: Counter, output: Path, title: str, ylabel: str, log1p: bool, xlabel: str = "Collection year") -> None:
     years = sorted(int(y) for y in counter if str(y).isdigit())
     counts = np.array([counter[str(y)] for y in years], dtype=float)
     yvals = np.log1p(counts) if log1p else counts
@@ -42,7 +42,7 @@ def plot_series(counter: Counter, output: Path, title: str, ylabel: str, log1p: 
     fig, ax = plt.subplots(figsize=(12, 5.8))
     ax.plot(years, yvals, color="#1f77b4", linewidth=2)
     ax.set_title(title)
-    ax.set_xlabel("Collection year")
+    ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
     ax.grid(True, alpha=0.25)
     fig.tight_layout()
@@ -134,6 +134,15 @@ def main() -> int:
         "BOLD observations by sequence upload year",
         "record count",
         False,
+        xlabel="Sequence upload year",
+    )
+    plot_series(
+        upload,
+        EXHIBIT_FIGURES / "fig_observations_by_sequence_upload_year_log1p.png",
+        "BOLD observations by sequence upload year",
+        "log(1 + record count)",
+        True,
+        xlabel="Sequence upload year",
     )
     plot_by_kingdom(
         collection_by_kingdom,
