@@ -1,0 +1,72 @@
+\documentclass[10pt]{article}
+
+\usepackage[margin=0.78in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+\setlist[itemize]{leftmargin=1.2em,itemsep=0.1em,topsep=0.2em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.32em}
+
+\title{\vspace{-1.2cm}Researcher and Institution Fixed Effects in BOLD Sampling Regressions}
+\author{}
+\date{\vspace{-0.8cm}}
+
+\begin{document}
+\maketitle
+\vspace{-1.0cm}
+
+\section*{Motivation}
+
+A key concern in estimating the effect of environmental or social shocks on biodiversity sampling is that observed records reflect supply-side decisions: which institutions fund fieldwork, which researchers choose sites, and which laboratories process specimens. If institutional presence correlates with the covariates of interest (e.g., well-funded institutions avoid conflict zones), omitting the supply side biases shock coefficients. Researcher and institution fixed effects can absorb this heterogeneity.
+
+\section*{Available BOLD Metadata}
+
+Each BOLD record carries several fields identifying the actors behind it. Table~\ref{tab:supply_field_audit} reports coverage rates and cardinality for each field, restricted to geo-referenced records that fall in 100\,km land cells.
+
+\input{../Exhibits/tables/supply_field_audit}
+
+The \texttt{inst} field is the most practical starting point: it uses controlled institutional codes with manageable cardinality and maps naturally onto the unit that decides where to sample. \texttt{collectors} is richer but requires name standardization (multiple names per field, inconsistent formatting, spelling variants).
+
+\subsection*{Top Values by Field}
+
+Tables~\ref{tab:top10_inst}--\ref{tab:top10_funding_src} report the ten most frequent values for each supply-side field among geo-referenced land records.
+
+\input{../Exhibits/tables/supply_top10_inst}
+\input{../Exhibits/tables/supply_top10_sequence_run_site}
+\input{../Exhibits/tables/supply_top10_collectors}
+\input{../Exhibits/tables/supply_top10_identified_by}
+\input{../Exhibits/tables/supply_top10_collection_code}
+\input{../Exhibits/tables/supply_top10_funding_src}
+
+\section*{Empirical Strategies}
+
+\subsection*{Strategy 1: Institution Fixed Effects}
+
+Expand the panel unit from cell$\times$year to cell$\times$year$\times$institution. Let $j$ index institutions:
+\begin{equation}
+    y_{cjt} = \beta X_{ct} + \eta_j + \mu_c + \lambda_t + \varepsilon_{cjt},
+\end{equation}
+where $y_{cjt}$ is the number of records (or BINs, species, etc.) deposited by institution $j$ in cell $c$ and year $t$. With \texttt{reghdfe}, one can further saturate with $\eta_j \times \lambda_t$ (institution$\times$year) to absorb time-varying institutional capacity, or $\eta_j \times \mu_c$ (institution$\times$cell) to absorb persistent site--institution relationships.
+
+This is the cleanest approach conceptually: the coefficient $\beta$ is identified from within-institution, within-cell variation over time. The cost is a much larger panel (many institution$\times$cell$\times$year triples are zero) and potential singleton-cell concerns.
+
+\subsection*{Strategy 2: Institutional Presence as a Control}
+
+Preserve the cell$\times$year panel and construct covariates summarizing the supply side:
+\begin{equation}
+    y_{ct} = \beta X_{ct} + \gamma_1 \log(1 + \text{nInst}_{ct}) + \gamma_2 \log(1 + \text{nCollectors}_{ct}) + \mu_c + \lambda_t + \varepsilon_{ct},
+\end{equation}
+where $\text{nInst}_{ct}$ is the count of distinct institutions active in cell $c$ in year $t$, and $\text{nCollectors}_{ct}$ is the count of distinct collectors. This controls for the extensive margin of institutional and researcher presence without changing the panel structure. It can be augmented with the HHI of institutional shares to capture concentration.
+
+\subsection*{Strategy 3: Hybrid}
+
+Include institution-level controls (e.g., $\text{nInst}_{ct}$) in the cell$\times$year panel as a baseline, then show robustness to the full cell$\times$year$\times$institution panel with institution FE. If $\beta$ is stable across the two, the supply-side channel is unlikely to drive the main results.
+
+\section*{Implementation}
+
+Adding \texttt{inst}, \texttt{collectors}, and \texttt{collection\_code} to the BOLD minimal records extraction (\texttt{00\_build\_bold\_minimal.py}) and computing $\text{nInst}_{ct}$ and $\text{nCollectors}_{ct}$ in the panel-building script (\texttt{06\_build\_cell\_year\_panel.py}) is straightforward. The cell$\times$year$\times$institution panel requires a separate output file due to the change in observational unit.
+
+\end{document}

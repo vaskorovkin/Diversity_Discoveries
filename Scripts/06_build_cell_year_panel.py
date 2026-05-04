@@ -16,12 +16,12 @@ import numpy as np
 import pandas as pd
 from pyproj import Transformer
 
-from exhibit_utils import (
+from pipeline_utils import (
     EQUAL_AREA_CRS,
-    EXHIBIT_DATA,
+    PROCESSED_BOLD,
     LAND_CELLS_CSV,
     MINIMAL_CSV,
-    ensure_exhibit_dirs,
+    ensure_output_dirs,
 )
 
 
@@ -38,6 +38,7 @@ OUTCOME_COLUMNS = [
     "chordata_records",
 ]
 
+BIN_COLUMNS = ["n_bins", "n_new_bins"]
 
 INPUT_COLUMNS = [
     "kingdom",
@@ -47,6 +48,8 @@ INPUT_COLUMNS = [
     "latitude",
     "longitude",
     "collection_year",
+    "bin_uri",
+    "bin_created_date",
 ]
 
 
@@ -55,7 +58,7 @@ def cell_label(cell_km: float) -> str:
 
 
 def default_output(cell_km: float, start_year: int, end_year: int) -> Path:
-    return EXHIBIT_DATA / f"bold_grid{cell_label(cell_km)}_cell_year_panel_collection_{start_year}_{end_year}.csv"
+    return PROCESSED_BOLD / f"bold_grid{cell_label(cell_km)}_cell_year_panel_collection_{start_year}_{end_year}.csv"
 
 
 def default_summary(output: Path) -> Path:
@@ -65,7 +68,7 @@ def default_summary(output: Path) -> Path:
 def load_land_cells(path: Path) -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(
-            f"Missing land-cell file: {path}. Run Scripts/exhibits/05_cell_correlations.py first."
+            f"Missing land-cell file: {path}. Run Scripts/05_cell_correlations.py first."
         )
     land = pd.read_csv(path, dtype={"cell_id": str, "iso_a3": str})
     required = {"cell_id", "cell_x", "cell_y", "centroid_lon", "centroid_lat", "continent", "country", "iso_a3"}
@@ -107,10 +110,11 @@ def aggregate_records(
     end_year: int,
     cell_km: float,
     chunksize: int,
-) -> tuple[pd.DataFrame, dict[str, int]]:
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, int]]:
     transformer = Transformer.from_crs("EPSG:4326", EQUAL_AREA_CRS, always_xy=True)
     cell_m = cell_km * 1000
     grouped_chunks: list[pd.DataFrame] = []
+    bin_chunks: list[pd.DataFrame] = []
     stats = {
         "rows_scanned": 0,
         "coordinate_rows": 0,
@@ -177,6 +181,20 @@ def aggregate_records(
                 work["chordata_records"] = (phylum == "Chordata").astype(int)
                 grouped_chunks.append(work.groupby(["cell_id", "year"], as_index=False)[OUTCOME_COLUMNS].sum())
 
+                land_idx = sub.index[in_land.to_numpy()]
+                bin_uri = sub.loc[land_idx, "bin_uri"].fillna("").to_numpy()
+                bin_has = bin_uri != ""
+                if bin_has.any():
+                    bin_created = sub.loc[land_idx, "bin_created_date"].fillna("").to_numpy()
+                    bin_year = np.array([s[:4] if len(s) >= 4 and s[:4].isdigit() else "" for s in bin_created])
+                    bdf = pd.DataFrame({
+                        "cell_id": work["cell_id"].to_numpy()[bin_has],
+                        "year": work["year"].to_numpy()[bin_has],
+                        "bin_uri": bin_uri[bin_has],
+                        "bin_year": bin_year[bin_has],
+                    })
+                    bin_chunks.append(bdf.drop_duplicates())
+
         elapsed = max(time.time() - started, 1)
         print(
             f"chunk {chunk_index:,}: {stats['rows_scanned']:,} rows scanned; "
@@ -186,11 +204,29 @@ def aggregate_records(
         )
 
     if not grouped_chunks:
-        return pd.DataFrame(columns=["cell_id", "year"] + OUTCOME_COLUMNS), stats
+        empty = pd.DataFrame(columns=["cell_id", "year"] + OUTCOME_COLUMNS)
+        empty_bins = pd.DataFrame(columns=["cell_id", "year"] + BIN_COLUMNS)
+        return empty, empty_bins, stats
 
     counts = pd.concat(grouped_chunks, ignore_index=True)
     counts = counts.groupby(["cell_id", "year"], as_index=False)[OUTCOME_COLUMNS].sum()
-    return counts, stats
+
+    if bin_chunks:
+        all_bins = pd.concat(bin_chunks, ignore_index=True).drop_duplicates()
+        n_bins = all_bins.groupby(["cell_id", "year"])["bin_uri"].nunique().reset_index(name="n_bins")
+        new_mask = all_bins["bin_year"] == all_bins["year"].astype(str)
+        n_new_bins = (
+            all_bins.loc[new_mask]
+            .groupby(["cell_id", "year"])["bin_uri"]
+            .nunique()
+            .reset_index(name="n_new_bins")
+        )
+        bin_counts = n_bins.merge(n_new_bins, on=["cell_id", "year"], how="left")
+        bin_counts["n_new_bins"] = bin_counts["n_new_bins"].fillna(0).astype(int)
+    else:
+        bin_counts = pd.DataFrame(columns=["cell_id", "year"] + BIN_COLUMNS)
+
+    return counts, bin_counts, stats
 
 
 def add_outcome_transforms(panel: pd.DataFrame) -> pd.DataFrame:
@@ -199,6 +235,10 @@ def add_outcome_transforms(panel: pd.DataFrame) -> pd.DataFrame:
         stem = col.removesuffix("_records")
         panel[f"any_{stem}"] = (panel[col] > 0).astype(int)
         panel[f"log1p_{stem}"] = np.log1p(panel[col])
+    for col in BIN_COLUMNS:
+        panel[col] = panel[col].fillna(0).astype(int)
+        panel[f"any_{col}"] = (panel[col] > 0).astype(int)
+        panel[f"log1p_{col}"] = np.log1p(panel[col])
     return panel
 
 
@@ -210,7 +250,7 @@ def write_summary(path: Path, panel: pd.DataFrame, stats: dict[str, int], start_
         ("panel_rows", len(panel)),
     ]
     rows.extend(stats.items())
-    for col in OUTCOME_COLUMNS:
+    for col in OUTCOME_COLUMNS + BIN_COLUMNS:
         rows.append((col, int(panel[col].sum())))
         rows.append((f"cell_years_with_{col}", int((panel[col] > 0).sum())))
     pd.DataFrame(rows, columns=["metric", "value"]).to_csv(path, index=False)
@@ -229,7 +269,7 @@ def main() -> int:
     parser.add_argument("--chunksize", type=int, default=500_000)
     args = parser.parse_args()
 
-    ensure_exhibit_dirs()
+    ensure_output_dirs()
     output = args.output or default_output(args.cell_km, args.start_year, args.end_year)
     summary = args.summary or default_summary(output)
 
@@ -239,7 +279,7 @@ def main() -> int:
     panel = build_zero_panel(land, args.start_year, args.end_year)
     print(f"Zero-filled panel rows: {len(panel):,}", flush=True)
 
-    counts, stats = aggregate_records(
+    counts, bin_counts, stats = aggregate_records(
         args.input,
         set(land["cell_id"]),
         args.start_year,
@@ -248,8 +288,10 @@ def main() -> int:
         args.chunksize,
     )
     print(f"Nonzero cell-year rows from records: {len(counts):,}", flush=True)
+    print(f"Cell-years with BIN data: {len(bin_counts):,}", flush=True)
 
     panel = panel.merge(counts, on=["cell_id", "year"], how="left")
+    panel = panel.merge(bin_counts, on=["cell_id", "year"], how="left")
     panel = add_outcome_transforms(panel)
     panel.to_csv(output, index=False)
     print(f"Wrote panel: {output}", flush=True)

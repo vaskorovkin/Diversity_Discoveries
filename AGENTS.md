@@ -23,8 +23,8 @@ This repository is a research data project. Preserve downloaded data and never r
 - `Scripts/download_bold_chironomidae_by_country.py`, `download_bold_phoridae_by_country.py`, and `download_bold_sciaridae_by_country.py` download over-cap Diptera families one country/ocean value at a time.
 - `Scripts/download_bold_cecidomyiidae_except_costa_rica_by_country.py` downloads all positive Cecidomyiidae country/ocean buckets except Costa Rica, because Costa Rica alone is over the BOLD cap.
 - `Scripts/download_bold_cecidomyiidae_costa_rica_capped.py` downloads a capped Costa Rica Cecidomyiidae diagnostic extract; do not treat it as complete.
-- `Scripts/exhibits/00_build_bold_minimal.py` builds compact BOLD records for exhibits and regressions. It includes the capped Costa Rica Cecidomyiidae file by default, but excludes the redundant global capped Cecidomyiidae and old capped Hemiptera files.
-- `Scripts/exhibits/06_build_cell_year_panel.py` builds the main 100 km land-cell x collection-year panel for 2005-2025.
+- `Scripts/00_build_bold_minimal.py` builds compact BOLD records for exhibits and regressions. It includes the capped Costa Rica Cecidomyiidae file by default, but excludes the redundant global capped Cecidomyiidae and old capped Hemiptera files.
+- `Scripts/06_build_cell_year_panel.py` builds the main 100 km land-cell x collection-year panel for 2005-2025.
 - `Scripts/aggregate_ucdp_ged_100km.py` aggregates a downloaded UCDP GED CSV to the same 100 km land cells for 2005-2024. Logs and lags are intentionally left for Stata.
 - `Scripts/download_baseline_geography.py` downloads raw RESOLVE ecoregions and CEPF hotspot inputs for the static baseline geography overlays. See `Scripts/baseline_geography_README.md`.
 - `Scripts/aggregate_resolve_ecoregions_100km.py` assigns RESOLVE 2017 ecoregion, biome, and realm to each 100 km land cell by centroid overlay.
@@ -53,7 +53,7 @@ As of the latest coverage audit:
 - 9 are BOLD v5 zero-record groups or tiny v4/v5 taxonomy mismatches.
 - The over-cap Diptera families Chironomidae, Phoridae, and Sciaridae have country-level split downloads. Cecidomyiidae is split by country except Costa Rica, where the capped 1M-record file is included but incomplete.
 - The old order-level Hemiptera file is capped, but Hemiptera by-family downloads are now the relevant complete working version.
-- The current Stata-ready BOLD panel is `Exhibits/data/bold_grid100_cell_year_panel_collection_2005_2025.csv`. It has 305,886 rows: 14,566 land cells x 21 years. It uses collection year, zero-fills land cell-years, and excludes coordinate records outside the strict land-cell universe.
+- The current Stata-ready BOLD panel is `Data/processed/bold/bold_grid100_cell_year_panel_collection_2005_2025.csv`. It has 305,886 rows: 14,566 land cells x 21 years. It uses collection year, zero-fills land cell-years, and excludes coordinate records outside the strict land-cell universe.
 - The current UCDP regressor panel is `Data/regressors/ucdp/ucdp_ged_100km_cell_year_2005_2024.csv`. It has 291,320 rows: 14,566 land cells x 20 years. Merge with BOLD over the common 2005-2024 window.
 - The current static baseline geography file is `Data/regressors/baseline_geography/resolve_ecoregions_100km_cells.csv`. It has 14,566 unique cells, 14,291 RESOLVE matches, 1,243 explicit `Rock and Ice` cells, and 275 unmatched cells.
 - The current hotspot file is `Data/regressors/baseline_geography/cepf_hotspots_100km_cells.csv`. It has 14,566 unique cells, 2,430 cells in any hotspot, and all 36 hotspot names are represented.
@@ -70,7 +70,7 @@ git status --short --ignored
 Before committing:
 
 ```bash
-python3 -m py_compile Scripts/*.py Scripts/exhibits/*.py
+python3 -m py_compile Scripts/0*.py Scripts/pipeline_utils.py Scripts/export_grid100_land_cells_geojson.py
 python3 Scripts/audit_bold_taxon_coverage.py
 git status --short
 ```
@@ -110,7 +110,7 @@ python3 Scripts/map_bold_fungi_grid.py --cell-km 100
 Build the main Stata-ready BOLD cell-year panel:
 
 ```bash
-python3 Scripts/exhibits/06_build_cell_year_panel.py
+python3 Scripts/06_build_cell_year_panel.py
 ```
 
 Aggregate UCDP GED conflict to the BOLD grid after placing the GED CSV in

@@ -17,13 +17,13 @@ import pandas as pd
 from pyproj import Transformer
 from shapely.geometry import Point
 
-from exhibit_utils import (
+from pipeline_utils import (
     EQUAL_AREA_CRS,
     EXHIBIT_FIGURES,
     EXHIBIT_TABLES,
     GRID_COUNTS_CSV,
     LAND_CELLS_CSV,
-    ensure_exhibit_dirs,
+    ensure_output_dirs,
 )
 
 
@@ -154,7 +154,7 @@ def main() -> int:
     parser.add_argument("--cell-km", type=float, default=100)
     args = parser.parse_args()
 
-    ensure_exhibit_dirs()
+    ensure_output_dirs()
     land = load_land_cells(args.land_cells, args.cell_km)
     wide = make_wide_counts(args.grid_counts, land)
     wide_path = args.grid_counts.with_name("bold_grid100_land_cells_by_kingdom_wide.csv")

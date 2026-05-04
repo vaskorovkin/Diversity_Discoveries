@@ -18,7 +18,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from exhibit_utils import EQUAL_AREA_CRS, EXHIBIT_DATA, EXHIBIT_MAPS, MINIMAL_CSV, clean, ensure_exhibit_dirs, lognorm_or_none
+from pipeline_utils import EQUAL_AREA_CRS, PROCESSED_BOLD, EXHIBIT_MAPS, MINIMAL_CSV, clean, ensure_output_dirs, lognorm_or_none
 
 
 def load_admin1() -> gpd.GeoDataFrame:
@@ -123,14 +123,14 @@ def main() -> int:
     parser.add_argument("--chunksize", type=int, default=300_000)
     args = parser.parse_args()
 
-    ensure_exhibit_dirs()
+    ensure_output_dirs()
     print("Loading Natural Earth admin-1 polygons.", flush=True)
     admin = load_admin1()
     print(f"Admin-1 polygons: {len(admin):,}", flush=True)
 
     all_counts, chordata_counts = count_admin1(args.input, admin, args.chunksize)
-    all_admin = write_counts(admin, all_counts, EXHIBIT_DATA / "bold_admin1_counts_all.csv")
-    chordata_admin = write_counts(admin, chordata_counts, EXHIBIT_DATA / "bold_admin1_counts_chordata.csv")
+    all_admin = write_counts(admin, all_counts, PROCESSED_BOLD / "bold_admin1_counts_all.csv")
+    chordata_admin = write_counts(admin, chordata_counts, PROCESSED_BOLD / "bold_admin1_counts_chordata.csv")
     plot_admin(
         all_admin,
         EXHIBIT_MAPS / "map_world_all_observations_admin1.png",

@@ -5,7 +5,7 @@ Date: 2026-05-01
 This note lists candidate regressors for cell-level and cell-year regressions of biodiversity sampling/discovery outcomes. The main current outcome is the BOLD 100 km land-cell x collection-year panel:
 
 ```text
-Exhibits/data/bold_grid100_cell_year_panel_collection_2005_2025.csv
+Data/processed/bold/bold_grid100_cell_year_panel_collection_2005_2025.csv
 ```
 
 The central empirical problem is that observed sampling is not only biodiversity. It is approximately:

@@ -7,7 +7,8 @@ do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/merge_all_regr
 ```
 
 The do-file imports all outcome and regressor CSVs, merges on `cell_id` (and
-`year` for panels), drops Antarctica and date-line edge cells, and saves:
+`year` for panels), trims the master panel to `2005-2024` for compatibility
+with the conflict panel, drops Antarctica and date-line edge cells, and saves:
 
 ```text
 Data/analysis/BOLD_regressor_panel.dta

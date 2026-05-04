@@ -21,6 +21,10 @@
 - `download_globio_msa.py`: downloads GLOBIO4 MSA (Mean Species Abundance) rasters for baseline biodiversity intactness.
 - `aggregate_globio_msa_100km.py`: aggregates GLOBIO MSA to 100 km cells.
 - `download_worldbank_gdp.py`: downloads World Bank GDP per capita (current US$, WDI indicator NY.GDP.PCAP.CD) for all countries, 2001-2024. Uses WB API v2, no key required. Output: `Data/regressors/worldbank/worldbank_gdp_pcap_panel.csv`.
+- `download_ibtracs.py`: downloads NOAA IBTrACS tropical-cyclone track CSVs (default: official `since1980` file, v04r01) to `Data/raw/ibtracs/`.
+- `aggregate_ibtracs_100km.py`: aggregates IBTrACS track points to 100 km cells by year. Outputs point counts, unique-storm counts, 34kt/64kt exposure counts, and max wind.
+- `download_comcat_earthquakes.py`: downloads global USGS ComCat earthquakes year by year from the official FDSN event service. Defaults: 2005-2025, `eventtype=earthquake`, `minmagnitude=4.5`.
+- `aggregate_comcat_100km.py`: aggregates ComCat earthquakes to 100 km cells by year. Outputs event counts, `M6+`, `M7+`, shallow-event counts, and max/mean magnitude.
 - `gee_nightlights_100km.js`: Google Earth Engine script to aggregate Li et al. (2020) harmonized nighttime lights to 100 km cells. Consistent VIIRS-equivalent scale 2005-2023. Cell-level income proxy. See `Scripts/gee_nightlights_README.md`.
 - `merge_nightlights_exports.py`: merges harmonized nightlights GEE export into a cell-year panel with log-radiance.
 - `download_acled.py`: downloads ACLED conflict events via API (requires free ACLED account, Bearer token via `--token` or `--token-file`). Year-by-year download, full global coverage 2005-2024. Alternative: manually export CSV from ACLED data export tool.
@@ -66,11 +70,31 @@
 - `summarize_bold_diptera_oversized_country_counts.py`: extracts top country/ocean counts for the four over-cap Diptera families from BOLD summary metadata.
 - `summarize_bold_non_insect_groups.py`: summarizes selected non-insect arthropod, microbe-like, and broad taxon groups and appends planning tables to `bold_taxon_size_notes.txt`.
 
+## BOLD Pipeline (00–07)
+
+Run order from project root:
+
+```bash
+python3 Scripts/00_build_bold_minimal.py
+python3 Scripts/01_tables_counts.py
+python3 Scripts/02_timeseries.py
+python3 Scripts/03_maps_grid.py
+python3 Scripts/04_maps_admin1.py
+python3 Scripts/05_cell_correlations.py
+python3 Scripts/06_build_cell_year_panel.py
+python3 Scripts/07_audit_supply_fields.py
+```
+
+`00_build_bold_minimal.py` streams raw BOLD TSV files into `Data/processed/bold/bold_minimal_records.csv`. The later scripts read that file. `05` builds `bold_grid100_land_cells.csv`. `06` builds the cell-year panel for Stata regressions. `07` audits coverage of supply-side metadata fields (inst, collectors, etc.) and writes a LaTeX table to `Exhibits/tables/`.
+
+Shared constants and helpers are in `pipeline_utils.py`.
+
+Outputs: `Data/processed/bold/` (data), `Exhibits/tables/`, `Exhibits/figures/`, `Exhibits/maps/`.
+
 ## Mapping
 
 - `map_bold_fungi_admin1.py`: maps geocoded Fungi records to Natural Earth admin-1 polygons.
 - `map_bold_fungi_grid.py`: maps geocoded Fungi records to equal-area grid cells. Baseline is 100 km.
-- `exhibits/`: exhibit pipeline scripts for BOLD count tables, time series, 100 km grid maps, admin-1 maps, and cell-level kingdom correlations.
 
 ## Stata Merge
 
@@ -103,6 +127,10 @@ python3 Scripts/summarize_bold_diptera_large_family_genera_v4.py
 python3 Scripts/summarize_bold_diptera_oversized_country_counts.py
 python3 Scripts/summarize_bold_non_insect_groups.py
 python3 Scripts/aggregate_ucdp_ged_100km.py
+python3 Scripts/download_ibtracs.py
+python3 Scripts/aggregate_ibtracs_100km.py
+python3 Scripts/download_comcat_earthquakes.py --min-magnitude 4.5
+python3 Scripts/aggregate_comcat_100km.py --min-magnitude 4.5
 python3 Scripts/download_baseline_geography.py
 python3 Scripts/aggregate_resolve_ecoregions_100km.py
 python3 Scripts/aggregate_cepf_hotspots_100km.py

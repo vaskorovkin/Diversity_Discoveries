@@ -16,17 +16,16 @@ import cartopy.io.shapereader as shpreader
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from pyproj import Transformer
 
-from exhibit_utils import (
+from pipeline_utils import (
     EQUAL_AREA_CRS,
-    EXHIBIT_DATA,
+    PROCESSED_BOLD,
     EXHIBIT_MAPS,
     GRID_COUNTS_CSV,
     MINIMAL_CSV,
-    clean,
-    ensure_exhibit_dirs,
-    finite_float,
+    ensure_output_dirs,
     iter_minimal_chunks,
     lognorm_or_none,
 )
@@ -37,32 +36,56 @@ def load_land_outline() -> gpd.GeoDataFrame:
     return gpd.read_file(shp).to_crs(EQUAL_AREA_CRS)
 
 
-def build_grid_counts(input_path: Path, cell_km: float, chunksize: int) -> tuple[Counter, Counter]:
+def build_grid_counts(input_path: Path, cell_km: float, chunksize: int) -> tuple[Counter, Counter, Counter]:
     transformer = Transformer.from_crs("EPSG:4326", EQUAL_AREA_CRS, always_xy=True)
     cell_m = cell_km * 1000
-    all_counts = Counter()
-    kingdom_counts = Counter()
+    all_counts: Counter = Counter()
+    kingdom_counts: Counter = Counter()
+    chordata_counts: Counter = Counter()
     total = 0
     coord_total = 0
     started = time.time()
 
     print(f"Reading minimal records: {input_path}", flush=True)
     for chunk_index, chunk in enumerate(iter_minimal_chunks(input_path, chunksize), 1):
-        for _, row in chunk.iterrows():
-            if clean(row.get("has_coord")) != "1":
-                continue
-            lon = finite_float(row.get("longitude"))
-            lat = finite_float(row.get("latitude"))
-            if lon is None or lat is None:
-                continue
+        has_coord = chunk["has_coord"].fillna("") == "1"
+        sub = chunk.loc[has_coord].copy()
+
+        if not sub.empty:
+            lat = pd.to_numeric(sub["latitude"], errors="coerce")
+            lon = pd.to_numeric(sub["longitude"], errors="coerce")
+            valid = lat.between(-90, 90) & lon.between(-180, 180)
+            sub = sub.loc[valid].copy()
+            lat = lat[valid].to_numpy()
+            lon = lon[valid].to_numpy()
+
+        if not sub.empty:
             x, y = transformer.transform(lon, lat)
-            cell_x = int(np.floor(x / cell_m))
-            cell_y = int(np.floor(y / cell_m))
-            cell = (cell_x, cell_y)
-            kingdom = clean(row.get("kingdom")) or "Unknown"
-            all_counts[cell] += 1
-            kingdom_counts[(cell_x, cell_y, kingdom)] += 1
-            coord_total += 1
+            cell_x = np.floor(x / cell_m).astype(int)
+            cell_y = np.floor(y / cell_m).astype(int)
+            kingdom = sub["kingdom"].fillna("").str.strip().replace("", "Unknown").to_numpy()
+            phylum = sub["phylum"].fillna("").str.strip().to_numpy()
+
+            cells_df = pd.DataFrame({
+                "cell_x": cell_x,
+                "cell_y": cell_y,
+                "kingdom": kingdom,
+                "is_chordata": phylum == "Chordata",
+            })
+
+            for (cx, cy), cnt in cells_df.groupby(["cell_x", "cell_y"]).size().items():
+                all_counts[(cx, cy)] += cnt
+
+            for (cx, cy, k), cnt in cells_df.groupby(["cell_x", "cell_y", "kingdom"]).size().items():
+                kingdom_counts[(cx, cy, k)] += cnt
+
+            chordata_sub = cells_df[cells_df["is_chordata"]]
+            if not chordata_sub.empty:
+                for (cx, cy), cnt in chordata_sub.groupby(["cell_x", "cell_y"]).size().items():
+                    chordata_counts[(cx, cy)] += cnt
+
+            coord_total += len(sub)
+
         total += len(chunk)
         elapsed = max(time.time() - started, 1)
         print(
@@ -70,7 +93,7 @@ def build_grid_counts(input_path: Path, cell_km: float, chunksize: int) -> tuple
             f"{coord_total:,} coordinate rows binned ({total / elapsed:,.0f} rows/sec)",
             flush=True,
         )
-    return all_counts, kingdom_counts
+    return all_counts, kingdom_counts, chordata_counts
 
 
 def write_grid_counts(path: Path, all_counts: Counter, kingdom_counts: Counter, cell_km: float) -> None:
@@ -161,32 +184,14 @@ def main() -> int:
     parser.add_argument("--chunksize", type=int, default=500_000)
     args = parser.parse_args()
 
-    ensure_exhibit_dirs()
+    ensure_output_dirs()
     cell_label = f"{args.cell_km:g}km".replace(".", "p")
-    grid_csv = EXHIBIT_DATA / f"bold_grid{cell_label}_counts_by_kingdom.csv"
+    grid_csv = PROCESSED_BOLD / f"bold_grid{cell_label}_counts_by_kingdom.csv"
 
-    all_counts, kingdom_counts = build_grid_counts(args.input, args.cell_km, args.chunksize)
+    all_counts, kingdom_counts, chordata_counts = build_grid_counts(args.input, args.cell_km, args.chunksize)
     write_grid_counts(grid_csv, all_counts, kingdom_counts, args.cell_km)
     if args.cell_km == 100:
         write_grid_counts(GRID_COUNTS_CSV, all_counts, kingdom_counts, args.cell_km)
-
-    chordata_counts = defaultdict(int)
-    # Chordata is a phylum, so use the minimal CSV directly for this map.
-    transformer = Transformer.from_crs("EPSG:4326", EQUAL_AREA_CRS, always_xy=True)
-    cell_m = args.cell_km * 1000
-    scanned = 0
-    print("Binning Chordata for separate map.", flush=True)
-    for chunk in iter_minimal_chunks(args.input, args.chunksize):
-        sub = chunk[(chunk["phylum"].fillna("") == "Chordata") & (chunk["has_coord"].fillna("") == "1")]
-        for _, row in sub.iterrows():
-            lon = finite_float(row.get("longitude"))
-            lat = finite_float(row.get("latitude"))
-            if lon is None or lat is None:
-                continue
-            x, y = transformer.transform(lon, lat)
-            chordata_counts[(int(np.floor(x / cell_m)), int(np.floor(y / cell_m)))] += 1
-        scanned += len(chunk)
-        print(f"  scanned {scanned:,} rows for Chordata", flush=True)
 
     print("Loading Natural Earth land outlines for grid maps.", flush=True)
     land_outline = load_land_outline()

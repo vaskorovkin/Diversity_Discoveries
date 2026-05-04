@@ -27,18 +27,18 @@ shapely 2.0.7
 The common project grid input is:
 
 ```text
-Exhibits/data/bold_grid100_land_cells.csv
-Exhibits/data/bold_grid100_land_cells.geojson
+Data/processed/bold/bold_grid100_land_cells.csv
+Data/processed/bold/bold_grid100_land_cells.geojson
 ```
 
 These grid files are project-generated, not external downloads. If they are
 missing, regenerate them from the exhibit pipeline:
 
 ```bash
-python3 Scripts/exhibits/00_build_bold_minimal.py
-python3 Scripts/exhibits/03_maps_grid.py
-python3 Scripts/exhibits/05_cell_correlations.py
-python3 Scripts/exhibits/export_grid100_land_cells_geojson.py
+python3 Scripts/00_build_bold_minimal.py
+python3 Scripts/03_maps_grid.py
+python3 Scripts/05_cell_correlations.py
+python3 Scripts/export_grid100_land_cells_geojson.py
 ```
 
 For ecoregions and hotspots, only the CSV land-cell file is required. For WDPA

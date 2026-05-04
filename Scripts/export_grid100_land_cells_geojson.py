@@ -15,10 +15,10 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import box
 
-from exhibit_utils import EQUAL_AREA_CRS, EXHIBIT_DATA, LAND_CELLS_CSV, ensure_exhibit_dirs
+from pipeline_utils import EQUAL_AREA_CRS, PROCESSED_BOLD, LAND_CELLS_CSV, ensure_output_dirs
 
 
-DEFAULT_OUTPUT = EXHIBIT_DATA / "bold_grid100_land_cells.geojson"
+DEFAULT_OUTPUT = PROCESSED_BOLD / "bold_grid100_land_cells.geojson"
 
 
 def main() -> int:
@@ -28,7 +28,7 @@ def main() -> int:
     parser.add_argument("--cell-km", type=float, default=100)
     args = parser.parse_args()
 
-    ensure_exhibit_dirs()
+    ensure_output_dirs()
     cells = pd.read_csv(args.input, dtype={"cell_id": str, "iso_a3": str})
     required = {"cell_id", "cell_x", "cell_y", "centroid_lon", "centroid_lat", "continent", "country", "iso_a3"}
     missing = sorted(required - set(cells.columns))

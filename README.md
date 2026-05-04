@@ -65,20 +65,20 @@ The current Stata-ready BOLD panel is generated from compact exhibit files, not
 from raw TSVs directly. Run order:
 
 ```bash
-python3 Scripts/exhibits/00_build_bold_minimal.py
-python3 Scripts/exhibits/01_tables_counts.py
-python3 Scripts/exhibits/02_timeseries.py
-python3 Scripts/exhibits/03_maps_grid.py
-python3 Scripts/exhibits/04_maps_admin1.py
-python3 Scripts/exhibits/05_cell_correlations.py
-python3 Scripts/exhibits/06_build_cell_year_panel.py
+python3 Scripts/00_build_bold_minimal.py
+python3 Scripts/01_tables_counts.py
+python3 Scripts/02_timeseries.py
+python3 Scripts/03_maps_grid.py
+python3 Scripts/04_maps_admin1.py
+python3 Scripts/05_cell_correlations.py
+python3 Scripts/06_build_cell_year_panel.py
 ```
 
 Main panel output:
 
 ```text
-Exhibits/data/bold_grid100_cell_year_panel_collection_2005_2025.csv
-Exhibits/data/bold_grid100_cell_year_panel_collection_2005_2025_summary.csv
+Data/processed/bold/bold_grid100_cell_year_panel_collection_2005_2025.csv
+Data/processed/bold/bold_grid100_cell_year_panel_collection_2005_2025_summary.csv
 ```
 
 The panel uses BOLD `collection_year`, 2005-2025, 100 km equal-area land
@@ -90,7 +90,7 @@ intensive-margin (`log1p_*`) versions.
 After regenerating the collection-year panel, check the audit summary at:
 
 ```text
-Exhibits/data/bold_grid100_cell_year_panel_collection_2005_2025_summary.csv
+Data/processed/bold/bold_grid100_cell_year_panel_collection_2005_2025_summary.csv
 ```
 
 The panel is intentionally a strict land-cell panel. Some coastal, island, and
@@ -156,6 +156,65 @@ Data/regressors/hansen/hansen_forest_loss_100km_panel.csv
 See `Scripts/gee_hansen_forest_loss_README.md` for the Earth Engine workflow.
 Hansen covers 2001-2023; variables include `baseline_forest_km2`,
 `forest_loss_km2`, `forest_loss_share`, `cumulative_loss_km2`, and lags.
+
+Natural-disaster and climate-shock files currently in use are:
+
+```text
+Data/raw/ibtracs/ibtracs_since1980_list_v04r01.csv
+Data/raw/ibtracs/ibtracs_download_manifest.csv
+Data/regressors/ibtracs/ibtracs_100km_cell_year_2005_2025.csv
+Data/regressors/ibtracs/ibtracs_100km_cell_year_2005_2025_summary.csv
+
+Data/raw/comcat/comcat_earthquakes_2005_2025_m4p5.csv
+Data/raw/comcat/comcat_download_manifest.csv
+Data/regressors/comcat/comcat_100km_cell_year_2005_2025.csv
+Data/regressors/comcat/comcat_100km_cell_year_2005_2025_summary.csv
+
+Data/regressors/modis/modis_burned_area_100km_panel.csv
+Data/regressors/modis/modis_burned_area_100km_panel_summary.csv
+
+Data/regressors/terraclimate/terraclimate_100km_panel.csv
+Data/regressors/chirps/chirps_100km_panel.csv
+```
+
+These should be interpreted as follows:
+
+- `ibtracs_since1980_list_v04r01.csv`: raw NOAA IBTrACS tropical-cyclone track
+  points, global, since 1980, one row per storm-time observation.
+- `ibtracs_download_manifest.csv`: download metadata for the local IBTrACS raw
+  file (source, timestamp, size, hash).
+- `ibtracs_100km_cell_year_2005_2025.csv`: BOLD-grid cell-year cyclone
+  exposure panel. Main variables are `ibtracs_points_all`,
+  `ibtracs_storms_all`, `ibtracs_points_34kt`, `ibtracs_points_64kt`,
+  `ibtracs_any_all`, `ibtracs_any_34kt`, `ibtracs_any_64kt`, and
+  `ibtracs_max_wmo_wind_kts`.
+- `ibtracs_100km_cell_year_2005_2025_summary.csv`: audit summary for the
+  processed IBTrACS panel.
+
+- `comcat_earthquakes_2005_2025_m4p5.csv`: raw USGS ComCat earthquake event
+  file, global, one row per earthquake, restricted at download to
+  magnitude `>= 4.5`.
+- `comcat_download_manifest.csv`: download metadata for the local ComCat raw
+  file.
+- `comcat_100km_cell_year_2005_2025.csv`: BOLD-grid cell-year earthquake
+  exposure panel. Main variables are `comcat_events_all`, `comcat_events_m6`,
+  `comcat_events_m7`, `comcat_shallow_events`, `comcat_any_all`,
+  `comcat_max_mag`, `comcat_mean_mag`, and `comcat_mean_depth_km`.
+- `comcat_100km_cell_year_2005_2025_summary.csv`: audit summary for the
+  processed ComCat panel.
+
+- `modis_burned_area_100km_panel.csv`: processed MODIS MCD64A1 burned-area
+  cell-year panel from Earth Engine. Variables include `burned_area_km2`,
+  `any_burned`, `cumulative_burned_km2`, and lags.
+- `modis_burned_area_100km_panel_summary.csv`: annual summary and audit of the
+  processed MODIS burned-area panel.
+
+- `terraclimate_100km_panel.csv`: processed cell-year climate-shock panel from
+  TerraClimate. Variables include `pdsi_mean`, `pdsi_anomaly`, `tmax_mean`,
+  `tmax_anomaly`, `ppt_mean`, and `ppt_anomaly`.
+- `chirps_100km_panel.csv`: processed CHIRPS precipitation panel. Variables
+  include `chirps_precip_mm` and `chirps_precip_anomaly`; coverage is
+  50°S-50°N only.
 
 ## BOLD API Notes
 

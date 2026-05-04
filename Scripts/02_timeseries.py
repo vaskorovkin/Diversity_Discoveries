@@ -15,7 +15,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from exhibit_utils import EXHIBIT_DATA, EXHIBIT_FIGURES, MINIMAL_CSV, clean, ensure_exhibit_dirs, iter_minimal_chunks
+from pipeline_utils import PROCESSED_BOLD, EXHIBIT_FIGURES, MINIMAL_CSV, ensure_output_dirs, iter_minimal_chunks
 
 
 def write_counter(path: Path, counter: Counter, key_name: str = "year") -> None:
@@ -74,7 +74,7 @@ def main() -> int:
     parser.add_argument("--chunksize", type=int, default=500_000)
     args = parser.parse_args()
 
-    ensure_exhibit_dirs()
+    ensure_output_dirs()
     collection = Counter()
     upload = Counter()
     collection_by_kingdom = defaultdict(int)
@@ -83,22 +83,33 @@ def main() -> int:
 
     print(f"Reading minimal records: {args.input}", flush=True)
     for chunk_index, chunk in enumerate(iter_minimal_chunks(args.input, args.chunksize), 1):
-        for _, row in chunk.iterrows():
-            kingdom = clean(row.get("kingdom")) or "Unknown"
-            cyear = clean(row.get("collection_year"))
-            uyear = clean(row.get("sequence_upload_year"))
-            if cyear:
-                collection[cyear] += 1
-                collection_by_kingdom[(kingdom, cyear)] += 1
-            if uyear:
-                upload[uyear] += 1
+        cyear = chunk["collection_year"].fillna("").str.strip()
+        cyear_valid = cyear[cyear != ""]
+        if not cyear_valid.empty:
+            for yr, cnt in cyear_valid.value_counts().items():
+                collection[yr] += cnt
+
+        uyear = chunk["sequence_upload_year"].fillna("").str.strip()
+        uyear_valid = uyear[uyear != ""]
+        if not uyear_valid.empty:
+            for yr, cnt in uyear_valid.value_counts().items():
+                upload[yr] += cnt
+
+        kingdom = chunk["kingdom"].fillna("").str.strip().replace("", "Unknown")
+        pair = kingdom.str.cat(cyear, sep="\t")
+        pair_valid = pair[cyear != ""]
+        if not pair_valid.empty:
+            for kyr, cnt in pair_valid.value_counts().items():
+                k, y = kyr.split("\t", 1)
+                collection_by_kingdom[(k, y)] += cnt
+
         total_rows += len(chunk)
         elapsed = max(time.time() - started, 1)
         print(f"chunk {chunk_index:,}: {total_rows:,} rows ({total_rows / elapsed:,.0f} rows/sec)", flush=True)
 
-    collection_csv = EXHIBIT_DATA / "bold_timeseries_collection_year.csv"
-    upload_csv = EXHIBIT_DATA / "bold_timeseries_sequence_upload_year.csv"
-    collection_kingdom_csv = EXHIBIT_DATA / "bold_timeseries_collection_year_by_kingdom.csv"
+    collection_csv = PROCESSED_BOLD / "bold_timeseries_collection_year.csv"
+    upload_csv = PROCESSED_BOLD / "bold_timeseries_sequence_upload_year.csv"
+    collection_kingdom_csv = PROCESSED_BOLD / "bold_timeseries_collection_year_by_kingdom.csv"
     write_counter(collection_csv, collection, "collection_year")
     write_counter(upload_csv, upload, "sequence_upload_year")
     write_by_kingdom(collection_kingdom_csv, collection_by_kingdom, "collection_year")

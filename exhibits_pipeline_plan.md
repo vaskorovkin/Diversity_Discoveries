@@ -14,7 +14,7 @@ Exhibits/
 Suggested structure:
 
 ```text
-Exhibits/data/
+Data/processed/bold/
 Exhibits/tables/
 Exhibits/figures/
 Exhibits/maps/
@@ -26,13 +26,12 @@ Use separate scripts so each Roman-letter block can be rerun independently,
 while sharing compact prepared data:
 
 ```text
-Scripts/exhibits/00_build_bold_minimal.py
-Scripts/exhibits/01_tables_counts.py
-Scripts/exhibits/02_timeseries.py
-Scripts/exhibits/03_maps_grid.py
-Scripts/exhibits/04_maps_admin1.py
-Scripts/exhibits/05_cell_correlations.py
-Scripts/exhibits/README.md
+Scripts/00_build_bold_minimal.py
+Scripts/01_tables_counts.py
+Scripts/02_timeseries.py
+Scripts/03_maps_grid.py
+Scripts/04_maps_admin1.py
+Scripts/05_cell_correlations.py
 ```
 
 The expensive step is `00_build_bold_minimal.py`, which streams raw BOLD TSVs

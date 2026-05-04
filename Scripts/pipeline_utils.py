@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Shared helpers for BOLD exhibit scripts."""
+"""Shared helpers and path constants for BOLD data pipeline scripts."""
 
 from __future__ import annotations
 
@@ -11,14 +11,14 @@ from pathlib import Path
 
 PROJECT_ROOT = Path("/Users/vasilykorovkin/Documents/Diversity_Discoveries")
 BOLD_RAW = PROJECT_ROOT / "Data" / "raw" / "bold"
+PROCESSED_BOLD = PROJECT_ROOT / "Data" / "processed" / "bold"
 EXHIBITS = PROJECT_ROOT / "Exhibits"
-EXHIBIT_DATA = EXHIBITS / "data"
 EXHIBIT_TABLES = EXHIBITS / "tables"
 EXHIBIT_FIGURES = EXHIBITS / "figures"
 EXHIBIT_MAPS = EXHIBITS / "maps"
-MINIMAL_CSV = EXHIBIT_DATA / "bold_minimal_records.csv"
-GRID_COUNTS_CSV = EXHIBIT_DATA / "bold_grid100_counts_by_kingdom.csv"
-LAND_CELLS_CSV = EXHIBIT_DATA / "bold_grid100_land_cells.csv"
+MINIMAL_CSV = PROCESSED_BOLD / "bold_minimal_records.csv"
+GRID_COUNTS_CSV = PROCESSED_BOLD / "bold_grid100_counts_by_kingdom.csv"
+LAND_CELLS_CSV = PROCESSED_BOLD / "bold_grid100_land_cells.csv"
 EQUAL_AREA_CRS = "EPSG:6933"
 
 MINIMAL_FIELDS = [
@@ -44,11 +44,19 @@ MINIMAL_FIELDS = [
     "has_coord",
     "collection_year",
     "sequence_upload_year",
+    "bin_uri",
+    "bin_created_date",
+    "inst",
+    "collection_code",
+    "collectors",
+    "identified_by",
+    "sequence_run_site",
+    "funding_src",
 ]
 
 
-def ensure_exhibit_dirs() -> None:
-    for path in [EXHIBITS, EXHIBIT_DATA, EXHIBIT_TABLES, EXHIBIT_FIGURES, EXHIBIT_MAPS]:
+def ensure_output_dirs() -> None:
+    for path in [PROCESSED_BOLD, EXHIBIT_TABLES, EXHIBIT_FIGURES, EXHIBIT_MAPS]:
         path.mkdir(parents=True, exist_ok=True)
 
 

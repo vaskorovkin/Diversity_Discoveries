@@ -14,7 +14,8 @@ log using "`proj'/Logs/merge_all_regressors.log", replace text
 * -------------------------------------------------------------------
 
 * --- Master: BOLD outcomes ---
-import delimited "`proj'/Exhibits/data/BOLD_grid100_cell_year_panel_collection_2005_2025.csv", clear
+import delimited "`proj'/Data/processed/bold/bold_grid100_cell_year_panel_collection_2005_2025.csv", clear
+keep if year<=2024
 tempfile BOLD
 save `BOLD'
 
@@ -78,6 +79,16 @@ import delimited "`proj'/Data/regressors/acled/acled_100km_cell_year_2005_2024.c
 tempfile acled
 save `acled'
 
+import delimited "`proj'/Data/regressors/ibtracs/ibtracs_100km_cell_year_2005_2025.csv", clear
+keep if year<=2024
+tempfile ibtracs
+save `ibtracs'
+
+import delimited "`proj'/Data/regressors/comcat/comcat_100km_cell_year_2005_2025.csv", clear
+keep if year<=2024
+tempfile comcat
+save `comcat'
+
 * --- Static baselines: species richness ---
 
 import delimited "`proj'/Data/regressors/baseline_geography/species_richness_100km_cells.csv", clear
@@ -117,6 +128,12 @@ rename _merge _merge_ntl
 
 merge 1:1 cell_id year using `acled'
 rename _merge _merge_acled
+
+merge 1:1 cell_id year using `ibtracs'
+rename _merge _merge_ibtracs
+
+merge 1:1 cell_id year using `comcat'
+rename _merge _merge_comcat
 
 * -------------------------------------------------------------------
 * 3. Merge static baselines m:1 on cell_id
@@ -172,6 +189,8 @@ tab _merge_globio
 tab _merge_wbgdp
 tab _merge_ntl
 tab _merge_acled
+tab _merge_ibtracs
+tab _merge_comcat
 tab _merge_richness
 tab _merge_richness_birds
 

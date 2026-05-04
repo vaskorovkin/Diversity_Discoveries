@@ -63,7 +63,7 @@ def load_ged(path: Path) -> pd.DataFrame:
 
 def load_land_cells(path: Path) -> pd.DataFrame:
     if not path.exists():
-        raise FileNotFoundError(f"Missing land-cell file: {path}. Run Scripts/exhibits/05_cell_correlations.py first.")
+        raise FileNotFoundError(f"Missing land-cell file: {path}. Run Scripts/05_cell_correlations.py first.")
     land = pd.read_csv(path, dtype={"cell_id": str, "iso_a3": str})
     required = {"cell_id", "cell_x", "cell_y"}
     missing = sorted(required - set(land.columns))

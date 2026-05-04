@@ -54,26 +54,26 @@ Chironomidae: country sum 1,643,776 vs family summary 1,647,619
 Run the exhibit pipeline:
 
 ```bash
-python3 Scripts/exhibits/00_build_bold_minimal.py
-python3 Scripts/exhibits/01_tables_counts.py
-python3 Scripts/exhibits/02_timeseries.py
-python3 Scripts/exhibits/03_maps_grid.py
-python3 Scripts/exhibits/04_maps_admin1.py
-python3 Scripts/exhibits/05_cell_correlations.py
-python3 Scripts/exhibits/06_build_cell_year_panel.py
+python3 Scripts/00_build_bold_minimal.py
+python3 Scripts/01_tables_counts.py
+python3 Scripts/02_timeseries.py
+python3 Scripts/03_maps_grid.py
+python3 Scripts/04_maps_admin1.py
+python3 Scripts/05_cell_correlations.py
+python3 Scripts/06_build_cell_year_panel.py
 ```
 
 Main panel output:
 
 ```text
-Exhibits/data/bold_grid100_cell_year_panel_collection_2005_2025.csv
-Exhibits/data/bold_grid100_cell_year_panel_collection_2005_2025_summary.csv
+Data/processed/bold/bold_grid100_cell_year_panel_collection_2005_2025.csv
+Data/processed/bold/bold_grid100_cell_year_panel_collection_2005_2025_summary.csv
 ```
 
 After regenerating the collection-year panel, check:
 
 ```text
-Exhibits/data/bold_grid100_cell_year_panel_collection_2005_2025_summary.csv
+Data/processed/bold/bold_grid100_cell_year_panel_collection_2005_2025_summary.csv
 ```
 
 The panel uses BOLD `collection_year`, 2005-2025, 100 km equal-area land
@@ -227,6 +227,52 @@ Output: `Data/regressors/chirps/chirps_100km_panel.csv`
 
 Variables: `chirps_precip_mm`, `chirps_precip_anomaly`. Coverage: 50°S-50°N
 only (polar cells will have NaN). Anomalies relative to 1981-2010 baseline.
+
+IBTrACS cyclones and ComCat earthquakes (new natural-disaster layers):
+
+```bash
+python3 Scripts/download_ibtracs.py
+python3 Scripts/aggregate_ibtracs_100km.py
+
+python3 Scripts/download_comcat_earthquakes.py --min-magnitude 4.5
+python3 Scripts/aggregate_comcat_100km.py --min-magnitude 4.5
+```
+
+Raw downloads:
+
+```text
+Data/raw/ibtracs/ibtracs_since1980_list_v04r01.csv
+Data/raw/ibtracs/ibtracs_download_manifest.csv
+Data/raw/comcat/comcat_earthquakes_2005_2025_m4p5.csv
+Data/raw/comcat/comcat_download_manifest.csv
+```
+
+Processed outputs:
+
+```text
+Data/regressors/ibtracs/ibtracs_100km_cell_year_2005_2025.csv
+Data/regressors/ibtracs/ibtracs_100km_cell_year_2005_2025_summary.csv
+Data/regressors/comcat/comcat_100km_cell_year_2005_2025.csv
+Data/regressors/comcat/comcat_100km_cell_year_2005_2025_summary.csv
+```
+
+Interpretation:
+
+- IBTrACS raw file: global NOAA tropical-cyclone track points since 1980, one
+  row per storm-time point.
+- IBTrACS processed panel: 100 km land-cell x year cyclone exposure with
+  `ibtracs_points_all`, `ibtracs_storms_all`, `ibtracs_points_34kt`,
+  `ibtracs_points_64kt`, `ibtracs_any_all`, `ibtracs_any_34kt`,
+  `ibtracs_any_64kt`, `ibtracs_max_wmo_wind_kts`.
+- ComCat raw file: global USGS earthquake events, one row per earthquake,
+  downloaded with magnitude `>= 4.5`.
+- ComCat processed panel: 100 km land-cell x year earthquake exposure with
+  `comcat_events_all`, `comcat_events_m6`, `comcat_events_m7`,
+  `comcat_shallow_events`, `comcat_any_all`, `comcat_max_mag`,
+  `comcat_mean_mag`, `comcat_mean_depth_km`.
+
+Both processed panels currently cover 2005-2025; at merge/regression stage use
+the common 2005-2024 window to stay aligned with UCDP.
 
 GRIP4 road density (baseline accessibility, pre-computed raster):
 

@@ -53,7 +53,7 @@ If you haven't registered for Earth Engine yet:
 
 The GeoJSON file is at:
 ```
-Exhibits/data/bold_grid100_land_cells.geojson
+Data/processed/bold/bold_grid100_land_cells.geojson
 ```
 
 To upload:
