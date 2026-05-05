@@ -89,6 +89,35 @@ keep if year<=2024
 tempfile comcat
 save `comcat'
 
+import delimited "`proj'/Data/processed/bold/collectors/bold_parachute_cell_year_panel.csv", clear
+tempfile parachute
+save `parachute'
+
+local have_gbif_plantae 0
+capture confirm file "`proj'/Data/processed/gbif/plantae/gbif_plantae_preserved_material_cell_year_panel_2005_2025.csv"
+if _rc==0 {
+    import delimited "`proj'/Data/processed/gbif/plantae/gbif_plantae_preserved_material_cell_year_panel_2005_2025.csv", clear
+    keep if year<=2024
+    keep cell_id year total_records plant_records preserved_specimen_records material_sample_records ///
+        any_total_records any_plant_records any_preserved_specimen_records any_material_sample_records ///
+        log1p_total_records log1p_plant_records log1p_preserved_specimen_records log1p_material_sample_records
+    rename total_records gbif_p_total
+    rename plant_records gbif_p_plant
+    rename preserved_specimen_records gbif_p_preserved
+    rename material_sample_records gbif_p_material
+    rename any_total_records gbif_p_any_total
+    rename any_plant_records gbif_p_any_plant
+    rename any_preserved_specimen_records gbif_p_any_preserved
+    rename any_material_sample_records gbif_p_any_material
+    rename log1p_total_records gbif_p_log_total
+    rename log1p_plant_records gbif_p_log_plant
+    rename log1p_preserved_specimen_records gbif_p_log_preserved
+    rename log1p_material_sample_records gbif_p_log_material
+    tempfile gbif_plantae
+    save `gbif_plantae'
+    local have_gbif_plantae 1
+}
+
 * --- Static baselines: species richness ---
 
 import delimited "`proj'/Data/regressors/baseline_geography/species_richness_100km_cells.csv", clear
@@ -134,6 +163,14 @@ rename _merge _merge_ibtracs
 
 merge 1:1 cell_id year using `comcat'
 rename _merge _merge_comcat
+
+merge 1:1 cell_id year using `parachute'
+rename _merge _merge_parachute
+
+if `have_gbif_plantae' == 1 {
+    merge 1:1 cell_id year using `gbif_plantae'
+    rename _merge _merge_gbif_plantae
+}
 
 * -------------------------------------------------------------------
 * 3. Merge static baselines m:1 on cell_id
@@ -193,6 +230,9 @@ tab _merge_ibtracs
 tab _merge_comcat
 tab _merge_richness
 tab _merge_richness_birds
+tab _merge_parachute
+capture confirm variable _merge_gbif_plantae
+if _rc==0 tab _merge_gbif_plantae
 
 describe
 summarize

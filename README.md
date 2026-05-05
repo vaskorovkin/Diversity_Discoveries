@@ -227,6 +227,8 @@ Rows in BOLD TSV downloads are marker/sequence records, not necessarily unique s
 BOLD is not sufficient as the main plant layer. For plants, the project should use herbarium/specimen and botanical-name infrastructure alongside barcode data:
 
 - Plant sampling: GBIF preserved specimens/herbarium records as the main global layer, with iDigBio as a US-heavy complement and BIEN as a cleaned botanical occurrence/trait/range complement.
+- GBIF preserved/material plant workflow: `Scripts/request_gbif_plantae_downloads.py` requests the archive, `Scripts/14_build_gbif_plantae_minimal.py` streams the preserved/material `occurrence.txt` into a compact CSV, `Scripts/15_build_gbif_plantae_cell_year_panel.py` builds the 100 km cell-year panel with total and basis-of-record breakdowns, and `DoFiles/reg_spec1_gbif_plantae.do` mirrors the main `reg_spec1` tables on the GBIF Plantae panel.
+- Main GBIF plant outputs now live under `Data/processed/gbif/plantae/`; the preserved/material archive is the main plant regression source, while the human-observation archive is a separate comparator.
 - Plant name cleaning: WCVP/POWO/IPNI/World Flora Online for accepted names and synonyms; Kew MPNS for medicinal, herbal drug, common-name, and pharmacological-name disambiguation.
 - Plant chemistry and discovery outcomes: COCONUT, LOTUS, KNApSAcK, and where accessible NAPRALERT for plant natural products and plant-metabolite links; PubChem and ChEMBL for compound bioactivity and assay outcomes.
 

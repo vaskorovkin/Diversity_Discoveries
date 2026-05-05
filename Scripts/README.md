@@ -26,6 +26,8 @@
 - `download_comcat_earthquakes.py`: downloads global USGS ComCat earthquakes year by year from the official FDSN event service. Defaults: 2005-2025, `eventtype=earthquake`, `minmagnitude=4.5`.
 - `aggregate_comcat_100km.py`: aggregates ComCat earthquakes to 100 km cells by year. Outputs event counts, `M6+`, `M7+`, shallow-event counts, and max/mean magnitude.
 - `request_gbif_plantae_downloads.py`: submits two GBIF Darwin Core Archive requests for plants: preserved/material records and human observations, both with coordinates and years 2005-2025. Can also poll and download the finished ZIPs.
+- `14_build_gbif_plantae_minimal.py`: streams `occurrence.txt` from the GBIF preserved/material plant archive into a compact CSV with the fields needed for downstream summaries and panel work.
+- `15_build_gbif_plantae_cell_year_panel.py`: builds the zero-filled 100 km cell-year panel for the GBIF preserved/material plant archive, with total, plant, preserved-specimen, and material-sample counts plus `any_*`/`log1p_*` transforms.
 - `gee_nightlights_100km.js`: Google Earth Engine script to aggregate Li et al. (2020) harmonized nighttime lights to 100 km cells. Consistent VIIRS-equivalent scale 2005-2023. Cell-level income proxy. See `Scripts/gee_nightlights_README.md`.
 - `merge_nightlights_exports.py`: merges harmonized nightlights GEE export into a cell-year panel with log-radiance.
 - `download_acled.py`: downloads ACLED conflict events via API (requires free ACLED account, Bearer token via `--token` or `--token-file`). Year-by-year download, full global coverage 2005-2024. Alternative: manually export CSV from ACLED data export tool.
@@ -70,10 +72,11 @@
 - `summarize_bold_diptera_large_family_genera_v4.py`: scrapes BOLD v4 genus splits for the four Diptera families above the 1M query cap and appends them to `bold_taxon_size_notes.txt`.
 - `summarize_bold_diptera_oversized_country_counts.py`: extracts top country/ocean counts for the four over-cap Diptera families from BOLD summary metadata.
 - `summarize_bold_non_insect_groups.py`: summarizes selected non-insect arthropod, microbe-like, and broad taxon groups and appends planning tables to `bold_taxon_size_notes.txt`.
-- `09_institution_country_mapping.py`: extracts top-500 collector names from `bold_minimal_records.csv` with record counts and shares. Output: `bold_top500_collectors.csv`.
-- `11_build_collector_individuals.py`: splits top raw collector strings into person-level names and aggregates weighted record counts across combinations. Output: `bold_top500_collector_individuals.csv` (633 individuals).
-- `11_merge_collector_affiliations.py`: merges GPT and Claude affiliation guesses into one file. Classifies each name as AGREED, GPT_ONLY, CLAUDE_ONLY, DISAGREE, ORG, AMBIGUOUS, or UNRESOLVED. Output: `bold_collector_affiliations_merged.csv`.
-- `12_fill_missing_countries.py`: fills the ~89 collectors without LLM country assignments using BOLD record data. ORGs are mapped via a hardcoded lookup table. AMBIGUOUS and UNRESOLVED names are inferred from their BOLD institution field and co-collector countries. Output: updates `bold_collector_affiliations_merged.csv` in place.
+- `09_institution_country_mapping.py`: extracts top collector names from `bold_minimal_records.csv` with record counts and shares. Use `--top-n` to control how many (default 500). Output: `collectors/bold_top{N}_collectors.csv`.
+- `11_build_collector_individuals.py`: splits raw collector strings into person-level names and aggregates weighted record counts across combinations. Output: `collectors/bold_top500_collector_individuals.csv`. Use `--input`/`--output`/`--top-n` for larger runs.
+- `11_merge_collector_affiliations.py`: merges GPT and Claude affiliation guesses into one file. Classifies each name as AGREED, GPT_ONLY, CLAUDE_ONLY, DISAGREE, ORG, AMBIGUOUS, or UNRESOLVED. Output: `collectors/bold_collector_affiliations_merged.csv`.
+- `12_fill_missing_countries.py`: fills collectors without LLM country assignments using BOLD record data. ORGs are mapped via a hardcoded lookup table. AMBIGUOUS and UNRESOLVED names are inferred from their BOLD institution field and co-collector countries. Also applies manual corrections for names with identifiable institutions (e.g., Station Linné→SWE). Output: updates `collectors/bold_collector_affiliations_merged.csv` in place.
+- `13_build_parachute_panel.py`: builds cell × year panel of foreign vs domestic collecting for parachute science analysis. Matches collector names to home countries (ISO3→ISO2 conversion), compares to BOLD `country_iso`. Multi-collector records are averaged (1 foreign + 1 domestic = 0.5). Output: `collectors/bold_parachute_cell_year_panel.csv`.
 
 ## BOLD Pipeline (00–07)
 
@@ -137,16 +140,24 @@ python3 Scripts/aggregate_ibtracs_100km.py
 python3 Scripts/download_comcat_earthquakes.py --min-magnitude 4.5
 python3 Scripts/aggregate_comcat_100km.py --min-magnitude 4.5
 python3 Scripts/request_gbif_plantae_downloads.py --gbif-username YOUR_USERNAME --gbif-password YOUR_PASSWORD --notification-email YOU@example.com --submit-only
+python3 Scripts/14_build_gbif_plantae_minimal.py
+python3 Scripts/15_build_gbif_plantae_cell_year_panel.py
 python3 Scripts/09_institution_country_mapping.py
 python3 Scripts/11_build_collector_individuals.py
-# --- Collector affiliation pipeline ---
-# 1. Generate prompt: Data/processed/bold/prompt_collector_affiliations.txt
-# 2. Paste into ChatGPT and Claude separately → save as bold_collectors_affiliations_gpt.csv and bold_collectors_affiliations_claude.csv
+# --- Collector affiliation pipeline (top 633) ---
+# 1. Generate prompt: Prompts/prompt_collector_affiliations.txt
+# 2. Paste into ChatGPT and Claude separately → save as collectors/bold_collectors_affiliations_{gpt,claude}.csv
 # 3. Merge and review:
 python3 Scripts/11_merge_collector_affiliations.py
-# 4. Manual review: open bold_collector_affiliations_merged.csv, resolve DISAGREE rows
-# 5. Fill remaining ~89 missing countries from BOLD co-collectors and institutions:
+# 4. Manual review: open collectors/bold_collector_affiliations_merged.csv, resolve DISAGREE rows
+# 5. Fill remaining missing countries from BOLD co-collectors, institutions, and manual fixes:
 python3 Scripts/12_fill_missing_countries.py
+# 6. Build parachute science cell-year panel:
+python3 Scripts/13_build_parachute_panel.py
+# --- Expansion to 10K collectors ---
+# Batch prompts in Prompts/prompt_collectors_batch{1-5}.txt
+# Classify via GPT, save results to collectors/bold_batch{1-5}_classifications_gpt.csv
+# Then merge batches, rebuild parachute panel
 python3 Scripts/download_baseline_geography.py
 python3 Scripts/aggregate_resolve_ecoregions_100km.py
 python3 Scripts/aggregate_cepf_hotspots_100km.py

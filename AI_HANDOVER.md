@@ -1,6 +1,6 @@
 # AI Handover
 
-Date: 2026-05-01
+Date: 2026-05-05
 
 ## Ground Rules
 
@@ -196,6 +196,34 @@ captured. Suitable for first-pass treatment analysis.
 The v1 script (`aggregate_wdpa_protected_panel_100km.py`) uses dissolve+overlay
 and takes hours. The v2 script (`aggregate_wdpa_protected_panel_100km_v2.py`)
 uses sjoin+clip and finishes in ~2 minutes. Use v2.
+
+## GBIF Plantae Pipeline
+
+Main plant layer is the GBIF preserved/material archive, not the human-observation archive.
+
+Raw download:
+
+```text
+Data/raw/gbif/plantae/gbif_plantae_preserved_material_dwca_2005_2025/
+```
+
+Processed outputs:
+
+```text
+Data/processed/gbif/plantae/gbif_plantae_preserved_material_minimal.csv
+Data/processed/gbif/plantae/gbif_plantae_preserved_material_cell_year_panel_2005_2025.csv
+```
+
+Build commands:
+
+```bash
+python3 Scripts/14_build_gbif_plantae_minimal.py
+python3 Scripts/15_build_gbif_plantae_cell_year_panel.py
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/merge_all_regressors.do"
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_spec1_gbif_plantae.do"
+```
+
+The GBIF plant panel is a mirror of `reg_spec1.do`: same RHS, same FE structure, same 2005-2023 sample restriction, but with GBIF preserved/material Plantae outcomes.
 
 TerraClimate climate anomalies (drought, heat, precipitation):
 
@@ -621,6 +649,8 @@ countries other than their own.
    - BOLD institution field: maps `inst` values to countries (e.g., "University of Guelph"→CAN)
    - Co-collector inference: finds other names in the same collector string
      that already have resolved countries, votes by frequency
+   - MANUAL_FIXES dict: 5 hand-verified corrections applied after auto-inference
+   Result: 630/633 (99.5%) coverage.
 
 ### Retired scripts
 
@@ -630,14 +660,17 @@ The following scripts were superseded by the LLM-based approach and removed:
 - `12_search_collector_affiliations.py` — wrapper around the old search approach
 - `infer_affiliations_from_search.py` — original Google/DuckDuckGo search script
 
-### Coverage as of 2026-05-04
+### Coverage as of 2026-05-05
 
 - 633 unique individuals extracted from top-500 raw collector strings
-- 544/633 (86%) have a country assignment after LLM merge + manual review
-- 89 without country: 37 ambiguous single-word names, 33 organizations, 19 truly unresolved
-- `12_fill_missing_countries.py` should bring coverage to ~99.7% (631/633)
-  using BOLD co-collector and institution data
-- Only 2 names (Allinghman #267, Kjurstens #478) have zero BOLD records
+- 630/633 (99.5%) have a country assignment after LLM merge + manual review
+  + `12_fill_missing_countries.py` (auto 83 + 5 manual corrections)
+- 3 truly unresolvable: Allinghman (#267, zero BOLD records), local collector
+  (#435, generic label), Kjurstens (#478, zero BOLD records)
+- Manual corrections in `12_fill_missing_countries.py` MANUAL_FIXES dict:
+  Ethel Aberg→SWE (Station Linné), lgt. W.Stark→AUT, E. Friedrich→DEU,
+  Koehler→DEU (inst=Bavarian State Collection, co-collector vote was wrong),
+  Ashton→GBR
 
 ### Key findings from LLM comparison
 
@@ -649,9 +682,74 @@ The following scripts were superseded by the LLM-based approach and removed:
 - Both LLMs know well-published taxonomists well; both fail on
   parataxonomists and field technicians
 
+7. **Parachute science panel** (`13_build_parachute_panel.py`):
+   For each geocoded BOLD record with a collector field, matches names to
+   home countries and compares to `country_iso`. Multi-collector records
+   use averaged scores (1 foreign + 1 domestic = 0.5 foreign). Aggregates
+   to cell × year. Output: `collectors/bold_parachute_cell_year_panel.csv`
+   with: `records_total`, `records_matched`, `records_unmatched`,
+   `foreign_score_sum`, `domestic_score_sum`, `foreign_share`,
+   `n_collectors_foreign`, `n_collectors_domestic`.
+   Merged into Stata panel via `merge 1:1 cell_id year` in
+   `DoFiles/merge_all_regressors.do`.
+
+### Directory structure
+
+All collector/affiliation files live in `Data/processed/bold/collectors/`:
+- `bold_top500_collectors.csv` — raw collector strings (top 500)
+- `bold_top500_collector_individuals.csv` — 633 individuals from top 500
+- `bold_all_collector_individuals.csv` — all ~101K unique individuals
+- `bold_top999999_collectors.csv` — all raw collector strings
+- `bold_collectors_affiliations_gpt.csv` — GPT classifications (top 633)
+- `bold_collectors_affiliations_claude.csv` — Claude classifications (top 633)
+- `bold_collector_affiliations_merged.csv` — merged + reviewed + filled
+- `bold_parachute_cell_year_panel.csv` — cell × year output panel
+- `bold_batch1_classifications_gpt.csv` — GPT batch 1 results (expansion)
+- `supply_top10_collectors.csv` — top 10 collector strings exhibit
+
+LLM prompt files are in `Prompts/`:
+- `prompt_collector_affiliations.txt` — original top-633 prompt
+- `prompt_collectors_batch{1-5}.txt` — expansion batches (9,358 new names)
+
+### Descriptive analysis (DoFiles/desc_parachute.do)
+
+Key findings from `desc_parachute.do` (run after merge):
+- Mean foreign_share: 0.37 across cell-years with matched collectors
+- Poorer countries get more foreign collecting: GDP Q1 52% vs Q4 20%
+- More biodiverse cells get more: richness Q4 51% vs Q1 19%
+- Biodiversity hotspots: 62% foreign vs non-hotspot 30%
+- Recommended estimation: WLS with `aweight = records_matched` — cells
+  with more classified collectors are more informative. Do NOT impute
+  unclassified records as domestic (biases toward finding effects).
+
+### Geographic coverage ceiling
+
+- 51,779 cell-years have both BOLD records and a collector field
+- 14,710 cell-years have records but blank collector fields (unrecoverable)
+- Top 633 collectors cover 84.5% of records but only 5,766 cell-years
+  (geographically concentrated — mainly Janzen/Hallwachs Costa Rica)
+- Coverage curve: top 5K → 27,604 cell-years (53%); top 10K → 35,462 (69%)
+
+### Expansion to 10,000 collectors (in progress)
+
+To improve geographic coverage, extracted 10,000 collector individuals using
+`09_institution_country_mapping.py --top-n 10000` and
+`11_build_collector_individuals.py --top-n 10000`. The 9,358 new names
+(beyond the original 633) are split into 5 batch prompts in `Prompts/`:
+- Batch 1 (ranks 1-2432): uses original rank numbering — already classified
+  by GPT, saved as `collectors/bold_batch1_classifications_gpt.csv`
+- Batches 2-5 (~2000 names each): use sequential 1-N numbering (GPT stopped
+  early when batch 1 used original ranks past 2000)
+- Each batch prompt includes "IMPORTANT: classify ALL names" instruction
+
+After all 5 batches are classified:
+1. Write a merge script to combine the 5 batch results with the original 633
+2. Re-run `13_build_parachute_panel.py` with the expanded lookup
+3. Re-run Stata merge and descriptives
+
 ### Next steps
 
-- Run `12_fill_missing_countries.py` to fill remaining ~89 countries
-- Build foreign/domestic panel variables: for each cell-year, count records
-  by collectors whose home country ≠ cell country
-- Add `foreign_share`, `domestic_share` to the regression panel
+- Classify remaining batches 2-5 via GPT (user runs manually)
+- Merge expanded classifications into a single affiliations file
+- Rebuild parachute panel with ~10K collectors for better geographic coverage
+- Add `foreign_share` to regression specifications (OLS + WLS)

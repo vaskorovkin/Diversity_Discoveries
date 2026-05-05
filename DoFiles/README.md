@@ -8,7 +8,8 @@ do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/merge_all_regr
 
 The do-file imports all outcome and regressor CSVs, merges on `cell_id` (and
 `year` for panels), trims the master panel to `2005-2024` for compatibility
-with the conflict panel, drops Antarctica and date-line edge cells, and saves:
+with the conflict panel, optionally merges the GBIF preserved/material plant
+panel if it exists, drops Antarctica and date-line edge cells, and saves:
 
 ```text
 Data/analysis/BOLD_regressor_panel.dta
@@ -67,6 +68,20 @@ Standard errors clustered at cell level. Logs saved to `Logs/reg_spec1.log`.
 
 Legacy files `reg_spec1_global_south.do` and `reg_spec1_country_year_fe.do` are
 superseded by `reg_spec1.do`.
+
+### GBIF Plantae Regression Mirror
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_spec1_gbif_plantae.do"
+```
+
+Runs the same 5-table / 8-column structure as `reg_spec1.do`, with the same
+RHS variables and fixed effects, but swaps the dependent variable to the GBIF
+preserved/material Plantae panel merged into `Data/analysis/BOLD_regressor_panel.dta`
+(with aliased GBIF plant columns preserved in the merged panel).
+The sample restriction remains 2005-2023 to match `reg_spec1.do`.
+
+Logs saved to `Logs/reg_spec1_gbif_plantae.log`.
 
 ### BIN Outcome Regressions
 
