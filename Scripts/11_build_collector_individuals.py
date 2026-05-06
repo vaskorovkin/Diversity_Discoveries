@@ -24,8 +24,8 @@ from pathlib import Path
 from pipeline_utils import PROCESSED_BOLD
 
 
-DEFAULT_INPUT = PROCESSED_BOLD / "bold_top500_collectors.csv"
-DEFAULT_OUTPUT = PROCESSED_BOLD / "bold_top500_collector_individuals.csv"
+DEFAULT_INPUT = PROCESSED_BOLD / "collectors" / "bold_top500_collectors.csv"
+DEFAULT_OUTPUT = PROCESSED_BOLD / "collectors" / "bold_top500_collector_individuals.csv"
 
 NON_PERSON_PATTERNS = [
     re.compile(r"(?i)\b(?:team|program|survey|project|collection|museum|herbarium|institute|university)\b"),

@@ -28,6 +28,7 @@ import pandas as pd
 
 PROJ = Path("/Users/vasilykorovkin/Documents/Diversity_Discoveries")
 BOLD_DIR = PROJ / "Data" / "processed" / "bold"
+COLLECTORS_DIR = BOLD_DIR / "collectors"
 MINIMAL_CSV = BOLD_DIR / "bold_minimal_records.csv"
 
 # Hardcoded ORG → country for organizations whose identity is obvious
@@ -108,7 +109,7 @@ def inst_to_country(inst_str: str) -> str:
 
 
 def main() -> int:
-    merged = pd.read_csv(BOLD_DIR / "bold_collector_affiliations_merged.csv")
+    merged = pd.read_csv(COLLECTORS_DIR / "bold_collector_affiliations_merged.csv")
     merged["country_final"] = merged["country_final"].fillna("").astype(str)
 
     missing_mask = merged["country_final"] == ""
@@ -243,12 +244,34 @@ def main() -> int:
               f"inst={d['top_inst'][:35]}  "
               f"coauth={d['n_coauthors']}")
 
+    # --- Manual corrections ---
+    # Applied after automated inference; each has a documented reason.
+    MANUAL_FIXES = {
+        560: ("SWE", "manual: inst=Station Linné, Swedish biological research station"),
+        522: ("AUT", "manual: lgt.=legit(collected by), Wolfgang Stark is Austrian hymenopterist"),
+        566: ("DEU", "manual: Egbert Friedrich, German entomologist"),
+        197: ("DEU", "manual: inst=Bavarian State Collection of Zoology (Munich), co-collector vote UKR was wrong"),
+        599: ("GBR", "manual: Ashton, co-collector vote GBR; inst=CAS is sequencing lab not home"),
+    }
+
+    manual_fixed = 0
+    for num, (cc, note) in MANUAL_FIXES.items():
+        mask = merged["number"] == num
+        if mask.any():
+            merged.loc[mask, "country_final"] = cc
+            merged.loc[mask, "review_notes"] = note
+            name = merged.loc[mask, "name"].iloc[0]
+            print(f"  [FIX] {num:3d}. {name:<30s} → {cc}  ({note})")
+            manual_fixed += 1
+
+    filled += manual_fixed
+
     still_missing = merged[merged["country_final"] == ""]
     print(f"\nStill missing: {len(still_missing)}")
     for _, r in still_missing.iterrows():
         print(f"  {r['number']:3d}. {r['name']} ({r['status']})")
 
-    out = BOLD_DIR / "bold_collector_affiliations_merged.csv"
+    out = COLLECTORS_DIR / "bold_collector_affiliations_merged.csv"
     merged.to_csv(out, index=False)
     print(f"\nWrote {out}")
 

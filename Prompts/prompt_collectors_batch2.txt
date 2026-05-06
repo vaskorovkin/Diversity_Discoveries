@@ -1,0 +1,2016 @@
+You are classifying biodiversity specimen collectors from the BOLD database.
+For each numbered name below, provide:
+- The most likely institutional affiliation (university, museum, government agency, etc.)
+- The country of that institution as an ISO 3166-1 alpha-3 code (e.g., USA, CAN, GBR, DEU)
+
+Rules:
+- If the name is clearly an organization or team (not a person), write: ORGANIZATION | ---
+- If the name is a single word or ambiguous and you cannot identify the person, write: AMBIGUOUS | ---
+- If the name looks like a real person but you cannot determine their affiliation, write: UNKNOWN | <country_iso3 if you can guess from the name, otherwise --->
+- Use the person's HOME institution country, not where they collect specimens
+- Format each response as: number. name | institution | country_iso3
+- IMPORTANT: classify ALL names in this list, do not stop early
+
+
+=== BATCH 2/5 (2000 names) ===
+
+1. I. Rivas
+2. Y. Kano
+3. Sydney Water
+4. R.D. Bull
+5. R. Wetzer
+6. Holger Anlauf
+7. Roddy Michel RANDRIATSARA
+8. Peter Rasberry
+9. Local coll.
+10. Deutsch H.
+11. C. S. Guppy
+12. Biology Centre
+13. Czech Academy of Science
+14. K.J.Sandery
+15. Vanessa Mata
+16. Alexander Weigand
+17. Szucsich
+18. Davide Sassi
+19. Chloe Salmon
+20. P. Pyszko
+21. N. Kotaskova
+22. O. Dornak
+23. Brigitte Braschler
+24. Waren
+25. O. Hanssen
+26. Rima W. Jabado
+27. N. Zahm
+28. Roman A. Nazarov
+29. Mwale
+30. Rafael Banon
+31. H. Hamid
+32. Carmen et al.
+33. Barbut J.
+34. P. Heepngoen
+35. M. Peerawat
+36. P. Panklang
+37. A. Brauman
+38. J. Trap
+39. Gary
+40. Blanco
+41. Dauby G.
+42. Fewless
+43. Jakko Chmura
+44. Juan Sanchez
+45. his students
+46. Tiago Correia
+47. Claudio Oliveira
+48. Chris Fletcher
+49. G. Boettner
+50. J.M.Cumming
+51. Pius
+52. J.F.G.Clarke
+53. D.Davis
+54. A. Poleschuk
+55. J.Hable
+56. Laurence Packer
+57. Mar-Eco
+58. Zhenwenquan
+59. Narong Jaturas
+60. Lari Heikkinen
+61. Rodriguez
+62. Kate A
+63. Juha Suominen
+64. Yolanda Camacho
+65. Duffie Clemons
+66. Pornthap kerkig
+67. Emmanuel Vreven
+68. D. Couceiro et al.
+69. Inez Januszczak
+70. Ivan Canul Palma
+71. Paulo Roberto Antunes de Mello Affonso
+72. Haber William
+73. A.S. Soares
+74. L.A.M Soares
+75. Rebecca
+76. Andrew Polaszek
+77. Roby Briden
+78. Lee
+79. R.S. Copeland
+80. R. Fitzek
+81. Arne Fjellberg
+82. W. ten Hagen
+83. Elkin Tenorio
+84. M.Suzuki
+85. Scott MacIvor
+86. B.L. Fisher et al.
+87. Peck
+88. Ethan G Ross
+89. Topeka
+90. SVC Groom
+91. JB Sullivan
+92. F. Soldati
+93. M. Roblin
+94. D. McDevit
+95. Ivan Kuzmin
+96. Bernard Agwanda
+97. D. Mulcahy
+98. Dane Paijmans
+99. Barbara Gregory
+100. Syd Cannings
+101. Myra Hughey
+102. Ying M.
+103. M Cooper
+104. Daniella Egli
+105. Elisabeth Berger
+106. Laban Njoroge
+107. T.Glik
+108. A. Stander
+109. Bentley
+110. Elizabeth Boyle
+111. S.Chikaguchi
+112. S.Narayama
+113. J.S. Elkinton
+114. Ken Emberton
+115. V. Sinaev
+116. Kondratieff
+117. Henitsoa JAONALISON
+118. da Silva et al. 2019
+119. G Pohl
+120. S.Seibold
+121. Sergio Cohuo-Duran
+122. Roth
+123. A. Kelch
+124. H. Knauber
+125. B. Kondratieff
+126. Hornig
+127. Uwe
+128. Christian
+129. Henry Arenas
+130. E.Swartz
+131. Smale
+132. David Catania
+133. Tobias Grasegger
+134. Binatang Research Centre
+135. W. Han
+136. Rosso/Mabragana
+137. Renato Correia Lima
+138. Jacqueline da Silva Batista
+139. M.Duda
+140. L. Kruckenhauser et al.
+141. C. Vidal
+142. L. Tyski
+143. SW Droege
+144. Samson Kurukua
+145. Montoya-Burgos J.I.
+146. Stroud Water Research Center
+147. Mayr A.
+148. Juniper
+149. R. Delgado
+150. A Lopez
+151. Nikolaus
+152. Local Collectors
+153. I Utama
+154. Saskia Brix et al.
+155. M. Mwale
+156. Fish
+157. Chips Consortium
+158. Rojas Vasquez Robert
+159. Kate Jackson
+160. I. Simon
+161. Martin R
+162. J. Capelo
+163. Timo Nupponen
+164. Jeffrey Drazen
+165. Maycol Madrid
+166. Dieter Doczkal
+167. Desjonqueres
+168. B. Turlin
+169. M. Sarmiento
+170. Anna Carlemalm
+171. Anna Drozd
+172. Troubridge
+173. Sheu Yu-Cheng
+174. Meaghan Vavrek
+175. M Lewis (CSIRO)
+176. Morales
+177. Luisa Jaimes
+178. Christian McKeon
+179. L.S. Beukes
+180. V.N. Ndou
+181. P.J.Lang
+182. Konig
+183. Sylvie Duthoit
+184. G.F.Hevel
+185. J. A. Azofeifa
+186. L. Anderson
+187. D. Gledhill (CSIRO)
+188. Sundance
+189. Rosado
+190. B. Clarkston
+191. Wilson F Silva
+192. F.O. Francisco
+193. L.R. Santiago
+194. Miguel Xijun
+195. Arctic Ecology
+196. C. Grinter
+197. Mol J.
+198. Lauren Hooton
+199. S. Espinola
+200. M. Mcphee
+201. M.Seki
+202. S.Kaneko
+203. Y.Kudoh
+204. Coeur d`acier
+205. S Rios
+206. f Quesada
+207. Sukirno
+208. Torbjorn
+209. Rahul Jamdade
+210. Gessl
+211. M. Zia
+212. Boddington DHS students
+213. John Owen
+214. Lauren Whitehurst
+215. P. Hawkes
+216. Montagud
+217. Kamal Ahmed Khan
+218. Karin Davidson-Taylor
+219. Ene Goktan
+220. Paul Davis
+221. Michel Kulbicki
+222. Benites
+223. A. Badiss
+224. Mikhail Kozlov
+225. C.Dahl
+226. I.Kiatik
+227. I.Baisen
+228. Guglya Yu.
+229. local/Santoz
+230. K. Nemoto
+231. F. Odegaard
+232. Foltz
+233. M Puckridge
+234. G. C. Champion
+235. A. Ludwig
+236. C. Seifert
+237. R. Engelmann
+238. T. Holicova
+239. Deutsch Helmut
+240. Rainer Busse
+241. D.McGeachy
+242. Fresno Mycology Society
+243. A. M. Easton
+244. F. S. Hu
+245. B. Brunet
+246. RG Bennett
+247. G. Roessler
+248. Lukasz Trebicki
+249. Talya D. Hackett
+250. K.Yamashita
+251. P. Marino
+252. B. Blaimer
+253. F.N. Raharimalala
+254. Stivers
+255. G. Anweiler
+256. J. Lima
+257. Jen Bayer
+258. M. Cozier
+259. Jean Haxaire
+260. Jason Gibbs
+261. MA Fortaleza
+262. Melody Puckridge
+263. James Adams
+264. Gilbert Ampie
+265. T. Bouyer
+266. Svante Martinsson
+267. Grace Charles
+268. Rolf Niedringhaus
+269. B. Mueller
+270. R.Beck
+271. Petri Martikainen
+272. Denis Copilas-Ciocianu
+273. J.Robinson
+274. M. Shackleton
+275. Michelle Taylor
+276. Sadie Hickey
+277. Kim Oppertshauser
+278. Alexandre Bergeron
+279. Janzen
+280. Dan Bock
+281. Alain Cama
+282. Oddvar Hanssen
+283. R. Lebeuf
+284. Bryn Dentinger
+285. K.S. Pike
+286. Marcelo Sandoval
+287. F.Brodo
+288. G. Ferland
+289. S.Dessein
+290. Riksmyrsprosjekt
+291. Anders Endrestol
+292. J.Wilson
+293. J Vaillant
+294. Lan Ma
+295. D Herbert
+296. Alejandro Zaldivar
+297. Ilia Leitch
+298. Rob Cooper
+299. Poirier E.
+300. S. Reyes
+301. Alma Garcia Morales
+302. B. A. Holladay
+303. O'Toole
+304. Chuck Parker
+305. Zuluan Chen
+306. Hendrich
+307. Laboratory of Marine Biology
+308. Dept. Experimental
+309. Evolutionary Biology
+310. Fano (PU)
+311. Ichiro Nakamura
+312. C. Boudeault
+313. F. Can
+314. Gerecke et al.
+315. H.-J. Jacobs
+316. E.Jackh
+317. Leonardo Dapporto
+318. Eli Fremstad
+319. L. Matamoros
+320. Michelle
+321. Leijs R
+322. GJC Silva
+323. Harald Letsch
+324. R. Murphy
+325. Christi Jaeger
+326. K.Kuroda
+327. Jean-Sebastien Mignot
+328. Elise Eriksson
+329. Y.Kudo
+330. C.H.Oh
+331. S. Wakui
+332. M Kumashiro
+333. Philipp Honle
+334. Marjorie Saillan
+335. local/Tony
+336. Thoeny
+337. Kruskop S.V.
+338. A.Cywinska
+339. Jacob: Perez
+340. Rudloff
+341. Decaens
+342. Christina Ellison
+343. Hery Yanto: Endro Setiawan
+344. Tor Erik Eriksen
+345. S. Kagawa
+346. Aurelien Caries
+347. Hartmut Wegner
+348. B. Jordal
+349. Natalia Kirichenko
+350. Marc Colyn
+351. Christopher J.: Maze
+352. Jack
+353. Brigitte Prevost
+354. Dick Belgers
+355. Ali Karhu
+356. J. Brown
+357. J Pogonoski (CSIRO)
+358. K. Grabow
+359. E. Fagan-Jeffries
+360. L. Dapporto
+361. Fredrik Pleijel
+362. Sergey Tereshin
+363. M. Naumova
+364. Yun-Xia Zhen
+365. Shaneze Noel
+366. Panglao Marine Biodiversity ProjectMNHN-IRD
+367. J. Longino
+368. G.-O. Cimon
+369. D Holden
+370. L.Hedenas
+371. A. Paul
+372. Becky Brinkman
+373. Ian Arthur
+374. Vitali Zverev
+375. C. Kopuchian y N. Garcia
+376. Rivas
+377. Alexei Elias Valdez
+378. S. James
+379. J.Glaser
+380. P. Hudson
+381. N. Gazal
+382. Juan
+383. Daniel Janzen
+384. S. Kato
+385. Adrienne Jochum
+386. JL: Lim
+387. BK: Mitchell
+388. Caixia Liu
+389. I.Stocks
+390. Copley
+391. Egbert Friedrich
+392. David Lees
+393. Garcia
+394. Jonas Jourdan
+395. S. Naumann
+396. Charles M. Francis
+397. J.R. deWaard
+398. Hernandez-Roldan
+399. A.Jessen
+400. CJGeraci
+401. L.Harvey
+402. Vasconcelos
+403. Nicole Anthony
+404. Julie
+405. T. Hoffstad
+406. Keresztes L.
+407. Liu
+408. David Baker lab
+409. Aaron Tupac
+410. A. Rasool
+411. Elliott
+412. Alexis
+413. Rikmyrprosjektet
+414. I. Leonardo
+415. T.M. Kuklenski
+416. C.D. Ferris
+417. P.Belanger
+418. K. Fuse
+419. Dalia Cazarez-Carrillo
+420. Gonzalez Tenorio Roger
+421. Claude
+422. T. Karisch
+423. H. Hacker
+424. Geir Gaarder
+425. S. Thorn
+426. Leo
+427. Hu
+428. Sandra Flechas
+429. Olberg
+430. R.J.B.Hoare
+431. Pilon
+432. J.Longino
+433. Nir Stern
+434. JFG Clarke
+435. Iris
+436. M Olson
+437. Arto Muinonen
+438. E.Bolduc
+439. Robert Aguilar
+440. Afonin
+441. A Graham
+442. Luis M. Hernandez-Triana
+443. NJ Lang
+444. Ali hassan
+445. S. Korb
+446. Yanis Bouchenak
+447. B.K.: Engstrom
+448. M.D.: Arcila
+449. Arjan Gittenberger
+450. Kennio Ferreira Paim
+451. Susan Muir
+452. Tony Verboom
+453. Nicolas Quebre
+454. Jeremy Miller
+455. Sergei V. Kruskop
+456. Peks
+457. Anweiler
+458. R. Bills
+459. JJ Lanutan
+460. Berry van der Hoorn
+461. Alejandro Tuz
+462. E. Scheuchl
+463. Ekrem
+464. Christine Morrow
+465. V. Sinjaev
+466. H van der Bank
+467. Roy Kleukers
+468. Lourdes Vasquez Yeomans
+469. Carballo Gerardo
+470. K. Sookdeo
+471. Sadori Pete
+472. Peter J. Bryant
+473. Assiniboine Park Zoo
+474. A.Blanchard
+475. Grabow
+476. F. Schaffner
+477. Joachim Langeneck
+478. Radoslaw Plewa
+479. Singh
+480. L.LeSage
+481. G. Lima
+482. P.A. Opler
+483. Spirit of Play CS students
+484. J. Cossentine
+485. Gaytan
+486. Canelo
+487. Perez-Izquierdo
+488. Morano
+489. Bonal
+490. Myint Kyaw Thura
+491. Thaw Zin
+492. Viana
+493. RiMa associates
+494. M. Y. Chen
+495. Lise Dupont
+496. Takeshi Asakawa
+497. Mackenzie Howse
+498. de Freina
+499. Dickinson
+500. Oceans North
+501. G.G.E. Scudder
+502. Buchner
+503. Andrzej Falniowski
+504. Magdalena Szarowska
+505. A. Stroo
+506. Pham Dinh Sac
+507. 2017CuracaoARMSTeam
+508. M. Matsumoto
+509. G Yearsley (CSIRO)
+510. Ward
+511. T. Ihle
+512. Ola Skifte
+513. Yves Lamoureux
+514. N. Ramchatar
+515. Paul Abram
+516. Nicolas Moulin
+517. J.M.: Consaul
+518. L.L.: Bull
+519. M.Patenaude
+520. Q. Abbas
+521. FK Gielis
+522. Florent Borderie
+523. O. Mielke
+524. Kat
+525. U. Drechsel
+526. E. Da Silva
+527. M.E.Blanchard
+528. A. Taylor
+529. Luis Martell
+530. P. Doughty
+531. B.B.Blaimer
+532. Dr. Dr. Walter Ruckdeschel
+533. Leveque
+534. J.H. Stuke
+535. M.D.Schwartz
+536. Matthew Morris
+537. Ana Rita Goncalves
+538. C. Ho
+539. Olga Sivell
+540. C.D. Nwani
+541. Pablo Jarrin
+542. Michael Raupach
+543. Christopher Greyson-Gaito
+544. Matt Bowser
+545. C. Di Marco
+546. Kelly Young/Moira Galbraith
+547. D.Neto
+548. T.J.Henry
+549. S. Montagud
+550. C. Watts
+551. Haarsaker
+552. Cathy/Rhonda
+553. B. Lloyd
+554. Marisa Raweearamwong
+555. E. A. Robinson
+556. Mohd Sofian Azirun
+557. S. Erlacher
+558. Houghton
+559. Shepard
+560. Motohiro Kawase
+561. D.F.Hardwick
+562. G.G. Anweiler
+563. A. Riccieri
+564. Habib
+565. Neogi
+566. Nahar
+567. Ssymank
+568. Erling Holm
+569. Elise ANDRIAMAHAZOSOA
+570. S. Bond
+571. Larochelle
+572. Lariviere
+573. Matt Whalen
+574. Yuqu Zhang et al.
+575. Jean-Claude Streito
+576. Serena Mucciolo
+577. D.F. Brunton
+578. Sverre Kobro
+579. P. Toko
+580. Y. S. Megna
+581. Rima Lucardi
+582. Milton King
+583. RL Mayden
+584. L. Harris
+585. MNHN Rec._MNHN-IRD
+586. J.L.Stiles
+587. D.Steinke
+588. JF. Palazo
+589. Tyler Kartzinel
+590. H. Kucera
+591. Liliana V. Vassileva
+592. Francisco Jose Sarmiento Gonzalez
+593. M. Hasson
+594. Hallvard Elven
+595. B.Gogoi
+596. Ole Petter Vindstad: Jane Uhd Jepsen
+597. O. Paquit
+598. T. Saitou
+599. Annegret Nicolai
+600. S.K. Monckton
+601. Schoder
+602. Sabine
+603. Vetek Gabor
+604. Chuck Harp
+605. Samadi-IRDTropical Deep Sea Benthos
+606. T. Yahara
+607. Carole Baldwin
+608. A.Timm
+609. van Zoest
+610. Patrick Grootaert
+611. S. Nasir
+612. Romain Le Divelec
+613. Kai
+614. Vladimir Pesic
+615. Filipe Costa
+616. H.Sutrisno
+617. H. Muehle
+618. Wood
+619. Kirchweger
+620. S.M. Lee
+621. M.A.H. Braks
+622. P.J.J. Helleman
+623. R.M. Wouters
+624. Stur E
+625. M.C.Marinone
+626. Sergio Ticul Alvarez Castaneda
+627. AShapcott/BMcDonald/MHoward
+628. J. Woodall
+629. Philippe Gaucher
+630. M.Kanno
+631. J.D. Shorthouse
+632. Rojas Elias
+633. Katerina Sam
+634. ViktorSinjaev
+635. Michelle Van Der Bank
+636. Sanjay Gairola
+637. Petri Hirvonen
+638. Simon
+639. C. Earley
+640. Hogendoorn K
+641. Gerhard Schlusslmayr
+642. David Giron
+643. C. Sanchez
+644. Eie
+645. Rodriguez Gladys
+646. students at Hersleb sec. School
+647. A. Sourakov
+648. J. Fenneman
+649. Pauls
+650. Johann Mourier
+651. Derek Van Maanen
+652. Alvaro roura
+653. Michael D. Wilson
+654. E.A. Fonseca
+655. Maryland - Dept Natural Resources
+656. Nel J.
+657. Sommerer
+658. Wan Tong You K.
+659. Sire
+660. Victor
+661. H. Ando
+662. B. Smith
+663. A. Kratter
+664. J. Oswald
+665. Neusa Hamada
+666. D. Lukashanets
+667. Pornthap Kerkig
+668. A.Zwick
+669. A. Di Giulio
+670. S. Lazarov
+671. T.Kobayashi
+672. Marco
+673. local people
+674. Menno Schilthuizen
+675. K.Takahashi
+676. Son
+677. Fiorella Vasquez
+678. Bernard Picton
+679. C-K Chan
+680. G Smyrell
+681. Christy Wu
+682. Yudthana Samung
+683. Olivier Gargominy
+684. C. Fruetel
+685. J. Hall
+686. J.Witt
+687. E.Maw
+688. Katy Hind
+689. C.Schmidt
+690. M.A. Cowan
+691. SSI (Herbst
+692. Seresinghe
+693. Walker)
+694. Bat Vardeh
+695. Ashley Asmus
+696. Bonifacino
+697. Khairunnisa Syaripuddin
+698. L Davis
+699. J. Adams
+700. Andrea Reid
+701. Jacob Lowenstein
+702. M. Oyama
+703. C.-H. Gou
+704. S.-H. An
+705. F. Gaspar
+706. R. Razakamalala
+707. B. A. Holladay/UAF
+708. Maria Claudene Barros: Elmary da Costa Fraga: Deborah Gaido Aragao: Ligia Maria Matias Silva
+709. Frans Cupedo
+710. Antoine Fouquet
+711. Teunissen
+712. Sam James
+713. V. A. Funk
+714. J. Razanatsoa
+715. Evy Arida
+716. Wahyu Tri Laksono
+717. M. Ashfaq
+718. E.C.Knudson
+719. Matthias Nuss
+720. M.A. Bologna
+721. Iina Eskelinen
+722. M.E.Irwin
+723. Saint Esteven A
+724. J-F Landry
+725. Catzeflis
+726. Djosetro
+727. Opler
+728. D. A. Lott
+729. Gerecke
+730. S. Kojima
+731. D.Porco
+732. E. Rota
+733. Rolf Moertter
+734. Alberto Contreras-Arquieta
+735. Arbeitsgruppe Bodentiere (IAB 1d)
+736. W. Gessl
+737. V. Blagoderov
+738. Chamorro
+739. Maria Capa
+740. Veronika Andriienko
+741. Kit S. Prendergast
+742. L.Kaila
+743. Vanessa Barbosa
+744. Xiaoshou Liu
+745. M. Ohta
+746. K. Okamoto
+747. S. Shiraki
+748. D. Yamamoto
+749. Xingyue Liu
+750. Nico Nieser
+751. R. Gonzalez
+752. Michelle D'Souza
+753. Karl Ambil
+754. Fede
+755. Keith
+756. Fibiger
+757. B.Richard
+758. Catarina Palma
+759. A.Anctil
+760. A. Mitchell
+761. Magdalena Lazarus
+762. JD Shorthouse
+763. Aldo Ortega
+764. Upton
+765. David Gwynne-Evans
+766. Mingxin Liu
+767. J. Rodriguez
+768. DR Copley
+769. C. Lambkin
+770. David Richardson
+771. Gergely Varkonyi
+772. C. Elliott
+773. GR Pohl
+774. J. Fisher
+775. National Park Service
+776. TM Clarke
+777. David Marsden
+778. D. Cartwright
+779. Barreira
+780. Sander Bot
+781. Leonel Siezar
+782. H.S. Staude
+783. J.E.H.Martin
+784. Mounts
+785. W. Halliday
+786. A. Kenney
+787. T.Wood
+788. Sanna Leppaenen
+789. Jakub Bienias
+790. Jevgeni Jakovlev
+791. Siri Rui
+792. Sand
+793. Sigrid
+794. M.Coghill
+795. 2008 Shrimp Taxonomy Workshop
+796. N. Kaneko
+797. B Landry
+798. M. Duda
+799. E Delrieu-Trottin
+800. Nurjirana
+801. L. Decaens
+802. Qiang GAO
+803. Boudewijn Ode
+804. M. Lovave
+805. M. Niiyama
+806. Y. Isobe
+807. Verstraaten
+808. Evgeny Kuzmin
+809. GM Miller
+810. R. Leijs
+811. T. Windmaisser
+812. Sakis Drosopoulos
+813. Gerfried Deschka
+814. Engelhardt
+815. C. Thompson
+816. Juan Jose Rosso
+817. J. Azofeifa
+818. Julien April et Caroline Durand
+819. Limmon
+820. T. Melichar
+821. D. Baird
+822. D. Weber
+823. D.R.Smith
+824. Krumm
+825. M. Larrivee et al.
+826. D. Handfield
+827. P. Schmit
+828. Vetina
+829. Philip M. Ross
+830. E.J.Kiteley
+831. A. Omigoetok
+832. Cl. Herbulot
+833. Rein-Arne Golf
+834. party
+835. R. St Clair
+836. Janette Dear: Lori Burroughs
+837. J. Neethling
+838. Kravchenko
+839. Ezequiel Mabragana
+840. Sauri
+841. M.Moraga
+842. Diaz de Astarloa
+843. Martin Collins
+844. Fernando Angelini
+845. E. Jendek
+846. AO Chater
+847. L. Kaila
+848. Douglas Tallamy
+849. Frank Lomer
+850. Cerny
+851. Adams
+852. Uriel Briceno
+853. CRParker
+854. Oleg Kosterin
+855. Riedel
+856. Kevin
+857. Inger-Lise Fonneland
+858. C. Aubert
+859. Yann Boudreau
+860. Freyci Vargas
+861. D.A.Young
+862. Frank Joyce
+863. B.Laforest
+864. Misel Jelic
+865. Bashford
+866. Katriina Bendiksen
+867. Cram
+868. P. McMillan
+869. Karsten Hannig
+870. Pingrup Primary School students
+871. E.C.Johnston
+872. Koblmueller
+873. J. Niogret
+874. Mark Erdmann
+875. J B Dorey
+876. Geir Arnesen
+877. John Klicka
+878. G. Graf
+879. J. Doubt
+880. Hellen
+881. Svein Svendsen
+882. Ed Knudson
+883. Adrian Uh-Navarrete
+884. Richer de Forges-IRDTropical Deep Sea Benthos
+885. Claudia Copley
+886. A. Karatayev
+887. K. Dixon
+888. Anders
+889. Valeriano Parravicini
+890. M. Flood
+891. Dea Garcia-Hermoso
+892. Aisha Tahir
+893. K. Winqvist
+894. DL Threatful
+895. L.M. Humble
+896. Fabian
+897. J. Axmacher
+898. G.W. Saunders
+899. Mitchell
+900. Mark Leiby
+901. D.H. Vitt
+902. Candek
+903. M. Seizmair
+904. M.M. Dietl
+905. H.Bekele
+906. Julio Rivera
+907. Fedor Ciampor Jr
+908. RFC Naczi
+909. Wanxin Pan
+910. Felix R
+911. R A Jamdade
+912. Environment Canada
+913. M. Robertson
+914. Crispin S Guppy
+915. P. Lavinia
+916. D.M. Wood
+917. D.R.Davis
+918. Local Fishermen
+919. Jari Kaitila
+920. Pedro Vieira
+921. K.Heard
+922. Mahandry Hugues
+923. Becky Yeo
+924. J. A. Siddiqui
+925. Vicky Gilson
+926. Jacobs
+927. Dr Duncan Sivell
+928. Lafontaine
+929. Sergey Bogorodsky
+930. G.Pederson
+931. C Brevignon
+932. F. Bergmeier
+933. A. Casaubon
+934. Michel Veuille
+935. A. Driskell
+936. Renee Lebeuf
+937. Eilish Engelbert
+938. Dr. D. Kolligs
+939. A.K. Tishechkin
+940. Esko Viitanen
+941. A.Davies
+942. Davis
+943. Anders Often
+944. Shazia Irfan
+945. Tony Abbott
+946. Lorene Marchal
+947. Borowiec
+948. James K. Adams
+949. Bernt-Gunnar Osterkloft
+950. J.C.Cardale
+951. Lecourt
+952. M.Dreiling
+953. Lech
+954. Christopher C. Grinter
+955. Mayr T.
+956. V.O.Becker
+957. M. Ohtani
+958. E.Imbeau
+959. Ana Falconi-Lopez
+960. S.W. Droege
+961. Jurg Schmid
+962. Erkki Pulliainen
+963. Rahuel Chan
+964. Lauri Kaila
+965. BK Kuhajda
+966. Nathalie Tolou
+967. Gammelmo
+968. Anna-Maria Vafeiadou
+969. Dennis Komape
+970. Lerato Mabe
+971. Stefan Siebert
+972. Johanny Carolina Molina Alor (USM)
+973. N. Poell
+974. D.J. Bickel
+975. Albrecht
+976. T.Myles
+977. A. Takahashi
+978. K. Haarsaker
+979. Heraty Lab M. Corr
+980. Charles Bordelon
+981. H.Goulet
+982. Gro Gulden
+983. R. Harin`Hala
+984. Martha Valdez
+985. adenip
+986. Pierre Belanger
+987. Wu Fuzhong
+988. Bafraw Karimi
+989. R.Matsuba
+990. Omatsu
+991. Kanno
+992. Hayasaka
+993. T. Porion
+994. Mr Dominic J. Phillips
+995. M. Zwicke
+996. Andre Nemesio
+997. Ken Davenport
+998. Laurence Delhaes
+999. K. M. Bayless
+1000. D. Currie
+1001. Martin
+1002. Vasiliki Kousteni
+1003. Denes A.
+1004. Cardoso Y.P.: Paracampo A.: Montoya-Burgos J.I.
+1005. Rivera C.
+1006. Sonja Hassold
+1007. Majaneva
+1008. Castillo
+1009. Damaska
+1010. Weigert
+1011. N.McFarland
+1012. G. Baldizzone
+1013. Reidar Haugan
+1014. A.Chakona
+1015. M A Hannan
+1016. B. Novkovic
+1017. Fabio Laurindo da Silva
+1018. KP Bland
+1019. P. V. Kueppers
+1020. J.M.: Bull
+1021. Paquit
+1022. Jon
+1023. Michael Svoboda
+1024. S. A. Marshall
+1025. Daniel Gibson
+1026. Saemi Schaer
+1027. Wiedenbrug
+1028. S. Fiebig
+1029. Maria Teresa MejÃ­a-SaulÃ©s
+1030. Nixon
+1031. Josh Padolsky
+1032. Heacox
+1033. M. Albert
+1034. B. Leroy
+1035. S. Szabolcs
+1036. P. Dicdiquin
+1037. Heather Cole
+1038. R. Piwowarczyk
+1039. Nikolaus Szucsich
+1040. Dirk Stadie
+1041. Dedy Solaulu
+1042. Kunrat
+1043. L. Consaul
+1044. Zangl
+1045. Lukas
+1046. Noe Castillo
+1047. T.P.Lipinskaya
+1048. J.Stockard
+1049. Jake Lowenstein
+1050. L. Scott
+1051. Maryna Didukh
+1052. M. Schilthuizen
+1053. H.Douglas
+1054. K.P. Aplin
+1055. Luc Willemse
+1056. Sheffield
+1057. J. Vickruck
+1058. Janzen Daniel H.
+1059. M. Torp
+1060. Ping Wang
+1061. J. Giersch
+1062. Brown
+1063. Hemal Ram
+1064. Arctic Field Course
+1065. Scott Cates
+1066. Paula Mbonda
+1067. Khaoula Ayati
+1068. N. Kirichenko
+1069. Heikki Roininen
+1070. N. Veiga
+1071. A. Floriani
+1072. L. Masner
+1073. D. Musolin
+1074. Hedvig Csapo
+1075. N. Elsner
+1076. O. Golovan
+1077. A. Lavrenteva
+1078. Betz
+1079. L. Kruckenhauser
+1080. Darren Copley
+1081. C.Curry
+1082. LM Humble
+1083. Ambre Mautuit
+1084. Alan vergnes
+1085. Matthias Brand
+1086. Louise Eydoux
+1087. Jerome Cortet
+1088. Annick Lucas
+1089. Sandra Barantal
+1090. Quilina Laffranchi
+1091. van der Wiel
+1092. Anita Stjernberg
+1093. Anne Duplouy
+1094. Kim Marziali
+1095. Andrea LeClair
+1096. S.E. Gresens
+1097. Korb S.K.
+1098. P. Rosa
+1099. Nurhaman
+1100. Omar Dominguez
+1101. Eloisa Torres
+1102. Francisco Martinez
+1103. A Shapcott
+1104. Karla Arkell
+1105. Shannon Cox
+1106. R. Albrecht u. LfU
+1107. Y.Zou
+1108. H. Buhr
+1109. Jason Schmidt
+1110. Fu-Ming Shi
+1111. Bonilla
+1112. Jaren Hockert
+1113. Julien Lorion
+1114. Spirit of Play Community School students
+1115. Yeronga State School students
+1116. P.-H. Fabre
+1117. Jeanine Winn
+1118. J.S. Noyes
+1119. B Ford (Uni WA)
+1120. Jerome Barbut
+1121. Eckelt A.
+1122. Valerie Leveille
+1123. Jacqueline Deacon
+1124. Rikmyrsprosjektet
+1125. M.G.Bush
+1126. R. Christiaan
+1127. Aerts
+1128. J. Junnilainen
+1129. Vshivkova
+1130. J. Stockbridge
+1131. S.Menu-Marque
+1132. Wibowo
+1133. Fiona Teltscher
+1134. Srisuka
+1135. Terry Warcholak
+1136. R. Yakovlev
+1137. Heather McHaffie
+1138. Jason Robinson
+1139. J. Fernandez
+1140. Allan Connell
+1141. Mark Mello
+1142. Crystal Brook Primary School students
+1143. RBG staff
+1144. Aimee Breton
+1145. Alexandre MC Loureiro
+1146. A. Stuebner
+1147. J. Straka
+1148. Kopuchian
+1149. Monica Young
+1150. Kerry-Ann van der Walt
+1151. Faivre
+1152. Fabian Haas
+1153. Alicia Tilker
+1154. Christine Tipou
+1155. Christine Ryan
+1156. G. Pisanty
+1157. Khishigdelger Enkhtur
+1158. Toussaint
+1159. Y. Estradel
+1160. R.L.Brown
+1161. J.D. Fenneman
+1162. Holz. Blahnik
+1163. Adeline Collet
+1164. La Planete Revisitee_MNHN-IRD
+1165. Fonseca Gilberto
+1166. Helder Ricas Rezende
+1167. Operation Fourmis
+1168. Field Course 2015
+1169. P.Stueben
+1170. Aaron Macaspac
+1171. Zach Kobrinsky
+1172. F.M. Carvajal-Vallejos
+1173. J.E.: Burrows
+1174. Catherine Huntley
+1175. Philomena Bonis
+1176. Erica De Serranno
+1177. Cathy Dykstra
+1178. Heather Eckert
+1179. Israel de Souza Pinto
+1180. Farnon Ellwood
+1181. Heller
+1182. N. Garcia
+1183. Ruzzier
+1184. Gerard
+1185. Celestin Nzeugang
+1186. Anne L Amos
+1187. Prospect Creek State School students
+1188. Tony Davidson
+1189. Carla Schaub
+1190. I. Wall
+1191. Rosa Plantaz
+1192. UDE Molecular Ecology Course 2017
+1193. Marie-Helene Brice
+1194. Markus Rantala
+1195. S. Tagane
+1196. Mendez
+1197. Jarno Turunen
+1198. Kelli Neaven
+1199. Teresa Tagarelli
+1200. Maria Breton
+1201. Audrey Batters
+1202. Margaret McLaughlin
+1203. Brad Livingston
+1204. Tim Brown
+1205. Ruiz et al
+1206. B. K. Schmidt
+1207. Floate
+1208. S.A. Marshall
+1209. Ping-ping Chen
+1210. Gikungu
+1211. Antoine Leveque
+1212. R. Wanninger
+1213. Kjer
+1214. Heron
+1215. Fuentes Zobeida
+1216. Back Plains State School students
+1217. Azhar Abbas Khan
+1218. Mohammed Al-Saffar
+1219. Ali Al-Zubaidi
+1220. Matt Bishop
+1221. Jillian Strybosch
+1222. Marta Acosta
+1223. Dr. Politzar
+1224. Carle Belanger
+1225. E.A.Robinson
+1226. T.A.Wheeler
+1227. R.E. DeWalt
+1228. Marcos A.L. Teixeira
+1229. Per Marstad
+1230. Manuel Elias
+1231. Stephanie Car
+1232. Jon K. Skei
+1233. Ly Lieu
+1234. Vazrick Nazari
+1235. Nataia Veiga
+1236. Graf F.
+1237. Annie West
+1238. P. Schaefer
+1239. Wallaroo Mines Primary School students
+1240. Josh Ellis
+1241. Sarah Lenehan
+1242. Mike Harrington
+1243. Boudrealt
+1244. K. James Hung
+1245. Karen Chia Huey Min
+1246. Hoch
+1247. Graf
+1248. Sandra Smith
+1249. Stephen Querengesser
+1250. Trevor Hare
+1251. Kevin Challoner
+1252. Steven Whitebread
+1253. S. Koch
+1254. R.G.Foottit
+1255. Elven
+1256. J. M. Grosso-Silva
+1257. Elodie Pepey et Diana Edith Andria-Manajara
+1258. K Graham (NSW Fisheries)
+1259. Moriniere
+1260. Taenzler
+1261. Bellanger
+1262. Gin Gin State High School students
+1263. Leslie Barker
+1264. Kevin Pitt
+1265. Stacey Fraser
+1266. Stephanie Smith
+1267. Joseph Plust
+1268. Erin Mutch
+1269. Novotny et. al
+1270. Niederkofler K.
+1271. Y. Estradel R. Rougerie
+1272. T. Nyman
+1273. L. Myers
+1274. J. F. Perkins
+1275. Sebastian Kvist
+1276. Jan Y. Poulsen
+1277. Megan Scott
+1278. Mount Molloy State School students
+1279. Amber Hiltz
+1280. Jonas Eberle
+1281. Sasanka Ranasinghe
+1282. DW Roubik
+1283. B. Peter
+1284. P. Borsa
+1285. D. W. Roubik
+1286. Terra Hiebert
+1287. J.Cumming
+1288. Daniel Carvalho
+1289. R. Ueno
+1290. Alfred Granmo
+1291. G. Brown
+1292. Tharcisse Barasubiye
+1293. P Dufourq
+1294. James Hatch
+1295. Jon T. Klepsland
+1296. Ton van Haaren
+1297. Campbell
+1298. R.R. Ireland
+1299. Lauren A. Hooton
+1300. Alejandra Giraldo
+1301. Kaoru Imagawa
+1302. Basil Fayet
+1303. Karin T. Burghardt
+1304. Jasmina Pita
+1305. Lindsey Bingley
+1306. Smetana
+1307. R. Kleukers
+1308. Changhai Sun
+1309. Roberto Garibay Orijel
+1310. Heidi Andersen
+1311. JoEllen Jensen
+1312. Kathleen Link
+1313. Dawn Airdrie
+1314. Joanne Ryan
+1315. Y. Xia
+1316. Haijun Yu
+1317. D.A. Young
+1318. Eero Helve
+1319. Friedrich
+1320. Uriel Ordonez Lopez
+1321. Patricia Escalante
+1322. Chris Doerr
+1323. Stephen Gray
+1324. Kangaroo Island Community Education students
+1325. Jennifer Van Bakel
+1326. Terry Saunders
+1327. Nicola Snowden
+1328. C.W.Young
+1329. Alireza Naderi
+1330. Le Bail P.-Y.
+1331. Lubini Verena
+1332. A. D. Liston
+1333. Bulbulashvili N.
+1334. R S Copeland
+1335. N. Tridrikh
+1336. J. Webb
+1337. Beerwah State High School students
+1338. Rinaldo R.
+1339. Michael Graham
+1340. GregMeredith
+1341. Tim Currie
+1342. Dimitrios Melegos
+1343. T. Elliot
+1344. K. Kidd
+1345. H.F.Howden
+1346. Y.Mannai
+1347. Di Li
+1348. StrongMNHN-IRD
+1349. C. Haeuser
+1350. P. Mezzomo
+1351. Roberto Alonso
+1352. Tom Mason
+1353. Huw Griffiths
+1354. Joao Pastor
+1355. Yuqu Zhang
+1356. Carla Palangio
+1357. A. M. Aspaas
+1358. Christine Carriere-Roth
+1359. Melody Donald
+1360. Katherine Armstrong
+1361. Jonathan Soers
+1362. Shannon McLeod
+1363. Kristen McGuire
+1364. Marg Collins
+1365. Christine Silver
+1366. Boddington District High School students
+1367. Derrick Muntwyler
+1368. Henry S. Barlow
+1369. E. Goetze
+1370. K.T.C.A. Peijnenburg
+1371. Helmut Deutsch
+1372. V.O. Becker
+1373. Roberto Brenes
+1374. P.Opler
+1375. Jeffrey Sibaja
+1376. Hinojosa
+1377. Consaul
+1378. Rosso Juan jose/Mabragana Ezequiel
+1379. Anik Chevalier
+1380. Gerald B. Skillen
+1381. Melanie Thibert
+1382. Ron Beal
+1383. Donna Pilkington
+1384. David Notton
+1385. A. Valdivia
+1386. R. Bobadilla
+1387. F.Beaulieu
+1388. J Pogonoski
+1389. Sahr Mian
+1390. T. Drechsel
+1391. Philippe Ponel
+1392. Jeramie Jenkins
+1393. R. Le Grice
+1394. Steven Trimm
+1395. Elizabeth Graham
+1396. J. Boxwell
+1397. C. Hunter
+1398. C. Herbulot
+1399. Dominique M. Collet
+1400. E. Ruzzier
+1401. Terri McLenon-Porter
+1402. B.Sonke
+1403. G. M. Tarmann
+1404. W. Haines
+1405. E. Schwabe
+1406. Jorge Lobo
+1407. A. Wall
+1408. Torsten Struck
+1409. Don Carpenter
+1410. Jeronimo Reyes
+1411. M.Neerhof
+1412. S.Lipskie
+1413. Jeff Johnson
+1414. Brent Macarthur
+1415. Sue Bender
+1416. Adele Coady
+1417. S.Swar
+1418. Gail Bryn-Jones
+1419. M. Ostby Nilsen
+1420. local/William
+1421. Mervi Laaksonen
+1422. J. Spelda
+1423. J. Jacobsmeyer
+1424. R. Jacobsmeyer
+1425. Risto Haverinen
+1426. G. Ampie
+1427. Hedde
+1428. Steinmann
+1429. Ennenbach
+1430. Shimin Duan
+1431. Dawn Morva
+1432. X. Mengal
+1433. T. Burton
+1434. Cheryl Angst
+1435. Teresa Allan
+1436. Marlee St. Pierre
+1437. Keyner Aragon
+1438. BioLep
+1439. Pavel Beracko
+1440. B. Fruth
+1441. T.Wang
+1442. C. S. Wood
+1443. R. Villalobos
+1444. Andrew Frewin
+1445. Richer
+1446. Kalkman
+1447. C. Kowasupat
+1448. T. Noblecourt
+1449. Hannah Kendrick
+1450. M. Andia
+1451. Catherine Wassmansdorf
+1452. Dylan Gordon
+1453. Marilyn Gammon
+1454. Deborah Diebel
+1455. Jiri Vihavainen
+1456. K. Hannig
+1457. R. Haverinen
+1458. Kuntner
+1459. Javier Alfonso Garza
+1460. Larson
+1461. C Rigby (James Cook Uni)
+1462. St Anna
+1463. Nunez
+1464. Epinel
+1465. Moraga Calixto
+1466. Michelle Gibbs
+1467. Rose Wornoff
+1468. Southern Hills Christian College students
+1469. Julia Wild
+1470. Robert C. Busby
+1471. S. Le Tirant
+1472. J. Sanchez L. Caicedo A. Alicea
+1473. A.W. Skevington
+1474. Jl
+1475. Gregoric
+1476. Selfianus Atuany
+1477. Sebastien Lavoue
+1478. Frank F. Gander
+1479. Ryan Moulton
+1480. Christina Miltenburg
+1481. Joanne Glavic
+1482. Mike Richardson
+1483. Shayne Campbell
+1484. V.Levesque
+1485. Andersen et al.
+1486. A. Humala
+1487. E. Heibo
+1488. Jenni Norden
+1489. J. Reaume
+1490. J. Dell
+1491. V. Tunnicliffe
+1492. Pablo Dellape
+1493. Springsure State School students
+1494. Dave Bowden
+1495. Stan Tiffin
+1496. Alison Myatt
+1497. David Servos
+1498. Dave McCarthy
+1499. John Henschel
+1500. Ron Nelsons
+1501. Zoe Sikora
+1502. Kuechler
+1503. J Glaser
+1504. local. Coll.
+1505. Stanislav Gomboc
+1506. Haseke
+1507. J.Dean
+1508. GARGOMINY Olivier
+1509. Fox Meyer
+1510. Gallardo Gerardina
+1511. Melissa Randle
+1512. Sheldon Hiebert
+1513. Lisa Frey
+1514. Glenden State School students
+1515. Ariel McDowell
+1516. Ulrika Samnegard
+1517. David Holden
+1518. Woodward
+1519. Bueche
+1520. Rick Harbo
+1521. Joan Carles
+1522. John Limoges
+1523. Chris Warren
+1524. G. Ednie
+1525. U.Drechsel
+1526. J .Botham
+1527. Sara Privoznik
+1528. David Liittschwager
+1529. Arana Ugalde Wilfredo
+1530. Amanda Middleton
+1531. Kendall Warawa
+1532. Erin George-Samuel
+1533. Kimorie Lees
+1534. R.Morrow
+1535. M.Mortimer
+1536. Janna Lenius
+1537. Otto Wevers
+1538. Joan Marshall
+1539. Politzar
+1540. Bezverkhov
+1541. Reidar
+1542. Adele Bordoni
+1543. L. Crabo
+1544. D. Honsberger
+1545. Northeast Fisheries Science Center
+1546. Jennifer Baxter
+1547. Natalie De Ruysscher
+1548. J. Bowman
+1549. Todd Smith
+1550. Anu Nagpal
+1551. Lorrie Goos
+1552. Kogan State School students
+1553. Michael Lau
+1554. Gerald Skillen
+1555. Susan Lawson
+1556. Erin McMillan
+1557. Aud I. Fischer
+1558. Local. Coll
+1559. Yuezheng Tu
+1560. H. Sakio
+1561. Y. Kawakami
+1562. Gil
+1563. Guadalupe Peralta
+1564. Gibbs
+1565. Marshall
+1566. Jasmine Light
+1567. John Winfield
+1568. Karen Larter
+1569. Drew Ginter
+1570. Amy Murray
+1571. Christine Gubesch
+1572. Rumen Tomov
+1573. A. W.Thomas
+1574. G.M.Haggett
+1575. K.-H. Kielhorn
+1576. Pastore
+1577. Patrycja Dominiak
+1578. Lourens
+1579. D.W.Langor
+1580. JA Genaro
+1581. Bronwyn Williams
+1582. Patil T.S.
+1583. Victoria Currie
+1584. Philip Davis
+1585. Tina Emili Volpini
+1586. Daniel H.
+1587. Robert J Borth
+1588. Ruckdeschel W.
+1589. D. Lees
+1590. Jose Angel Cohuo-Colli
+1591. J. E. Chainey
+1592. B.Lemaire
+1593. DHFunk
+1594. Sohana Singh
+1595. Nancy McEvoy
+1596. H. Nakayama
+1597. S. Ragupathy
+1598. Diana Wilson
+1599. V.Leveille
+1600. J.Baxter
+1601. Erin Fitzgibbon
+1602. David Derewianko
+1603. E. Anne Chambers
+1604. Li Le
+1605. R. Ahern
+1606. NOAA staff
+1607. C.Kassebeer
+1608. Jose Carlos
+1609. B. Gill
+1610. Remschak
+1611. Carol Frost
+1612. Max Barclay
+1613. E.S. Nielsen
+1614. R. Busse
+1615. Wen-Jay Chih
+1616. IPY-CAML: NIWA
+1617. Nicko A. Flores
+1618. Jin K. Dionisio
+1619. Trish Thompson
+1620. Aldo Ivan Ortega Morales
+1621. Santiago Uc
+1622. Henrique Queiroga
+1623. S. Bhoyroo
+1624. Raino Lampinen
+1625. Agnieszka Rewicz
+1626. TPI Network
+1627. North Tom Price Primary School students
+1628. A.O. Zolotova
+1629. Claire Gulliver
+1630. Vincent Campolongo
+1631. K. Melville Pantin
+1632. Kristina Hayes
+1633. Pedro Mis
+1634. Edgardo Balam
+1635. Gemma Macias
+1636. Andre Paul
+1637. Elaine
+1638. Elizabeth Bennett
+1639. Leah Baratta
+1640. Kevin D`Souza
+1641. Sandy Speakman
+1642. Heidi Paterson
+1643. J.Koeyers
+1644. A.Koeyers
+1645. Hien Ngo
+1646. G Brownstein
+1647. Niklas Johansson/Bjoern Cederberg
+1648. T. Fujita
+1649. P Last
+1650. Ariel Hernan Munoz Sanchez
+1651. Ana Soledad
+1652. R.A. Gonzalez Vaquero
+1653. Justin Touchon
+1654. A. Skevington
+1655. Bischof
+1656. Flint
+1657. A Ward
+1658. Victoria Winchester
+1659. Jerry Bernard
+1660. Rosemary Venos
+1661. Tanya Dyke
+1662. Sarah Hung
+1663. L. Liang
+1664. Lapeva-Gjonova
+1665. Albena
+1666. Janine Caira
+1667. Veli-Matti Mukkala
+1668. Gunvor
+1669. Erin Doyle
+1670. J Hatch
+1671. DW Freshwater
+1672. Peter van Bragt
+1673. Herman Lambert
+1674. Shannon Kelly
+1675. Stephanie Hamilton
+1676. Michael Hendrick
+1677. Brandon van Sten
+1678. Nature House Staff
+1679. Seth Whitehouse
+1680. E. Aistleitner
+1681. J Gibbs
+1682. Kevin Winker
+1683. G. Garcia
+1684. Piotr Lukasik
+1685. Cannings
+1686. Jose Rey Maloles
+1687. Laura McAdam
+1688. Patricia Kehler
+1689. Brad Schumacher
+1690. Kerry Brown
+1691. Teresa Szalay
+1692. Petro Pynnonen
+1693. Morgan Riding
+1694. MJ Endara
+1695. Yvan Delgado de la flor
+1696. Christopher Riley
+1697. Jerzy Sell
+1698. Fausto Tinti
+1699. K. Moran
+1700. Bruce Bennett
+1701. Matus Kudela
+1702. R. Labbee
+1703. Svetlanta Maslakova
+1704. A.Radulovici
+1705. George Fritz
+1706. H.Yoshimaru
+1707. S.Kikuchi
+1708. Annette Nelson-Szpak
+1709. Kevin Klassen
+1710. Susan Bender
+1711. Pam Ryznar
+1712. Renu Tiwana
+1713. Jeff Cole
+1714. Nich Seebach
+1715. K. Politzar
+1716. Dr. H. Politzar
+1717. D. Barnes
+1718. Sittenthaler
+1719. Marcia
+1720. J. Smith
+1721. Bruno Sampieri
+1722. Bruce Brandt
+1723. Chanabun
+1724. Bantaowong
+1725. Soto-Galera
+1726. Paulo-Maya
+1727. Romero-Castillo
+1728. Lansing
+1729. Sherrie Cochrane
+1730. Daniel Pigeon
+1731. K.H. Stead
+1732. P. G. Des Brisay
+1733. R.Espinoza
+1734. F. Theimer
+1735. D. Larson
+1736. C.N. Colyer
+1737. J.Powell
+1738. Steven Hughes
+1739. Hugo L. Kons Jr.
+1740. Damon Dewsbury
+1741. Carson Keever
+1742. BouchetTropical Deep Sea Benthos
+1743. Jeronimo Reyes Santiago
+1744. Patrick Martens
+1745. Denise Cameron
+1746. Mark Ziliotto
+1747. J.G.Franclemont
+1748. Vickie Sooley
+1749. David Ruiter
+1750. G Hutchinson
+1751. H. Schnee
+1752. Christy Jo Geraci
+1753. Q.H. Gu
+1754. C. Park
+1755. Jessica Asp
+1756. Deane Atherton
+1757. Ray Scott
+1758. Nicole Killam
+1759. Wu Han
+1760. John Lamkin
+1761. Peuker
+1762. C. Gielis
+1763. Jean-Dominique Durand
+1764. D. Holden
+1765. T.Decaens
+1766. E. Martinez
+1767. M. Cameron
+1768. Einar Skolseg
+1769. Eilish Engelhart
+1770. A. Legrain
+1771. Thomas Lebard
+1772. J.M.Burns
+1773. Johan Hurter
+1774. P. Benda
+1775. Don Kemball
+1776. Paul Clarke
+1777. Paul Kossowski
+1778. Nahla Alkurdi
+1779. Shannon Dixon
+1780. WarenTropical Deep Sea Benthos
+1781. F. Wachtel
+1782. Beck R.
+1783. Paulay
+1784. Gustav
+1785. Ford
+1786. L. Burlakova
+1787. Matt Lemay
+1788. Aderyanus
+1789. Don Dumale
+1790. Arnaldo Lopes Colombo
+1791. Oliver Hawlitschek
+1792. Theresa Stene
+1793. F. Perez
+1794. Blaalid R
+1795. R. Mueller
+1796. O.Pellmyr
+1797. A Perez-Asso
+1798. P.M. Catling
+1799. family
+1800. B.K.Lim
+1801. L.M.Arcila
+1802. Grace Mchaina
+1803. Jack Hasenpusch
+1804. Eric Spana
+1805. J. Boiling Sullivan
+1806. K. Kunt
+1807. Th. Ihle
+1808. B. Jalzic
+1809. R. Moothien Pillay
+1810. Pav Johnsson
+1811. Hubert Desilets
+1812. J.J. Dombroskie
+1813. Phillip C
+1814. H. Yoshimaru
+1815. M. Chauvat / M1 students
+1816. M Tucker (AFMA Observer)
+1817. M. Polihronakis
+1818. Alison Forde
+1819. Fabian Bartusel
+1820. Daniel Jerga
+1821. Tomas Melichar
+1822. E.H.Metzler
+1823. E. Revay
+1824. P. Skou
+1825. Evans TG
+1826. Ole Karsholt
+1827. Sastre
+1828. M. Rodriguez
+1829. Jamie Emberly
+1830. St. Andrews Biological Station
+1831. A. Brown
+1832. M.K. Kim
+1833. K. Tamaki
+1834. Kamin
+1835. Greg Meredith
+1836. Alfaro Milady
+1837. Janzen2023
+1838. Y. Vidinova
+1839. Anton Hausknecht
+1840. O.S.Flint Jr.
+1841. S.Peck
+1842. Jr.
+1843. Ryan Mitchell
+1844. Jannes Landschoff
+1845. ME Irwin
+1846. Alivizatos Charalampos
+1847. Panagiotopoulou Maria
+1848. A. Porras
+1849. Chengchi Fang
+1850. E. Hall
+1851. Morgan Wyatt
+1852. Rubi Didier
+1853. Douglas Boyes
+1854. M. Haase
+1855. Leonardo Chacon
+1856. T.M. Onuferko
+1857. You
+1858. Jeoung Hee Lee
+1859. Diana Michler-Kozma
+1860. Audrey Lindsteadt
+1861. J.A. Calder
+1862. mljs et al
+1863. S. Zielske
+1864. John Sloan
+1865. Enrico Bizio
+1866. T. Dickel
+1867. M. Gostel
+1868. Scott Gilmore
+1869. Rebecca Harker
+1870. A.Martens
+1871. Reidar Voith
+1872. Williams
+1873. G.Saunders
+1874. Segerer
+1875. J. Lee
+1876. Darina Siposova
+1877. Omar Valencia
+1878. Andre Chavez
+1879. Paola Palacios
+1880. Eloisa torres
+1881. Yareli Lopez
+1882. Yelba Vega y Gilbert Ampie
+1883. T.A Phan
+1884. Mark MeLean
+1885. T Olorode
+1886. S. Guclu
+1887. J. Jakovlev
+1888. N. von Ellenrieder
+1889. Anabelle Cordoba.
+1890. T. Rewicz
+1891. John Morse
+1892. Christophe Philippe
+1893. K. Charbonneau
+1894. Jeffrey M. Marcus
+1895. G. Vande weghe
+1896. G. Pohl
+1897. Leo Vahatalo
+1898. Charles Bedford
+1899. Ken Barrett
+1900. R.F.Sternitzky
+1901. Brie MacDonald
+1902. Steve Wells
+1903. A. Konjevic
+1904. JC Shaffer
+1905. Pritha Dey
+1906. Casacci
+1907. T.G. Myles
+1908. A.J.Shelley
+1909. J. Wall
+1910. Charlotte Havermans
+1911. David Burns
+1912. Dijkhuis
+1913. Ilirjana Lolja
+1914. J.Maxwell
+1915. Grace Kinyanjui
+1916. Yamo E.
+1917. Yves
+1918. Maria Kuzmina
+1919. M. Garre
+1920. Anne Damon
+1921. Long
+1922. I.Munroe
+1923. M. Vickers
+1924. JM Ryan
+1925. Parker
+1926. Inger Greve Alsos
+1927. KM Bayless
+1928. Alyssa Gehman
+1929. Lamoureux
+1930. Benita C. Laird-Hopkins
+1931. I. Raemakers
+1932. Juha Pykaelae
+1933. M. Potier
+1934. S. Kaehler
+1935. Lisa Lehner
+1936. Harris
+1937. Yanosh
+1938. Q. Gabriac
+1939. M. Gautier
+1940. GIB ( Biodiversity Research Group)
+1941. Cardenas Yow
+1942. Bryan Bibby Smith
+1943. Gustav Seidenstucker
+1944. Future Keepers
+1945. I. Sivec
+1946. Lucia Montes-Ortiz
+1947. B. Braschler
+1948. L.Packer
+1949. Pablo Lavinia
+1950. Rafaela Francisconi Gutierrez
+1951. Marco Antonio Gurrola Hidalgo
+1952. Soto
+1953. J. Pellicaan
+1954. Jean Stephan
+1955. Doug Gajic
+1956. Eero J. Vesterinen
+1957. Bing Zhang
+1958. Veli Vikberg
+1959. C.Fahraeus/G.Siebel
+1960. R. Rojas
+1961. G Blagoev
+1962. Jenna McGuire
+1963. Yingkui Liu
+1964. L Kaila
+1965. BAS_JR15005
+1966. J. Kulsantiwong
+1967. Prof. JJ. Spies
+1968. Hannah Barron
+1969. R. Mitchel Beauchamp
+1970. Azofeifa Zuniga Alejandro
+1971. Anne Grieve
+1972. Sue Lawson
+1973. Yeppoon State High School students
+1974. Hannah Weigand
+1975. Ian Segebarth
+1976. Mikko Heikura
+1977. C.D. Bird
+1978. L. Lehmann
+1979. H.Taedoumg
+1980. Antonio Guillen Servent
+1981. Inga Freiberga
+1982. Tomokazu Abe
+1983. Jacques Pierre
+1984. Frank Meister
+1985. Davey ML
+1986. B. Wenczel
+1987. Trond Skoglund
+1988. Silva
+1989. A.A.Lissovsky
+1990. E.V.Obolenskaya
+1991. G. Forbes
+1992. Endro
+1993. Cam
+1994. Y. Watanabe
+1995. Stephanie Hill
+1996. Lawnduh
+1997. Amanda Peers
+1998. M. Annessi
+1999. Sylvain Cuvelier
+2000. J.J. Jimenez

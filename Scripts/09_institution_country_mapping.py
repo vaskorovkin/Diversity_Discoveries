@@ -60,7 +60,9 @@ def main() -> int:
         r["cumulative_share"] = round(cumsum, 6)
 
     df = pd.DataFrame(rows)
-    output = PROCESSED_BOLD / f"bold_top{args.top_n}_collectors.csv"
+    coll_dir = PROCESSED_BOLD / "collectors"
+    coll_dir.mkdir(exist_ok=True)
+    output = coll_dir / f"bold_top{args.top_n}_collectors.csv"
     df.to_csv(output, index=False)
 
     print(f"\nTotal records: {total:,}", flush=True)

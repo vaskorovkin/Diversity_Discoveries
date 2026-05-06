@@ -35,7 +35,7 @@ from pathlib import Path
 import pandas as pd
 
 PROJ = Path("/Users/vasilykorovkin/Documents/Diversity_Discoveries")
-BOLD_DIR = PROJ / "Data" / "processed" / "bold"
+BOLD_DIR = PROJ / "Data" / "processed" / "bold" / "collectors"
 
 
 def classify(inst: str) -> str:

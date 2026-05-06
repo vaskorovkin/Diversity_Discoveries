@@ -1,8 +1,8 @@
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       name:  <unnamed>
        log:  /Users/vasilykorovkin/Documents/Diversity_Discoveries/Logs/merge_all_regressors.log
   log type:  text
- opened on:   4 May 2026, 09:18:37
+ opened on:   6 May 2026, 13:48:34
 
 . 
 . * -------------------------------------------------------------------
@@ -19,7 +19,7 @@
 . tempfile BOLD
 
 . save `BOLD'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000001 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000001 saved
 
 . 
 . * --- Panel regressors (cell_id × year) ---
@@ -30,7 +30,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000001 saved
 . tempfile ucdp
 
 . save `ucdp'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000002 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000002 saved
 
 . 
 . import delimited "`proj'/Data/regressors/hansen/hansen_forest_loss_100km_panel.csv", clear
@@ -39,7 +39,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000002 saved
 . tempfile hansen
 
 . save `hansen'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000003 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000003 saved
 
 . 
 . import delimited "`proj'/Data/regressors/modis/modis_burned_area_100km_panel.csv", clear
@@ -48,7 +48,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000003 saved
 . tempfile modis
 
 . save `modis'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000004 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000004 saved
 
 . 
 . import delimited "`proj'/Data/regressors/terraclimate/terraclimate_100km_panel.csv", clear
@@ -57,7 +57,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000004 saved
 . tempfile terraclimate
 
 . save `terraclimate'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000005 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000005 saved
 
 . 
 . import delimited "`proj'/Data/regressors/chirps/chirps_100km_panel.csv", clear
@@ -66,7 +66,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000005 saved
 . tempfile chirps
 
 . save `chirps'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000006 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000006 saved
 
 . 
 . import delimited "`proj'/Data/regressors/wdpa/wdpa_protected_panel_100km.csv", clear
@@ -75,7 +75,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000006 saved
 . tempfile wdpa_panel
 
 . save `wdpa_panel'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000007 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000007 saved
 
 . 
 . * --- Static baselines (cell_id only) ---
@@ -86,7 +86,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000007 saved
 . tempfile resolve
 
 . save `resolve'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000008 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000008 saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/cepf_hotspots_100km_cells.csv", clear
@@ -95,7 +95,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000008 saved
 . tempfile cepf
 
 . save `cepf'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000009 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000009 saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/wdpa_protected_share_100km_cells.csv", clear
@@ -104,7 +104,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.000009 saved
 . tempfile wdpa_static
 
 . save `wdpa_static'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000a saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000a saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/grip_roads_100km_cells.csv", clear
@@ -113,7 +113,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000a saved
 . tempfile grip
 
 . save `grip'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000b saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000b saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/globio_msa_100km_cells.csv", clear
@@ -122,7 +122,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000b saved
 . tempfile globio
 
 . save `globio'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000c saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000c saved
 
 . 
 . import delimited "`proj'/Data/regressors/worldbank/worldbank_gdp_pcap_panel.csv", clear
@@ -131,7 +131,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000c saved
 . tempfile wbgdp
 
 . save `wbgdp'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000d saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000d saved
 
 . 
 . import delimited "`proj'/Data/regressors/nightlights/nightlights_100km_panel.csv", clear
@@ -140,7 +140,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000d saved
 . tempfile ntl
 
 . save `ntl'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000e saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000e saved
 
 . 
 . import delimited "`proj'/Data/regressors/acled/acled_100km_cell_year_2005_2024.csv", clear
@@ -149,7 +149,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000e saved
 . tempfile acled
 
 . save `acled'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000f saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000f saved
 
 . 
 . import delimited "`proj'/Data/regressors/ibtracs/ibtracs_100km_cell_year_2005_2025.csv", clear
@@ -161,7 +161,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000f saved
 . tempfile ibtracs
 
 . save `ibtracs'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000g saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000g saved
 
 . 
 . import delimited "`proj'/Data/regressors/comcat/comcat_100km_cell_year_2005_2025.csv", clear
@@ -173,7 +173,47 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000g saved
 . tempfile comcat
 
 . save `comcat'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000h saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000h saved
+
+. 
+. import delimited "`proj'/Data/processed/bold/collectors/bold_foreign_collecting_cell_year_panel.csv", clear
+(15 vars, 68,284 obs)
+
+. tempfile foreign_collecting
+
+. save `foreign_collecting'
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000i saved
+
+. 
+. local have_gbif_plantae 0
+
+. capture confirm file "`proj'/Data/processed/gbif/plantae/gbif_plantae_preserved_material_cell_year_panel_2005_2025.csv"
+
+. if _rc==0 {
+.     import delimited "`proj'/Data/processed/gbif/plantae/gbif_plantae_preserved_material_cell_year_panel_2005_2025.csv", clear
+(22 vars, 305,886 obs)
+.     keep if year<=2024
+(14,566 observations deleted)
+.     keep cell_id year total_records plant_records preserved_specimen_records material_sample_records ///
+>         any_total_records any_plant_records any_preserved_specimen_records any_material_sample_records ///
+>         log1p_total_records log1p_plant_records log1p_preserved_specimen_records log1p_material_sample_records
+.     rename total_records gbif_p_total
+.     rename plant_records gbif_p_plant
+.     rename preserved_specimen_records gbif_p_preserved
+.     rename material_sample_records gbif_p_material
+.     rename any_total_records gbif_p_any_total
+.     rename any_plant_records gbif_p_any_plant
+.     rename any_preserved_specimen_records gbif_p_any_preserved
+.     rename any_material_sample_records gbif_p_any_material
+.     rename log1p_total_records gbif_p_log_total
+.     rename log1p_plant_records gbif_p_log_plant
+.     rename log1p_preserved_specimen_records gbif_p_log_preserved
+.     rename log1p_material_sample_records gbif_p_log_material
+.     tempfile gbif_plantae
+.     save `gbif_plantae'
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000j saved
+.     local have_gbif_plantae 1
+. }
 
 . 
 . * --- Static baselines: species richness ---
@@ -184,7 +224,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000h saved
 . tempfile richness
 
 . save `richness'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000i saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000k saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/species_richness_birds_100km_cells.csv", clear
@@ -193,7 +233,34 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000i saved
 . tempfile richness_birds
 
 . save `richness_birds'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000j saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000l saved
+
+. 
+. local have_gbif_preperiod_richness 0
+
+. capture confirm file "`proj'/Data/regressors/plants/gbif_plantae_preperiod_richness_1999_2004.csv"
+
+. if _rc==0 {
+.     import delimited "`proj'/Data/regressors/plants/gbif_plantae_preperiod_richness_1999_2004.csv", clear
+(9 vars, 14,566 obs)
+.     keep cell_id ///
+>         gbif_plant_richness_base gbif_plant_genus_richness_base ///
+>         gbif_plant_richness_base_any gbif_plant_genus_richness_base_a ///
+>         gbif_plant_richness_base_log1p gbif_plant_genus_richness_base_l ///
+>         gbif_plant_richness_base_z gbif_plant_genus_richness_base_z
+.     rename gbif_plant_richness_base gbif_p_rich_base
+.     rename gbif_plant_genus_richness_base gbif_p_genrich_base
+.     rename gbif_plant_richness_base_any gbif_p_rich_any
+.     rename gbif_plant_genus_richness_base_a gbif_p_genrich_any
+.     rename gbif_plant_richness_base_log1p gbif_p_rich_log
+.     rename gbif_plant_genus_richness_base_l gbif_p_genrich_log
+.     rename gbif_plant_richness_base_z gbif_p_rich_z
+.     rename gbif_plant_genus_richness_base_z gbif_p_genrich_z
+.     tempfile gbif_preperiod_richness
+.     save `gbif_preperiod_richness'
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000m saved
+.     local have_gbif_preperiod_richness 1
+. }
 
 . 
 . * -------------------------------------------------------------------
@@ -337,6 +404,35 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000j saved
 . rename _merge _merge_comcat
 
 . 
+. merge 1:1 cell_id year using `foreign_collecting'
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                       316,236
+        from master                   298,768  (_merge==1)
+        from using                     17,468  (_merge==2)
+
+    matched                            50,816  (_merge==3)
+    -----------------------------------------
+
+. rename _merge _merge_foreign_collecting
+
+. 
+. if `have_gbif_plantae' == 1 {
+.     merge 1:1 cell_id year using `gbif_plantae'
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                        75,732
+        from master                    75,732  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                           291,320  (_merge==3)
+    -----------------------------------------
+.     rename _merge _merge_gbif_plantae
+. }
+
+. 
 . * -------------------------------------------------------------------
 . * 3. Merge static baselines m:1 on cell_id
 . * -------------------------------------------------------------------
@@ -345,8 +441,11 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000j saved
 
     Result                           # of obs.
     -----------------------------------------
-    not matched                             0
-    matched                           349,584  (_merge==3)
+    not matched                        17,014
+        from master                    17,014  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                           350,038  (_merge==3)
     -----------------------------------------
 
 . rename _merge _merge_resolve
@@ -356,8 +455,11 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000j saved
 
     Result                           # of obs.
     -----------------------------------------
-    not matched                             0
-    matched                           349,584  (_merge==3)
+    not matched                        17,014
+        from master                    17,014  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                           350,038  (_merge==3)
     -----------------------------------------
 
 . rename _merge _merge_cepf
@@ -367,8 +469,11 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000j saved
 
     Result                           # of obs.
     -----------------------------------------
-    not matched                             0
-    matched                           349,584  (_merge==3)
+    not matched                        17,014
+        from master                    17,014  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                           350,038  (_merge==3)
     -----------------------------------------
 
 . rename _merge _merge_wdpa_static
@@ -378,8 +483,11 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000j saved
 
     Result                           # of obs.
     -----------------------------------------
-    not matched                             0
-    matched                           349,584  (_merge==3)
+    not matched                        17,014
+        from master                    17,014  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                           350,038  (_merge==3)
     -----------------------------------------
 
 . rename _merge _merge_grip
@@ -389,8 +497,11 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000j saved
 
     Result                           # of obs.
     -----------------------------------------
-    not matched                             0
-    matched                           349,584  (_merge==3)
+    not matched                        17,014
+        from master                    17,014  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                           350,038  (_merge==3)
     -----------------------------------------
 
 . rename _merge _merge_globio
@@ -400,8 +511,11 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000j saved
 
     Result                           # of obs.
     -----------------------------------------
-    not matched                             0
-    matched                           349,584  (_merge==3)
+    not matched                        17,014
+        from master                    17,014  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                           350,038  (_merge==3)
     -----------------------------------------
 
 . rename _merge _merge_richness
@@ -411,11 +525,29 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000j saved
 
     Result                           # of obs.
     -----------------------------------------
-    not matched                             0
-    matched                           349,584  (_merge==3)
+    not matched                        17,014
+        from master                    17,014  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                           350,038  (_merge==3)
     -----------------------------------------
 
 . rename _merge _merge_richness_birds
+
+. 
+. if `have_gbif_preperiod_richness' == 1 {
+.     merge m:1 cell_id using `gbif_preperiod_richness'
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                        17,014
+        from master                    17,014  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                           350,038  (_merge==3)
+    -----------------------------------------
+.     rename _merge _merge_gbif_preperiod_richness
+. }
 
 . 
 . * --- Country-year regressors (iso_a3 × year; requires iso_a3 from RESOLVE) ---
@@ -424,8 +556,8 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000j saved
 
     Result                           # of obs.
     -----------------------------------------
-    not matched                        85,944
-        from master                    84,094  (_merge==1)
+    not matched                       103,412
+        from master                   101,562  (_merge==1)
         from using                      1,850  (_merge==2)
 
     matched                           265,490  (_merge==3)
@@ -442,13 +574,37 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_13064.00000j saved
 (21,500 observations deleted)
 
 . drop if cell_area_km2>10001
-(2,018 observations deleted)
+(19,032 observations deleted)
+
+. 
+. * --- Derived foreign collecting shares ---
+. gen fc_scored = domestic_score_sum + regional_score_sum + distant_score_sum
+(277,213 missing values generated)
+
+. gen foreign_share = (regional_score_sum + distant_score_sum) / fc_scored ///
+>     if fc_scored > 0
+(302,078 missing values generated)
+
+. gen regional_share = regional_score_sum / fc_scored if fc_scored > 0
+(302,078 missing values generated)
+
+. gen distant_share = distant_score_sum / fc_scored if fc_scored > 0
+(302,078 missing values generated)
+
+. gen domestic_share = domestic_score_sum / fc_scored if fc_scored > 0
+(302,078 missing values generated)
+
+. gen foreign_records = records_foreign_regional + records_foreign_distant
+(277,213 missing values generated)
+
+. gen collab_share = records_collab / records_classified if records_classified > 0
+(302,063 missing values generated)
 
 . 
 . compress
   variable cell_area_km2 was float now int
   variable country_name was str30 now str24
-  (2,623,328 bytes saved)
+  (2,626,960 bytes saved)
 
 . save "`proj'/Data/analysis/BOLD_regressor_panel.dta", replace
 file /Users/vasilykorovkin/Documents/Diversity_Discoveries/Data/analysis/BOLD_regressor_panel.dta saved
@@ -511,50 +667,50 @@ file /Users/vasilykorovkin/Documents/Diversity_Discoveries/Data/analysis/BOLD_re
 
          _merge_resolve |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-            matched (3) |    327,916      100.00      100.00
+            matched (3) |    328,370      100.00      100.00
 ------------------------+-----------------------------------
-                  Total |    327,916      100.00
+                  Total |    328,370      100.00
 
 . tab _merge_cepf
 
             _merge_cepf |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-            matched (3) |    327,916      100.00      100.00
+            matched (3) |    328,370      100.00      100.00
 ------------------------+-----------------------------------
-                  Total |    327,916      100.00
+                  Total |    328,370      100.00
 
 . tab _merge_wdpa_static
 
      _merge_wdpa_static |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-            matched (3) |    327,916      100.00      100.00
+            matched (3) |    328,370      100.00      100.00
 ------------------------+-----------------------------------
-                  Total |    327,916      100.00
+                  Total |    328,370      100.00
 
 . tab _merge_grip
 
             _merge_grip |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-            matched (3) |    327,916      100.00      100.00
+            matched (3) |    328,370      100.00      100.00
 ------------------------+-----------------------------------
-                  Total |    327,916      100.00
+                  Total |    328,370      100.00
 
 . tab _merge_globio
 
           _merge_globio |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-            matched (3) |    327,916      100.00      100.00
+            matched (3) |    328,370      100.00      100.00
 ------------------------+-----------------------------------
-                  Total |    327,916      100.00
+                  Total |    328,370      100.00
 
 . tab _merge_wbgdp
 
            _merge_wbgdp |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-        master only (1) |     62,566       19.08       19.08
-            matched (3) |    265,350       80.92      100.00
+        master only (1) |     63,020       19.19       19.19
+            matched (3) |    265,350       80.81      100.00
 ------------------------+-----------------------------------
-                  Total |    327,916      100.00
+                  Total |    328,370      100.00
 
 . tab _merge_ntl
 
@@ -596,28 +752,61 @@ file /Users/vasilykorovkin/Documents/Diversity_Discoveries/Data/analysis/BOLD_re
 
         _merge_richness |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-            matched (3) |    327,916      100.00      100.00
+            matched (3) |    328,370      100.00      100.00
 ------------------------+-----------------------------------
-                  Total |    327,916      100.00
+                  Total |    328,370      100.00
 
 . tab _merge_richness_birds
 
   _merge_richness_birds |      Freq.     Percent        Cum.
 ------------------------+-----------------------------------
-            matched (3) |    327,916      100.00      100.00
+            matched (3) |    328,370      100.00      100.00
 ------------------------+-----------------------------------
-                  Total |    327,916      100.00
+                  Total |    328,370      100.00
+
+. capture confirm variable _merge_gbif_preperiod_richness
+
+. if _rc==0 tab _merge_gbif_preperiod_richness
+
+_merge_gbif_preperiod_r |
+                ichness |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+            matched (3) |    328,370      100.00      100.00
+------------------------+-----------------------------------
+                  Total |    328,370      100.00
+
+. tab _merge_foreign_collecting
+
+_merge_foreign_collecti |
+                     ng |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+        master only (1) |    277,213       84.42       84.42
+         using only (2) |        454        0.14       84.56
+            matched (3) |     50,703       15.44      100.00
+------------------------+-----------------------------------
+                  Total |    328,370      100.00
+
+. capture confirm variable _merge_gbif_plantae
+
+. if _rc==0 tab _merge_gbif_plantae
+
+    _merge_gbif_plantae |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+        master only (1) |     58,690       17.87       17.87
+            matched (3) |    269,680       82.13      100.00
+------------------------+-----------------------------------
+                  Total |    328,370      100.00
 
 . 
 . describe
 
 Contains data from /Users/vasilykorovkin/Documents/Diversity_Discoveries/Data/analysis/BOLD_regressor_panel.dta
-  obs:       327,916                          
- vars:           212                          4 May 2026 09:18
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  obs:       328,370                          
+ vars:           255                          6 May 2026 13:48
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
               storage   display    value
 variable name   type    format     label      variable label
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cell_id         str8    %9s                   
 cell_x          int     %8.0g                 
 cell_y          byte    %8.0g                 
@@ -789,6 +978,33 @@ comcat_mean_mag float   %9.0g
 comcat_mean_d~m float   %9.0g                 
 comcat_any_all  byte    %8.0g                 
 _merge_comcat   byte    %23.0g     _merge     
+records_total   long    %12.0g                
+records_with_~s long    %12.0g                
+records_class~d long    %12.0g                
+records_uncla~d long    %12.0g                
+records_domes~c long    %12.0g                
+records_forei~l long    %12.0g                
+records_forei~t long    %8.0g                 
+records_collab  long    %8.0g                 
+domestic_scor~m float   %9.0g                 
+regional_scor~m float   %9.0g                 
+distant_score~m float   %9.0g                 
+n_collectors_~n byte    %8.0g                 
+n_collectors_~c byte    %8.0g                 
+_merge_foreig~g byte    %23.0g     _merge     
+gbif_p_total    long    %8.0g                 
+gbif_p_plant    long    %8.0g                 
+gbif_p_preser~d int     %8.0g                 
+gbif_p_material long    %8.0g                 
+gbif_p_any_to~l byte    %8.0g                 
+gbif_p_log_to~l float   %9.0g                 
+gbif_p_any_pl~t byte    %8.0g                 
+gbif_p_log_pl~t float   %9.0g                 
+gbif_p_any_pr~d byte    %8.0g                 
+gbif_p_log_pr~d float   %9.0g                 
+gbif_p_any_ma~l byte    %8.0g                 
+gbif_p_log_ma~l float   %9.0g                 
+_merge_gbif_p~e byte    %23.0g     _merge     
 resolve_eco_id  int     %8.0g                 
 resolve_eco_n~e str65   %65s                  
 resolve_biome~m byte    %8.0g                 
@@ -827,10 +1043,26 @@ _merge_richness byte    %23.0g     _merge
 richness_birds  int     %8.0g                 
 log1p_richnes~s float   %9.0g                 
 _merge_richn~ds byte    %23.0g     _merge     
+gbif_p_rich_b~e int     %8.0g                 
+gbif_p_genric~e int     %8.0g                 
+gbif_p_rich_any byte    %8.0g                 
+gbif_p_genric~y byte    %8.0g                 gbif_plant_genus_richness_base_any
+gbif_p_rich_log float   %9.0g                 
+gbif_p_genric~g float   %9.0g                 gbif_plant_genus_richness_base_log1p
+gbif_p_rich_z   float   %9.0g                 
+gbif_p_genric~z float   %9.0g                 
+_merge_gbif_p~s byte    %23.0g     _merge     
 country_name    str24   %24s                  
 gdp_pcap_curr~d float   %9.0g                 
 _merge_wbgdp    byte    %23.0g     _merge     
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+fc_scored       float   %9.0g                 
+foreign_share   float   %9.0g                 
+regional_share  float   %9.0g                 
+distant_share   float   %9.0g                 
+domestic_share  float   %9.0g                 
+foreign_records float   %9.0g                 
+collab_share    float   %9.0g                 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Sorted by: 
 
 . summarize
@@ -840,7 +1072,7 @@ Sorted by:
      cell_id |          0
       cell_x |    327,916    18.34937    77.88298       -173        172
       cell_y |    327,916    24.32758    35.22473        -73         72
-        year |    327,916    2012.369    6.971297       2001       2024
+        year |    328,370    2012.386    6.982269       2001       2025
 centroid_lon |    269,680    19.23282    80.60753  -178.7819   178.7819
 -------------+---------------------------------------------------------
 centroid_lat |    269,680     23.8568    30.57534  -54.25486   80.94885
@@ -1042,60 +1274,111 @@ comcat_mea~m |     11,351     58.6332     75.9281     -2.261      644.9
 comcat_any~l |    269,680    .0420906    .2007963          0          1
 -------------+---------------------------------------------------------
 _merge_com~t |    327,916    2.644811    .7643428          1          3
-resolve_ec~d |    321,904     463.771    277.7478          0        846
-resol~o_name |          0
-resolve_bi~m |    321,904    7.401461    4.048457          1         14
-resolve_bi~e |          0
+records_to~l |     51,157    284.6621    5752.412          1     505254
+records_wi~s |     51,157    277.6197    5730.577          0     505254
+records_cl~d |     51,157    248.4702    5521.782          0     504518
+records_un~d |     51,157    29.14942    1015.612          0     167182
 -------------+---------------------------------------------------------
+records_do~c |     51,157     103.854    1528.123          0     105425
+records_fo~l |     51,157    118.4073     5139.44          0     501968
+records_fo~t |     51,157     26.1839    666.9359          0     112874
+records_co~b |     51,157    44.18044    2437.408          0     267111
+domestic_s~m |     51,157    121.0342    1834.087          0   118361.3
+-------------+---------------------------------------------------------
+regional_s~m |     51,157    104.0221    4727.533          0     501958
+distant_sc~m |     51,157    23.38884    646.3461          0     112874
+n_collecto~n |     51,157    .4983482    1.131003          0         22
+n_collecto~c |     51,157    .7699826    1.937447          0         44
+_merge_for~g |    328,370    1.310199    .7230445          1          3
+-------------+---------------------------------------------------------
+gbif_p_total |    269,680    45.51614    311.5231          0      45333
+gbif_p_plant |    269,680    45.51607     311.523          0      45333
+gbif_p_pre~d |    269,680    39.95825    249.2702          0      19393
+gbif_p_mat~l |    269,680    5.557883    177.8675          0      44925
+gbif_p_a~tal |    269,680    .3390055    .4733726          0          1
+-------------+---------------------------------------------------------
+gbif_p_l~tal |    269,680    1.066571    1.830712          0   10.72181
+gbif_p_any~t |    269,680    .3390018    .4733713          0          1
+gbif_p_log~t |    269,680    1.066567    1.830712          0   10.72181
+gbif_p_any~d |    269,680    .3319675    .4709203          0          1
+gbif_p_log~d |    269,680    1.030832    1.793184          0   9.872719
+-------------+---------------------------------------------------------
+gbif_p_a~ial |    269,680    .0427247    .2022362          0          1
+gbif_p_l~ial |    269,680    .1040988    .6200441          0   10.71277
+_merge_gbi~e |    328,370    2.642537    .7662555          1          3
+resolve_ec~d |    322,342    463.7695    277.6707          0        846
+resol~o_name |          0
+-------------+---------------------------------------------------------
+resolve_bi~m |    322,342    7.398937    4.049131          1         14
+resolve_bi~e |          0
 resolve_re~m |          0
 resolve_~ome |          0
- resolve_nnh |    321,904    2.566082    .9299205          0          4
+ resolve_nnh |    322,342    2.566764    .9299865          0          4
+-------------+---------------------------------------------------------
 resolve_nn~e |          0
 resolve_li~e |          0
+resolve_ma~d |    328,370    .9816427    .1342401          0          1
+resolve_ro~e |    328,370    .0270213    .1621458          0          1
+_merge_res~e |    328,370           3           0          3          3
 -------------+---------------------------------------------------------
-resolve_ma~d |    327,916     .981666    .1341562          0          1
-resolve_ro~e |    327,916    .0270557     .162246          0          1
-_merge_res~e |    327,916           3           0          3          3
 cepf_hotsp~s |          0
-cepf_hotsp~t |    327,916    .1777772    .3823257          0          1
+cepf_hotsp~t |    328,370    .1779669    .3824855          0          1
+cepf_hotsp~y |    328,370    .1779669    .3824855          0          1
+ _merge_cepf |    328,370           3           0          3          3
+cell_area_~2 |    328,370       10000           0      10000      10000
 -------------+---------------------------------------------------------
-cepf_hotsp~y |    327,916    .1777772    .3823257          0          1
- _merge_cepf |    327,916           3           0          3          3
-cell_area_~2 |    327,916       10000           0      10000      10000
-wdpa_candi~s |    327,916      77.618    713.5541          0      42506
-wdpa_prote~2 |    327,916    1477.897    2345.124          0      10000
+wdpa_candi~s |    328,370    78.07275    714.3827          0      42506
+wdpa_prote~2 |    328,370    1477.876    2344.282          0      10000
+wdpa_prote~e |    328,370    .1477876    .2344282          0          1
+wdpa_any_p~d |    328,370    .6891251    .4628524          0          1
+_merge_wdp~c |    328,370           3           0          3          3
 -------------+---------------------------------------------------------
-wdpa_prote~e |    327,916    .1477897    .2345124          0          1
-wdpa_any_p~d |    327,916    .6889691    .4629161          0          1
-_merge_wdp~c |    327,916           3           0          3          3
-r~_m_per_km2 |    327,916    170.4168    361.5129          0   10169.35
-r~km_per_km2 |    327,916    .1704168    .3615129          0   10.16935
+r~_m_per_km2 |    328,370     171.058    363.0933          0   10169.35
+r~km_per_km2 |    328,370     .171058    .3630933          0   10.16935
+    any_road |    328,370    .8723483    .3337021          0          1
+log_road_d~y |    328,370    3.847586    1.951026          0   9.227232
+ _merge_grip |    328,370           3           0          3          3
 -------------+---------------------------------------------------------
-    any_road |    327,916     .872199    .3338686          0          1
-log_road_d~y |    327,916    3.844859    1.950349          0   9.227232
- _merge_grip |    327,916           3           0          3          3
- msa_overall |    327,892    .5570532    .2389585   .2007575   .9222696
-_merge_glo~o |    327,916           3           0          3          3
+ msa_overall |    328,346    .5568762     .238932   .2007575   .9222696
+_merge_glo~o |    328,370           3           0          3          3
+richness_m~s |    328,370    69.47204    49.16795          0        252
+richness_a~s |    328,370    18.74746     25.6242          0        206
+richness_r~s |    328,370    45.12413    44.88997          0        224
 -------------+---------------------------------------------------------
-richness_m~s |    327,916    69.45484    49.17633          0        252
-richness_a~s |    327,916    18.74251    25.62695          0        206
-richness_r~s |    327,916    45.12329    44.89563          0        224
-richness_t~l |    327,916    133.3206    111.6565          0        593
-log1p_rich~l |    327,916    4.515115    1.000016          0   6.386879
+richness_t~l |    328,370    133.3436    111.6373          0        593
+log1p_rich~l |    328,370     4.51556    .9996471          0   6.386879
+_merge_ri~ss |    328,370           3           0          3          3
+richness_b~s |    328,370    200.0106    141.7365          0        938
+log1p_rich~s |    328,370    4.940519    1.093808          0   6.844815
 -------------+---------------------------------------------------------
-_merge_ri~ss |    327,916           3           0          3          3
-richness_b~s |    327,916    199.9789    141.7566          0        938
-log1p_rich~s |    327,916    4.940025    1.094348          0   6.844815
-_merge_ri~ds |    327,916           3           0          3          3
+_merge_ri~ds |    328,370           3           0          3          3
+gbif_p_ric~e |    328,370    109.1095    283.7754          0       5325
+gbif_p_gen~e |    328,370    58.18226    124.6546          0       1550
+gbif_p_ric~y |    328,370    .6127295    .4871271          0          1
+gbif_p_gen~y |    328,370    .6121448     .487262          0          1
+-------------+---------------------------------------------------------
+gbif_p_ric~g |    328,370    2.244975    2.341614          0   8.580356
+gbif_p_gen~g |    328,370    2.057098    2.125598          0   7.346655
+gbif_p_ric~z |    328,370    .0259525    1.030646  -.3703233   18.96959
+gbif_p_gen~z |    328,370    .0311832    1.028259  -.4487545   12.33699
+_merge_gbi~s |    328,370           3           0          3          3
+-------------+---------------------------------------------------------
 country_name |          0
--------------+---------------------------------------------------------
 gdp_pcap_c~d |    265,350    18115.11    20853.34     147.23     112895
-_merge_wbgdp |    327,916    2.618402    .7858629          1          3
+_merge_wbgdp |    328,370    2.616165    .7876185          1          3
+   fc_scored |     51,157    248.4452    5521.783          0     504518
+foreign_sh~e |     26,292    .4236165    .4599341          0          1
+-------------+---------------------------------------------------------
+regional_s~e |     26,292    .1250995    .3068412          0          1
+distant_sh~e |     26,292     .298517     .429283          0          1
+domestic_s~e |     26,292    .5763835    .4599341          0          1
+foreign_re~s |     51,157    144.5912      5194.9          0     501968
+collab_share |     26,307    .0366334    .1732469          0          1
 
 . 
 . log close
       name:  <unnamed>
        log:  /Users/vasilykorovkin/Documents/Diversity_Discoveries/Logs/merge_all_regressors.log
   log type:  text
- closed on:   4 May 2026, 09:18:52
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ closed on:   6 May 2026, 13:48:53
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
