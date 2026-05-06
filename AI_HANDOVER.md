@@ -227,6 +227,8 @@ do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_spec1_gbif
 
 The GBIF plant panel is a mirror of `reg_spec1.do`: same RHS, same FE structure, same 2005-2023 sample restriction, but with GBIF preserved/material Plantae outcomes. The merged Stata panel also now carries static pre-period plant-richness aliases (`gbif_p_rich_base`, `gbif_p_rich_log`, `gbif_p_rich_z`, `gbif_p_genrich_base`, `gbif_p_genrich_log`, `gbif_p_genrich_z`, `gbif_p_rich_log_std`). `reg_spec1_gbif_plantae.do` now includes Table 6: conflict interacted with GBIF pre-period plant richness, using `log1p` then standardization to match the updated Table 5 richness scaling.
 
+BIEN remains a secondary plant-richness route. Direct `BIEN_list_sf()` cell-by-cell queries over the 100 km grid were too brittle and slow. The current exploratory path is to first build the observed GBIF species universe with `Scripts/19_extract_gbif_plantae_species_universe.py`, then run `Scripts/18_bien_range_download_pilot.R`, which by default takes the top 5000 GBIF plant species by record count, checks BIEN range-map availability, downloads available range shapefiles to `Data/raw/bien/range_top5000/`, records timing and file-size metrics in the summary manifest, and can optionally build BIEN skinny ranges and a local richness raster if a template raster is provided.
+
 TerraClimate climate anomalies (drought, heat, precipitation):
 
 ```bash
@@ -598,11 +600,11 @@ Key findings across tables:
 
 Current prepared changes are code/docs only; data and output remain ignored.
 
-## Collector Affiliation Pipeline (Parachute Science Analysis)
+## Collector Affiliation Pipeline (Foreign Collecting Analysis)
 
 Goal: classify BOLD collectors as foreign or domestic relative to where they
-collect, to measure "parachute science" — researchers who collect specimens in
-countries other than their own.
+collect — measuring the share of biodiversity specimens collected by
+researchers from outside the host country.
 
 ### Pipeline steps
 
@@ -684,11 +686,11 @@ The following scripts were superseded by the LLM-based approach and removed:
 - Both LLMs know well-published taxonomists well; both fail on
   parataxonomists and field technicians
 
-7. **Parachute science panel** (`13_build_parachute_panel.py`):
+7. **Foreign collecting panel** (`13_build_foreign_collecting_panel.py`):
    For each geocoded BOLD record with a collector field, matches names to
    home countries and compares to `country_iso`. Multi-collector records
    use averaged scores (1 foreign + 1 domestic = 0.5 foreign). Aggregates
-   to cell × year. Output: `collectors/bold_parachute_cell_year_panel.csv`
+   to cell × year. Output: `collectors/bold_foreign_collecting_cell_year_panel.csv`
    with: `records_total`, `records_matched`, `records_unmatched`,
    `foreign_score_sum`, `domestic_score_sum`, `foreign_share`,
    `n_collectors_foreign`, `n_collectors_domestic`.
@@ -705,7 +707,7 @@ All collector/affiliation files live in `Data/processed/bold/collectors/`:
 - `bold_collectors_affiliations_gpt.csv` — GPT classifications (top 633)
 - `bold_collectors_affiliations_claude.csv` — Claude classifications (top 633)
 - `bold_collector_affiliations_merged.csv` — merged + reviewed + filled
-- `bold_parachute_cell_year_panel.csv` — cell × year output panel
+- `bold_foreign_collecting_cell_year_panel.csv` — cell × year output panel
 - `bold_batch1_classifications_gpt.csv` — GPT batch 1 results (expansion)
 - `supply_top10_collectors.csv` — top 10 collector strings exhibit
 
@@ -713,9 +715,9 @@ LLM prompt files are in `Prompts/`:
 - `prompt_collector_affiliations.txt` — original top-633 prompt
 - `prompt_collectors_batch{1-5}.txt` — expansion batches (9,358 new names)
 
-### Descriptive analysis (DoFiles/desc_parachute.do)
+### Descriptive analysis (DoFiles/desc_foreign_collecting.do)
 
-Key findings from `desc_parachute.do` (run after merge):
+Key findings from `desc_foreign_collecting.do` (run after merge):
 - Mean foreign_share: 0.37 across cell-years with matched collectors
 - Poorer countries get more foreign collecting: GDP Q1 52% vs Q4 20%
 - More biodiverse cells get more: richness Q4 51% vs Q1 19%
@@ -745,13 +747,12 @@ To improve geographic coverage, extracted 10,000 collector individuals using
 - Each batch prompt includes "IMPORTANT: classify ALL names" instruction
 
 After all 5 batches are classified:
-1. Write a merge script to combine the 5 batch results with the original 633
-2. Re-run `13_build_parachute_panel.py` with the expanded lookup
+1. Merge via `17_merge_all_classifications.py` (combines 633 + batches 1-5)
+2. Re-run `13_build_foreign_collecting_panel.py` with the expanded lookup
 3. Re-run Stata merge and descriptives
 
 ### Next steps
 
-- Classify remaining batches 2-5 via GPT (user runs manually)
-- Merge expanded classifications into a single affiliations file
-- Rebuild parachute panel with ~10K collectors for better geographic coverage
+- Deduplicate ~221 name variants in expanded affiliations
+- Rebuild foreign collecting panel with ~10K collectors
 - Add `foreign_share` to regression specifications (OLS + WLS)

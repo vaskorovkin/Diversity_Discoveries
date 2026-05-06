@@ -236,6 +236,16 @@ rename _merge _merge_wbgdp
 drop if continent=="Antarctica"
 drop if cell_area_km2>10001
 
+* --- Derived foreign collecting shares ---
+gen fc_scored = domestic_score_sum + regional_score_sum + distant_score_sum
+gen foreign_share = (regional_score_sum + distant_score_sum) / fc_scored ///
+    if fc_scored > 0
+gen regional_share = regional_score_sum / fc_scored if fc_scored > 0
+gen distant_share = distant_score_sum / fc_scored if fc_scored > 0
+gen domestic_share = domestic_score_sum / fc_scored if fc_scored > 0
+gen foreign_records = records_foreign_regional + records_foreign_distant
+gen collab_share = records_collab / records_classified if records_classified > 0
+
 compress
 save "`proj'/Data/analysis/BOLD_regressor_panel.dta", replace
 

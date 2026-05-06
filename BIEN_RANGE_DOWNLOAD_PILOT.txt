@@ -1,0 +1,35 @@
+BIEN top-5000 range download
+
+From project root:
+
+cd ~/Documents/Diversity_Discoveries
+
+1) Availability check only on the default top 5000 GBIF plant species
+Rscript Scripts/18_bien_range_download_pilot.R --availability-only
+
+2) Download the default top 5000 GBIF plant species
+Rscript Scripts/18_bien_range_download_pilot.R
+
+3) Use a different cutoff or a different output directory
+Rscript Scripts/18_bien_range_download_pilot.R \
+  --top-n 20000 \
+  --outdir Data/raw/bien/range_top20000
+
+4) Optional: build skinny ranges and a local richness raster
+Rscript Scripts/18_bien_range_download_pilot.R \
+  --outdir Data/raw/bien/range_top5000_with_raster \
+  --template-raster /absolute/path/to/template_raster.tif \
+  --overwrite
+
+Outputs:
+- Data/raw/bien/range_top5000/downloads/
+- Data/raw/bien/range_top5000/manifests/requested_species.csv
+- Data/raw/bien/range_top5000/manifests/availability.csv
+- Data/raw/bien/range_top5000/manifests/downloaded_layers.csv
+- Data/raw/bien/range_top5000/manifests/file_manifest.csv
+- Data/raw/bien/range_top5000/manifests/summary.csv
+
+Notes:
+- This uses the ranked GBIF preserved/material plant species universe, not a hand-built pilot list.
+- It records timing (`availability_seconds`, `download_seconds`) and file sizes (`total_bytes`, `shp_bytes`, etc.) in `summary.csv`.
+- Use a fresh `--outdir` for each distinct run unless you intentionally pass `--overwrite`.

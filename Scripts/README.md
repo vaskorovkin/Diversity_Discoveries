@@ -30,7 +30,8 @@
 - `15_build_gbif_plantae_cell_year_panel.py`: builds the zero-filled 100 km cell-year panel for the GBIF preserved/material plant archive, with total, plant, preserved-specimen, and material-sample counts plus `any_*`/`log1p_*` transforms.
 - `17_build_gbif_plantae_preperiod_richness.py`: streams the pre-period GBIF preserved/material archive, assigns records to the 100 km land-cell grid, and writes static cell-level plant species/genus richness for 1999-2004.
 - `plant_r_setup.R`: boots an R environment for plant richness and distribution work. Installs/loads BIEN, rWCVP, rWCVPdata, expowo, sf, terra, and basic tidyverse packages; writes a small package/session manifest under `Output/audits/`.
-- `16_build_bien_plant_richness.R`: queries BIEN cell by cell on the existing 100 km land-cell GeoJSON, writes chunk checkpoints under `Output/tmp/`, and combines them into `Data/regressors/plants/bien_plant_richness_100km_cells.csv`.
+- `18_bien_range_download_pilot.R`: BIEN range-map bulk downloader keyed to the ranked GBIF plant species universe. By default it takes the top 5000 GBIF plant species by record count, checks BIEN range availability, downloads available range shapefiles to a fresh local directory, records timing and disk-footprint metrics, and can optionally convert the downloaded shapefiles into BIEN skinny ranges plus a local richness raster if you provide a template raster.
+- `19_extract_gbif_plantae_species_universe.py`: streams the two preserved/material GBIF plant occurrence archives, unions species names across them, and writes a ranked species universe CSV/TXT for BIEN targeting.
 - `gee_nightlights_100km.js`: Google Earth Engine script to aggregate Li et al. (2020) harmonized nighttime lights to 100 km cells. Consistent VIIRS-equivalent scale 2005-2023. Cell-level income proxy. See `Scripts/gee_nightlights_README.md`.
 - `merge_nightlights_exports.py`: merges harmonized nightlights GEE export into a cell-year panel with log-radiance.
 - `download_acled.py`: downloads ACLED conflict events via API (requires free ACLED account, Bearer token via `--token` or `--token-file`). Year-by-year download, full global coverage 2005-2024. Alternative: manually export CSV from ACLED data export tool.
@@ -75,11 +76,17 @@
 - `summarize_bold_diptera_large_family_genera_v4.py`: scrapes BOLD v4 genus splits for the four Diptera families above the 1M query cap and appends them to `bold_taxon_size_notes.txt`.
 - `summarize_bold_diptera_oversized_country_counts.py`: extracts top country/ocean counts for the four over-cap Diptera families from BOLD summary metadata.
 - `summarize_bold_non_insect_groups.py`: summarizes selected non-insect arthropod, microbe-like, and broad taxon groups and appends planning tables to `bold_taxon_size_notes.txt`.
+## Foreign Collecting Pipeline (09–13)
+
+Classifies BOLD collectors by home country and builds a cell-year panel of
+domestic vs foreign (regional / distant) collecting. Run in order:
+
 - `09_institution_country_mapping.py`: extracts top collector names from `bold_minimal_records.csv` with record counts and shares. Use `--top-n` to control how many (default 500). Output: `collectors/bold_top{N}_collectors.csv`.
-- `11_build_collector_individuals.py`: splits raw collector strings into person-level names and aggregates weighted record counts across combinations. Output: `collectors/bold_top500_collector_individuals.csv`. Use `--input`/`--output`/`--top-n` for larger runs.
-- `11_merge_collector_affiliations.py`: merges GPT and Claude affiliation guesses into one file. Classifies each name as AGREED, GPT_ONLY, CLAUDE_ONLY, DISAGREE, ORG, AMBIGUOUS, or UNRESOLVED. Output: `collectors/bold_collector_affiliations_merged.csv`.
-- `12_fill_missing_countries.py`: fills collectors without LLM country assignments using BOLD record data. ORGs are mapped via a hardcoded lookup table. AMBIGUOUS and UNRESOLVED names are inferred from their BOLD institution field and co-collector countries. Also applies manual corrections for names with identifiable institutions (e.g., Station Linné→SWE). Output: updates `collectors/bold_collector_affiliations_merged.csv` in place.
-- `13_build_parachute_panel.py`: builds cell × year panel of foreign vs domestic collecting for parachute science analysis. Matches collector names to home countries (ISO3→ISO2 conversion), compares to BOLD `country_iso`. Multi-collector records are averaged (1 foreign + 1 domestic = 0.5). Output: `collectors/bold_parachute_cell_year_panel.csv`.
+- `11_build_collector_individuals.py`: splits raw collector strings into person-level names and aggregates weighted record counts across combinations. Output: `collectors/bold_top500_collector_individuals.csv`. Use `--input`/`--output`/`--top-n` for larger runs (10000 for the full pipeline).
+- `11_merge_collector_affiliations.py`: merges GPT and Claude affiliation guesses for the original top-633 collectors. Classifies each name as AGREED, GPT_ONLY, CLAUDE_ONLY, DISAGREE, ORG, AMBIGUOUS, or UNRESOLVED. Output: `collectors/bold_collector_affiliations_merged.csv`.
+- `12_fill_missing_countries.py`: fills the original 633 collectors without LLM country assignments using BOLD record data, co-collector inference, and manual corrections. Output: updates `collectors/bold_collector_affiliations_merged.csv` in place.
+- `13a_merge_all_classifications.py`: merges original 633 + batch 1-5 LLM classifications (~10K collectors) into a single expanded affiliations file. Detects local collector names from the full 101K list. Applies reviewed DISAGREE and ORG decisions, plus hardcoded dual-affiliation fixes. Two-stage: writes `_expanded_prereview.csv` (pure LLM), then `_expanded.csv` (with decisions). Run BEFORE `13_build_foreign_collecting_panel.py`.
+- `13_build_foreign_collecting_panel.py`: builds cell x year panel of foreign vs domestic collecting. Matches collector names to home countries (via `_expanded.csv`), compares to BOLD `country_iso`. Splits foreign into regional (same continent) and distant (different continent). Outputs both categorical record counts and fractional score sums. Tracks local-foreign collaborations. Output: `collectors/bold_foreign_collecting_cell_year_panel.csv`.
 
 ## BOLD Pipeline (00–07)
 
@@ -147,22 +154,19 @@ python3 Scripts/14_build_gbif_plantae_minimal.py
 python3 Scripts/15_build_gbif_plantae_cell_year_panel.py
 python3 Scripts/request_gbif_plantae_downloads.py --gbif-username YOUR_USERNAME --gbif-password YOUR_PASSWORD --notification-email YOU@example.com --start-year 1999 --end-year 2004 --kinds preserved_material --submit-only
 python3 Scripts/17_build_gbif_plantae_preperiod_richness.py
-python3 Scripts/09_institution_country_mapping.py
-python3 Scripts/11_build_collector_individuals.py
-# --- Collector affiliation pipeline (top 633) ---
-# 1. Generate prompt: Prompts/prompt_collector_affiliations.txt
-# 2. Paste into ChatGPT and Claude separately → save as collectors/bold_collectors_affiliations_{gpt,claude}.csv
-# 3. Merge and review:
+# --- Foreign collecting pipeline ---
+python3 Scripts/09_institution_country_mapping.py --top-n 10000
+python3 Scripts/11_build_collector_individuals.py --top-n 10000
+# LLM classification (original 633):
+#   Generate prompt → paste into ChatGPT + Claude → save CSVs
 python3 Scripts/11_merge_collector_affiliations.py
-# 4. Manual review: open collectors/bold_collector_affiliations_merged.csv, resolve DISAGREE rows
-# 5. Fill remaining missing countries from BOLD co-collectors, institutions, and manual fixes:
 python3 Scripts/12_fill_missing_countries.py
-# 6. Build parachute science cell-year panel:
-python3 Scripts/13_build_parachute_panel.py
-# --- Expansion to 10K collectors ---
-# Batch prompts in Prompts/prompt_collectors_batch{1-5}.txt
-# Classify via GPT, save results to collectors/bold_batch{1-5}_classifications_gpt.csv
-# Then merge batches, rebuild parachute panel
+# LLM classification (batches 1-5, ~9K more):
+#   Batch prompts in Prompts/prompt_collectors_batch{1-5}.txt
+#   Classify via GPT + Claude → save to collectors/bold_batch{1-5}_classifications_{gpt,claude}.csv
+#   Review DISAGREE and ORG files, then:
+python3 Scripts/13a_merge_all_classifications.py
+python3 Scripts/13_build_foreign_collecting_panel.py
 python3 Scripts/download_baseline_geography.py
 python3 Scripts/aggregate_resolve_ecoregions_100km.py
 python3 Scripts/aggregate_cepf_hotspots_100km.py
