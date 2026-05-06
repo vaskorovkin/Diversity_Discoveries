@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Submit GBIF plant download requests and optionally poll/download them.
 
-Creates two GBIF Darwin Core Archive requests:
-1. Plantae preserved/material records with coordinates, years 2005-2025
-2. Plantae human observations with coordinates, years 2005-2025
+Creates one or two GBIF Darwin Core Archive requests:
+1. Plantae preserved/material records with coordinates
+2. Plantae human observations with coordinates
 
 GBIF authentication uses your GBIF username and password, not an API key.
 
@@ -37,6 +37,7 @@ DEFAULT_OUTDIR = PROJECT_ROOT / "Data" / "raw" / "gbif" / "plantae"
 GBIF_REQUEST_URL = "https://api.gbif.org/v1/occurrence/download/request"
 GBIF_STATUS_URL = "https://api.gbif.org/v1/occurrence/download"
 PLANTAE_TAXON_KEY = "6"
+JOB_NAMES = ("preserved_material", "human_observation")
 
 
 def build_preserved_predicate(start_year: int, end_year: int) -> dict:
@@ -140,6 +141,13 @@ def main() -> int:
     parser.add_argument("--start-year", type=int, default=2005)
     parser.add_argument("--end-year", type=int, default=2025)
     parser.add_argument("--outdir", type=Path, default=DEFAULT_OUTDIR)
+    parser.add_argument(
+        "--kinds",
+        nargs="+",
+        choices=JOB_NAMES,
+        default=list(JOB_NAMES),
+        help="Which GBIF plant downloads to request.",
+    )
     parser.add_argument("--submit-only", action="store_true", help="Submit requests and stop.")
     parser.add_argument("--poll-interval", type=int, default=120, help="Seconds between GBIF status checks.")
     parser.add_argument("--max-polls", type=int, default=180, help="Maximum number of poll attempts per request.")
@@ -148,10 +156,11 @@ def main() -> int:
 
     args.outdir.mkdir(parents=True, exist_ok=True)
 
-    jobs = [
-        ("preserved_material", build_preserved_predicate(args.start_year, args.end_year)),
-        ("human_observation", build_human_observation_predicate(args.start_year, args.end_year)),
-    ]
+    jobs = []
+    if "preserved_material" in args.kinds:
+        jobs.append(("preserved_material", build_preserved_predicate(args.start_year, args.end_year)))
+    if "human_observation" in args.kinds:
+        jobs.append(("human_observation", build_human_observation_predicate(args.start_year, args.end_year)))
 
     submitted: list[tuple[str, str, Path]] = []
 

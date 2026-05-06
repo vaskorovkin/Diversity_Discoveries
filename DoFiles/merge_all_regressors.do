@@ -89,9 +89,9 @@ keep if year<=2024
 tempfile comcat
 save `comcat'
 
-import delimited "`proj'/Data/processed/bold/collectors/bold_parachute_cell_year_panel.csv", clear
-tempfile parachute
-save `parachute'
+import delimited "`proj'/Data/processed/bold/collectors/bold_foreign_collecting_cell_year_panel.csv", clear
+tempfile foreign_collecting
+save `foreign_collecting'
 
 local have_gbif_plantae 0
 capture confirm file "`proj'/Data/processed/gbif/plantae/gbif_plantae_preserved_material_cell_year_panel_2005_2025.csv"
@@ -127,6 +127,28 @@ save `richness'
 import delimited "`proj'/Data/regressors/baseline_geography/species_richness_birds_100km_cells.csv", clear
 tempfile richness_birds
 save `richness_birds'
+
+local have_gbif_preperiod_richness 0
+capture confirm file "`proj'/Data/regressors/plants/gbif_plantae_preperiod_richness_1999_2004.csv"
+if _rc==0 {
+    import delimited "`proj'/Data/regressors/plants/gbif_plantae_preperiod_richness_1999_2004.csv", clear
+    keep cell_id ///
+        gbif_plant_richness_base gbif_plant_genus_richness_base ///
+        gbif_plant_richness_base_any gbif_plant_genus_richness_base_a ///
+        gbif_plant_richness_base_log1p gbif_plant_genus_richness_base_l ///
+        gbif_plant_richness_base_z gbif_plant_genus_richness_base_z
+    rename gbif_plant_richness_base gbif_p_rich_base
+    rename gbif_plant_genus_richness_base gbif_p_genrich_base
+    rename gbif_plant_richness_base_any gbif_p_rich_any
+    rename gbif_plant_genus_richness_base_a gbif_p_genrich_any
+    rename gbif_plant_richness_base_log1p gbif_p_rich_log
+    rename gbif_plant_genus_richness_base_l gbif_p_genrich_log
+    rename gbif_plant_richness_base_z gbif_p_rich_z
+    rename gbif_plant_genus_richness_base_z gbif_p_genrich_z
+    tempfile gbif_preperiod_richness
+    save `gbif_preperiod_richness'
+    local have_gbif_preperiod_richness 1
+}
 
 * -------------------------------------------------------------------
 * 2. Merge panels 1:1 on cell_id year
@@ -164,8 +186,8 @@ rename _merge _merge_ibtracs
 merge 1:1 cell_id year using `comcat'
 rename _merge _merge_comcat
 
-merge 1:1 cell_id year using `parachute'
-rename _merge _merge_parachute
+merge 1:1 cell_id year using `foreign_collecting'
+rename _merge _merge_foreign_collecting
 
 if `have_gbif_plantae' == 1 {
     merge 1:1 cell_id year using `gbif_plantae'
@@ -196,6 +218,11 @@ rename _merge _merge_richness
 
 merge m:1 cell_id using `richness_birds'
 rename _merge _merge_richness_birds
+
+if `have_gbif_preperiod_richness' == 1 {
+    merge m:1 cell_id using `gbif_preperiod_richness'
+    rename _merge _merge_gbif_preperiod_richness
+}
 
 * --- Country-year regressors (iso_a3 × year; requires iso_a3 from RESOLVE) ---
 
@@ -230,7 +257,9 @@ tab _merge_ibtracs
 tab _merge_comcat
 tab _merge_richness
 tab _merge_richness_birds
-tab _merge_parachute
+capture confirm variable _merge_gbif_preperiod_richness
+if _rc==0 tab _merge_gbif_preperiod_richness
+tab _merge_foreign_collecting
 capture confirm variable _merge_gbif_plantae
 if _rc==0 tab _merge_gbif_plantae
 

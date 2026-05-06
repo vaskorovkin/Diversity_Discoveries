@@ -25,9 +25,12 @@
 - `aggregate_ibtracs_100km.py`: aggregates IBTrACS track points to 100 km cells by year. Outputs point counts, unique-storm counts, 34kt/64kt exposure counts, and max wind.
 - `download_comcat_earthquakes.py`: downloads global USGS ComCat earthquakes year by year from the official FDSN event service. Defaults: 2005-2025, `eventtype=earthquake`, `minmagnitude=4.5`.
 - `aggregate_comcat_100km.py`: aggregates ComCat earthquakes to 100 km cells by year. Outputs event counts, `M6+`, `M7+`, shallow-event counts, and max/mean magnitude.
-- `request_gbif_plantae_downloads.py`: submits two GBIF Darwin Core Archive requests for plants: preserved/material records and human observations, both with coordinates and years 2005-2025. Can also poll and download the finished ZIPs.
+- `request_gbif_plantae_downloads.py`: submits GBIF Darwin Core Archive requests for plants. Supports `--kinds preserved_material` and/or `human_observation`, arbitrary year windows, and can poll/download the finished ZIPs.
 - `14_build_gbif_plantae_minimal.py`: streams `occurrence.txt` from the GBIF preserved/material plant archive into a compact CSV with the fields needed for downstream summaries and panel work.
 - `15_build_gbif_plantae_cell_year_panel.py`: builds the zero-filled 100 km cell-year panel for the GBIF preserved/material plant archive, with total, plant, preserved-specimen, and material-sample counts plus `any_*`/`log1p_*` transforms.
+- `17_build_gbif_plantae_preperiod_richness.py`: streams the pre-period GBIF preserved/material archive, assigns records to the 100 km land-cell grid, and writes static cell-level plant species/genus richness for 1999-2004.
+- `plant_r_setup.R`: boots an R environment for plant richness and distribution work. Installs/loads BIEN, rWCVP, rWCVPdata, expowo, sf, terra, and basic tidyverse packages; writes a small package/session manifest under `Output/audits/`.
+- `16_build_bien_plant_richness.R`: queries BIEN cell by cell on the existing 100 km land-cell GeoJSON, writes chunk checkpoints under `Output/tmp/`, and combines them into `Data/regressors/plants/bien_plant_richness_100km_cells.csv`.
 - `gee_nightlights_100km.js`: Google Earth Engine script to aggregate Li et al. (2020) harmonized nighttime lights to 100 km cells. Consistent VIIRS-equivalent scale 2005-2023. Cell-level income proxy. See `Scripts/gee_nightlights_README.md`.
 - `merge_nightlights_exports.py`: merges harmonized nightlights GEE export into a cell-year panel with log-radiance.
 - `download_acled.py`: downloads ACLED conflict events via API (requires free ACLED account, Bearer token via `--token` or `--token-file`). Year-by-year download, full global coverage 2005-2024. Alternative: manually export CSV from ACLED data export tool.
@@ -142,6 +145,8 @@ python3 Scripts/aggregate_comcat_100km.py --min-magnitude 4.5
 python3 Scripts/request_gbif_plantae_downloads.py --gbif-username YOUR_USERNAME --gbif-password YOUR_PASSWORD --notification-email YOU@example.com --submit-only
 python3 Scripts/14_build_gbif_plantae_minimal.py
 python3 Scripts/15_build_gbif_plantae_cell_year_panel.py
+python3 Scripts/request_gbif_plantae_downloads.py --gbif-username YOUR_USERNAME --gbif-password YOUR_PASSWORD --notification-email YOU@example.com --start-year 1999 --end-year 2004 --kinds preserved_material --submit-only
+python3 Scripts/17_build_gbif_plantae_preperiod_richness.py
 python3 Scripts/09_institution_country_mapping.py
 python3 Scripts/11_build_collector_individuals.py
 # --- Collector affiliation pipeline (top 633) ---

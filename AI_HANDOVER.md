@@ -212,6 +212,7 @@ Processed outputs:
 ```text
 Data/processed/gbif/plantae/gbif_plantae_preserved_material_minimal.csv
 Data/processed/gbif/plantae/gbif_plantae_preserved_material_cell_year_panel_2005_2025.csv
+Data/regressors/plants/gbif_plantae_preperiod_richness_1999_2004.csv
 ```
 
 Build commands:
@@ -219,11 +220,12 @@ Build commands:
 ```bash
 python3 Scripts/14_build_gbif_plantae_minimal.py
 python3 Scripts/15_build_gbif_plantae_cell_year_panel.py
+python3 Scripts/17_build_gbif_plantae_preperiod_richness.py
 do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/merge_all_regressors.do"
 do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_spec1_gbif_plantae.do"
 ```
 
-The GBIF plant panel is a mirror of `reg_spec1.do`: same RHS, same FE structure, same 2005-2023 sample restriction, but with GBIF preserved/material Plantae outcomes.
+The GBIF plant panel is a mirror of `reg_spec1.do`: same RHS, same FE structure, same 2005-2023 sample restriction, but with GBIF preserved/material Plantae outcomes. The merged Stata panel also now carries static pre-period plant-richness aliases (`gbif_p_rich_base`, `gbif_p_rich_log`, `gbif_p_rich_z`, `gbif_p_genrich_base`, `gbif_p_genrich_log`, `gbif_p_genrich_z`, `gbif_p_rich_log_std`). `reg_spec1_gbif_plantae.do` now includes Table 6: conflict interacted with GBIF pre-period plant richness, using `log1p` then standardization to match the updated Table 5 richness scaling.
 
 TerraClimate climate anomalies (drought, heat, precipitation):
 
