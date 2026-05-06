@@ -148,3 +148,31 @@ Compact 8-column table comparing conflict coefficients across outcomes:
 
 All columns use log(1+events) conflict measure. Logs saved to
 `Logs/reg_spec_benchmark.log`.
+
+### Foreign vs Domestic Collecting Composition
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_foreign_collecting.do"
+```
+
+Tests whether conflict selectively deters foreign collectors while leaving
+domestic collecting unaffected. Uses the same Table 3 and Table 5 FE
+structures from `reg_spec1.do`. Eight tables (64 regressions total), organized
+as Panel A (conflict = log(1+events)) and Panel B (conflict = 1[events>0]):
+
+- **FC3a**: Intensive margin, log(1+events) — Table 3 FE
+- **FC3b**: Extensive margin, log(1+events) — Table 3 FE
+- **FC3c**: Intensive margin, 1[events>0] — Table 3 FE
+- **FC3d**: Extensive margin, 1[events>0] — Table 3 FE
+- **FC5a**: Intensive + Conflict×Richness, log(1+events)
+- **FC5b**: Extensive + Conflict×Richness, log(1+events)
+- **FC5c**: Intensive + Conflict×Richness, 1[events>0]
+- **FC5d**: Extensive + Conflict×Richness, 1[events>0]
+
+Each table has 8 columns: {Domestic, Foreign, Distant, Collaboration} ×
+{Contemporaneous, With Lags}. LHS variables are `log1p_*` / `any_*` versions
+of `domestic_score_sum`, `foreign_score_sum` (regional+distant),
+`distant_score_sum`, and `records_collab`. Missing scores imputed to 0
+before transformation.
+
+Logs saved to `Logs/reg_foreign_collecting.log`.

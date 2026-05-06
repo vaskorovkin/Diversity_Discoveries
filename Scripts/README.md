@@ -30,7 +30,7 @@
 - `15_build_gbif_plantae_cell_year_panel.py`: builds the zero-filled 100 km cell-year panel for the GBIF preserved/material plant archive, with total, plant, preserved-specimen, and material-sample counts plus `any_*`/`log1p_*` transforms.
 - `17_build_gbif_plantae_preperiod_richness.py`: streams the pre-period GBIF preserved/material archive, assigns records to the 100 km land-cell grid, and writes static cell-level plant species/genus richness for 1999-2004.
 - `plant_r_setup.R`: boots an R environment for plant richness and distribution work. Installs/loads BIEN, rWCVP, rWCVPdata, expowo, sf, terra, and basic tidyverse packages; writes a small package/session manifest under `Output/audits/`.
-- `18_bien_range_download_pilot.R`: BIEN range-map bulk downloader keyed to the ranked GBIF plant species universe. By default it takes the top 5000 GBIF plant species by record count, checks BIEN range availability, downloads available range shapefiles to a fresh local directory, records timing and disk-footprint metrics, and can optionally convert the downloaded shapefiles into BIEN skinny ranges plus a local richness raster if you provide a template raster.
+- `18_bien_range_download_pilot.R`: BIEN range-map bulk downloader keyed to the ranked GBIF plant species universe. It works in rank windows over the canonical species pool; by default batch 1 is ranks 1-5000. Supports later batches via `--batch-id`, `--rank-start`, and `--top-n`, records timing and disk-footprint metrics, and can optionally convert the downloaded shapefiles into BIEN skinny ranges plus a local richness raster if you provide a template raster.
 - `19_extract_gbif_plantae_species_universe.py`: streams the two preserved/material GBIF plant occurrence archives, unions species names across them, and writes a ranked species universe CSV/TXT for BIEN targeting.
 - `gee_nightlights_100km.js`: Google Earth Engine script to aggregate Li et al. (2020) harmonized nighttime lights to 100 km cells. Consistent VIIRS-equivalent scale 2005-2023. Cell-level income proxy. See `Scripts/gee_nightlights_README.md`.
 - `merge_nightlights_exports.py`: merges harmonized nightlights GEE export into a cell-year panel with log-radiance.
@@ -114,9 +114,10 @@ Outputs: `Data/processed/bold/` (data), `Exhibits/tables/`, `Exhibits/figures/`,
 - `map_bold_fungi_admin1.py`: maps geocoded Fungi records to Natural Earth admin-1 polygons.
 - `map_bold_fungi_grid.py`: maps geocoded Fungi records to equal-area grid cells. Baseline is 100 km.
 
-## Stata Merge
+## Stata Merge and Regressions
 
 - `DoFiles/merge_all_regressors.do`: imports all outcome and regressor CSVs, merges panels 1:1 on `cell_id year` and static baselines m:1 on `cell_id`, drops Antarctica and date-line edge cells, saves `Data/analysis/BOLD_regressor_panel.dta`. Log output: `Logs/merge_all_regressors.log`.
+- `DoFiles/reg_foreign_collecting.do`: foreign vs domestic collecting composition regressions. 8 tables (FC3a-d, FC5a-d), 64 specifications. Panel A: conflict = log(1+events); Panel B: conflict = 1[events>0]. FC3 tables use Table 3 FE; FC5 tables add Conflict×Richness interaction. Each table: 8 columns = {Domestic, Foreign, Distant, Collaboration} × {Contemp, Lags}. Log output: `Logs/reg_foreign_collecting.log`.
 
 ## Examples
 

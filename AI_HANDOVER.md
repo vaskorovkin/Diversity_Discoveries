@@ -227,7 +227,7 @@ do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_spec1_gbif
 
 The GBIF plant panel is a mirror of `reg_spec1.do`: same RHS, same FE structure, same 2005-2023 sample restriction, but with GBIF preserved/material Plantae outcomes. The merged Stata panel also now carries static pre-period plant-richness aliases (`gbif_p_rich_base`, `gbif_p_rich_log`, `gbif_p_rich_z`, `gbif_p_genrich_base`, `gbif_p_genrich_log`, `gbif_p_genrich_z`, `gbif_p_rich_log_std`). `reg_spec1_gbif_plantae.do` now includes Table 6: conflict interacted with GBIF pre-period plant richness, using `log1p` then standardization to match the updated Table 5 richness scaling.
 
-BIEN remains a secondary plant-richness route. Direct `BIEN_list_sf()` cell-by-cell queries over the 100 km grid were too brittle and slow. The current exploratory path is to first build the observed GBIF species universe with `Scripts/19_extract_gbif_plantae_species_universe.py`, then run `Scripts/18_bien_range_download_pilot.R`, which by default takes the top 5000 GBIF plant species by record count, checks BIEN range-map availability, downloads available range shapefiles to `Data/raw/bien/range_top5000/`, records timing and file-size metrics in the summary manifest, and can optionally build BIEN skinny ranges and a local richness raster if a template raster is provided.
+BIEN remains a secondary plant-richness route. Direct `BIEN_list_sf()` cell-by-cell queries over the 100 km grid were too brittle and slow. The current exploratory path is to first build the observed GBIF species universe with `Scripts/19_extract_gbif_plantae_species_universe.py`, then run `Scripts/18_bien_range_download_pilot.R` in rank windows over the canonical species pool. Batch 1 is the completed run for ranks `1-5000`, stored at `Data/raw/bien/batches/batch_001_ranks_000001_005000/`. Batch 2 is defined as ranks `5001-30000`, with target directory `Data/raw/bien/batches/batch_002_ranks_005001_030000/`. The script records timing and file-size metrics in each batch summary manifest and can optionally build BIEN skinny ranges and a local richness raster if a template raster is provided.
 
 TerraClimate climate anomalies (drought, heat, precipitation):
 
@@ -600,159 +600,154 @@ Key findings across tables:
 
 Current prepared changes are code/docs only; data and output remain ignored.
 
-## Collector Affiliation Pipeline (Foreign Collecting Analysis)
+## Foreign Collecting Pipeline
 
-Goal: classify BOLD collectors as foreign or domestic relative to where they
-collect — measuring the share of biodiversity specimens collected by
-researchers from outside the host country.
+Goal: classify BOLD collectors by home country and measure foreign vs domestic
+collecting at the cell-year level. "Foreign" is further split into regional
+(same continent, different country) and distant (different continent).
 
-### Pipeline steps
+### Run order
 
-1. **Extract top collectors** (`09_institution_country_mapping.py`):
-   Reads `bold_minimal_records.csv`, counts collector strings, outputs
-   `bold_top500_collectors.csv` (raw collector strings with record counts).
+```bash
+python3 Scripts/09_institution_country_mapping.py --top-n 10000
+python3 Scripts/11_build_collector_individuals.py --top-n 10000
+# --- Original 633 (one-time LLM classification) ---
+python3 Scripts/11_merge_collector_affiliations.py
+python3 Scripts/12_fill_missing_countries.py
+# --- Expansion to ~10K (one-time LLM classification, batches 1-5) ---
+# Review files: bold_disagree_for_review_with_judgements.csv,
+#               bold_org_for_review_merged_pass1_pass2.csv
+python3 Scripts/13a_merge_all_classifications.py
+python3 Scripts/13_build_foreign_collecting_panel.py
+# --- Stata ---
+stata -b do DoFiles/merge_all_regressors.do
+stata -b do DoFiles/desc_foreign_collecting.do
+```
 
-2. **Split to individuals** (`11_build_collector_individuals.py`):
-   Splits comma-separated collector strings (e.g., "D.Janzen, W.Hallwachs")
-   into person-level rows. Output: `bold_top500_collector_individuals.csv`
-   (633 unique individuals, covering ~85% of all BOLD records with a
-   collector field).
+### Scripts
 
-3. **LLM affiliation guesses**: The prompt file
-   `Data/processed/bold/prompt_collector_affiliations.txt` was pasted into
-   ChatGPT and Claude separately. Both returned institution + country for
-   each name. Saved as:
-   - `bold_collectors_affiliations_gpt.csv` (81.5% matched, aggressive)
-   - `bold_collectors_affiliations_claude.csv` (43.0% matched, cautious but
-     gives country even when institution is unknown)
+1. **`09_institution_country_mapping.py`**: extracts top collector strings
+   from `bold_minimal_records.csv` with record counts.
 
-4. **Merge** (`11_merge_collector_affiliations.py`):
-   Merges GPT + Claude answers. Status categories:
-   - AGREED (231): both gave same country → accept
-   - GPT_ONLY (257): GPT matched, Claude UNKNOWN → accept GPT
-   - CLAUDE_ONLY (13): Claude matched, GPT didn't → accept Claude
-   - REVIEWED (28): both answered but disagreed → manually resolved
-   - ORG (33): organizations/teams, not people
-   - AMBIGUOUS (37): single-word names, can't identify
-   - UNRESOLVED (34): neither matched (15 have country from Claude's name-pattern guess)
-   Output: `bold_collector_affiliations_merged.csv`
+2. **`11_build_collector_individuals.py`**: splits comma-separated strings
+   into person-level names. With `--top-n 10000`: produces 633 individuals
+   from top-500 strings + ~101K full list (`bold_all_collector_individuals.csv`).
 
-5. **Manual review**: 28 DISAGREE rows resolved by hand. Key decisions:
-   - Home institution country is coded (not collecting country)
-   - Trish/T. Shute → CAN (CBG Guelph, verified from BOLD records)
-   - Carolina Cano → CRI (ACG/Janzen project, verified from BOLD records)
-   - Marco Millan Valera → GBR (Wellcome Sanger, verified from BOLD records)
-   - Joseph Hubert Masoy → MDG (Claude was correct; GPT said PNG)
-   - GPT hallucinated "Parks Canada" for several UK-based volunteers (rows 606-613)
-   - SANBI vs SANParks distinction matters (different South African orgs)
+3. **`11_merge_collector_affiliations.py`**: merges GPT + Claude guesses
+   for the original top-633 collectors. Status: AGREED, GPT_ONLY,
+   CLAUDE_ONLY, DISAGREE, ORG, AMBIGUOUS, UNRESOLVED.
 
-6. **Fill remaining countries** (`12_fill_missing_countries.py`):
-   For the ~89 collectors without LLM country, infers country from BOLD
-   record data. Three methods, applied in priority order:
-   - ORGs: hardcoded lookup table (BIOBus→CAN, Parks Canada→CAN, ICFC Manu→PER, etc.)
-   - BOLD institution field: maps `inst` values to countries (e.g., "University of Guelph"→CAN)
-   - Co-collector inference: finds other names in the same collector string
-     that already have resolved countries, votes by frequency
-   - MANUAL_FIXES dict: 5 hand-verified corrections applied after auto-inference
-   Result: 630/633 (99.5%) coverage.
+4. **`12_fill_missing_countries.py`**: fills remaining original-633
+   collectors via BOLD institution field, co-collector inference, and
+   manual corrections. Result: 630/633 (99.5%) coverage.
 
-### Retired scripts
+5. **`13a_merge_all_classifications.py`**: merges original 633 + batch 1-5
+   LLM classifications into `bold_collector_affiliations_expanded.csv`.
+   - Deduplicates within batches (42 removed)
+   - Detects 46 local collector names from full 101K list (status=LOCAL_COLLECTOR)
+   - Reads reviewed DISAGREE judgements (67 decisions) and ORG merged
+     pass1+pass2 (404 decisions, handles multi-country via first ISO3)
+   - Hardcoded dual-affiliation fixes (7 researchers + 1 Crimea case)
+   - UNRESOLVED_DISAGREE takes GPT's country guess
+   - Two-stage output: `_expanded_prereview.csv` (pure LLM) then
+     `_expanded.csv` (with all decisions applied)
+   - Result: 9,977 collectors, 79.2% with country, 96.2% record-weighted
 
-The following scripts were superseded by the LLM-based approach and removed:
-- `10_researcher_affiliation_search.py` — Brave Search API lookup (low accuracy, API key dependent)
-- `12_collector_country_from_bold.py` — added BOLD collecting-country columns, but redundant since the regression compares LLM home country vs cell country directly
-- `12_search_collector_affiliations.py` — wrapper around the old search approach
-- `infer_affiliations_from_search.py` — original Google/DuckDuckGo search script
+6. **`13_build_foreign_collecting_panel.py`**: builds cell x year panel.
+   Matches collector names to home countries, compares to BOLD `country_iso`.
+   Continent lookup from RESOLVE ecoregions for regional/distant split.
+   Local collectors are always domestic.
+   Output columns:
+   - `records_total`, `records_with_collectors`, `records_classified`,
+     `records_unclassified`
+   - `records_domestic`, `records_foreign_regional`, `records_foreign_distant`
+     (categorical, mutually exclusive; hierarchy: distant > regional > domestic)
+   - `records_collab` (both domestic + foreign on same record)
+   - `domestic_score_sum`, `regional_score_sum`, `distant_score_sum`
+     (fractional; mixed-collector records split proportionally)
+   - `n_collectors_foreign`, `n_collectors_domestic` (unique names)
 
-### Coverage as of 2026-05-05
+   Derived shares computed in `merge_all_regressors.do`:
+   `foreign_share`, `regional_share`, `distant_share`, `domestic_share`,
+   `collab_share`.
 
-- 633 unique individuals extracted from top-500 raw collector strings
-- 630/633 (99.5%) have a country assignment after LLM merge + manual review
-  + `12_fill_missing_countries.py` (auto 83 + 5 manual corrections)
-- 3 truly unresolvable: Allinghman (#267, zero BOLD records), local collector
-  (#435, generic label), Kjurstens (#478, zero BOLD records)
-- Manual corrections in `12_fill_missing_countries.py` MANUAL_FIXES dict:
-  Ethel Aberg→SWE (Station Linné), lgt. W.Stark→AUT, E. Friedrich→DEU,
-  Koehler→DEU (inst=Bavarian State Collection, co-collector vote was wrong),
-  Ashton→GBR
+### Coverage as of 2026-05-06
 
-### Key findings from LLM comparison
+- 9,977 unique collectors classified (633 original + 9,316 batches + 46 local)
+- 7,904 (79.2%) have a country assignment; 96.2% record-weighted coverage
+- 14.3M records classified out of 16M with collector fields (89% match)
+- Breakdown (fractional scores): 49% domestic, 41% regional-foreign,
+  10% distant-foreign
+- 20% of classified records are local-foreign collaborations
+- Remaining unclassified: 2,027 genuinely ambiguous names (1.1M records, 4%)
 
-- GPT is much more aggressive (81.5% vs 43% coverage) but occasionally
-  hallucinates institutions (Parks Canada for UK volunteers)
-- Claude is cautious but provides useful country guesses from name patterns
-  (West African surnames → CIV/BFA/GIN)
-- Country agreement where both answered: 87% (366/421)
-- Both LLMs know well-published taxonomists well; both fail on
-  parataxonomists and field technicians
+### Classification hierarchy
 
-7. **Foreign collecting panel** (`13_build_foreign_collecting_panel.py`):
-   For each geocoded BOLD record with a collector field, matches names to
-   home countries and compares to `country_iso`. Multi-collector records
-   use averaged scores (1 foreign + 1 domestic = 0.5 foreign). Aggregates
-   to cell × year. Output: `collectors/bold_foreign_collecting_cell_year_panel.csv`
-   with: `records_total`, `records_matched`, `records_unmatched`,
-   `foreign_score_sum`, `domestic_score_sum`, `foreign_share`,
-   `n_collectors_foreign`, `n_collectors_domestic`.
-   Merged into Stata panel via `merge 1:1 cell_id year` in
-   `DoFiles/merge_all_regressors.do`.
+AGREED > GPT_ONLY/CLAUDE_ONLY > REVIEWED (manual DISAGREE resolution) >
+ORG_REVIEWED (org pass1+pass2) > UNRESOLVED_AGREED (both name-guessed same) >
+UNRESOLVED_ONE (one guessed) > UNRESOLVED_DISAGREE (GPT guess used) >
+AMBIGUOUS > UNRESOLVED > LOCAL_COLLECTOR (domestic by definition, no fixed country)
+
+### Key design decisions
+
+- Home institution country is coded, not collecting country
+- BOLD `inst` field is NOT used (measures submitting institution, not collector)
+- Dual-affiliation researchers: 7 hardcoded cases use primary affiliation
+- Local collectors (64 name variants, 26K records): always domestic
+- Multi-country ORGs: first ISO3 code used
+- Crimea (K.A. Efetov): coded as Ukraine
 
 ### Directory structure
 
-All collector/affiliation files live in `Data/processed/bold/collectors/`:
-- `bold_top500_collectors.csv` — raw collector strings (top 500)
-- `bold_top500_collector_individuals.csv` — 633 individuals from top 500
-- `bold_all_collector_individuals.csv` — all ~101K unique individuals
-- `bold_top999999_collectors.csv` — all raw collector strings
-- `bold_collectors_affiliations_gpt.csv` — GPT classifications (top 633)
-- `bold_collectors_affiliations_claude.csv` — Claude classifications (top 633)
-- `bold_collector_affiliations_merged.csv` — merged + reviewed + filled
-- `bold_foreign_collecting_cell_year_panel.csv` — cell × year output panel
-- `bold_batch1_classifications_gpt.csv` — GPT batch 1 results (expansion)
-- `supply_top10_collectors.csv` — top 10 collector strings exhibit
+All files in `Data/processed/bold/collectors/`:
+- `bold_all_collector_individuals.csv` — full 101K unique individuals
+- `bold_collector_affiliations_633_reviewed.csv` — original 633, manually reviewed
+- `bold_collector_affiliations_expanded_prereview.csv` — pure LLM merge
+- `bold_collector_affiliations_expanded.csv` — final with all decisions
+- `bold_batch{1-5}_classifications_{gpt,claude}.csv` — LLM batch outputs
+- `bold_disagree_for_review_with_judgements.csv` — reviewed DISAGREE (67)
+- `bold_org_for_review_merged_pass1_pass2.csv` — reviewed ORGs (404)
+- `bold_foreign_collecting_cell_year_panel.csv` — cell x year output panel
 
-LLM prompt files are in `Prompts/`:
-- `prompt_collector_affiliations.txt` — original top-633 prompt
-- `prompt_collectors_batch{1-5}.txt` — expansion batches (9,358 new names)
+LLM prompt files in `Prompts/`:
+- `prompt_collector_affiliations.txt` — original top-633
+- `prompt_collectors_batch{1-5}.txt` — expansion batches
 
-### Descriptive analysis (DoFiles/desc_foreign_collecting.do)
+### Foreign Collecting Regressions (`reg_foreign_collecting.do`)
 
-Key findings from `desc_foreign_collecting.do` (run after merge):
-- Mean foreign_share: 0.37 across cell-years with matched collectors
-- Poorer countries get more foreign collecting: GDP Q1 52% vs Q4 20%
-- More biodiverse cells get more: richness Q4 51% vs Q1 19%
-- Biodiversity hotspots: 62% foreign vs non-hotspot 30%
-- Recommended estimation: WLS with `aweight = records_matched` — cells
-  with more classified collectors are more informative. Do NOT impute
-  unclassified records as domestic (biases toward finding effects).
+Log: `Logs/reg_foreign_collecting.log`
 
-### Geographic coverage ceiling
+Eight tables (64 specifications) testing whether conflict selectively deters
+foreign collectors while leaving domestic collecting unaffected. Uses Table 3
+and Table 5 FE structures from `reg_spec1.do`.
 
-- 51,779 cell-years have both BOLD records and a collector field
-- 14,710 cell-years have records but blank collector fields (unrecoverable)
-- Top 633 collectors cover 84.5% of records but only 5,766 cell-years
-  (geographically concentrated — mainly Janzen/Hallwachs Costa Rica)
-- Coverage curve: top 5K → 27,604 cell-years (53%); top 10K → 35,462 (69%)
+**Table layout**: FC3a/b/c/d (Table 3 FE) and FC5a/b/c/d (+ Conflict×Richness).
+Panel A (a/b): conflict = log(1+events). Panel B (c/d): conflict = 1[events>0].
+Each table: 8 columns = {Domestic, Foreign, Distant, Collaboration} ×
+{Contemporaneous, With Lags}.
 
-### Expansion to 10,000 collectors (in progress)
+**LHS variables**: `log1p_domestic`, `log1p_foreign` (regional+distant),
+`log1p_distant`, `log1p_collab` (intensive); `any_domestic`, `any_foreign`,
+`any_distant`, `any_collab` (extensive). Missing scores imputed to 0
+(~206K cell-years).
 
-To improve geographic coverage, extracted 10,000 collector individuals using
-`09_institution_country_mapping.py --top-n 10000` and
-`11_build_collector_individuals.py --top-n 10000`. The 9,358 new names
-(beyond the original 633) are split into 5 batch prompts in `Prompts/`:
-- Batch 1 (ranks 1-2432): uses original rank numbering — already classified
-  by GPT, saved as `collectors/bold_batch1_classifications_gpt.csv`
-- Batches 2-5 (~2000 names each): use sequential 1-N numbering (GPT stopped
-  early when batch 1 used original ranks past 2000)
-- Each batch prompt includes "IMPORTANT: classify ALL names" instruction
+**Key findings**:
+- Conflict selectively deters foreign (especially distant) collectors;
+  domestic collecting is unaffected
+- Panel B (binary conflict) produces ~2× larger, more significant coefficients
+  than Panel A (log events)
+- Richness interaction (FC5 tables): conflict reduces foreign/distant collecting
+  more in species-rich cells; sum Conflict×Richness L0-L2 for foreign goes
+  from -0.041*** (Panel A) to -0.069*** (Panel B)
+- Domestic collecting shows weak cumulative withdrawal only in Panel B
+  extensive margin (sum L0-L2 = -0.010**)
+- Collaboration (records with both domestic and foreign collectors) is too
+  rare (~0.6% of cell-years) to show significant effects
 
-After all 5 batches are classified:
-1. Merge via `17_merge_all_classifications.py` (combines 633 + batches 1-5)
-2. Re-run `13_build_foreign_collecting_panel.py` with the expanded lookup
-3. Re-run Stata merge and descriptives
+**Sample**: 247,692 obs (contemporaneous), 221,626 (with lags). Outcome means:
+log1p_domestic 0.17, log1p_foreign 0.12, log1p_distant 0.09, log1p_collab 0.02.
 
 ### Next steps
 
 - Deduplicate ~221 name variants in expanded affiliations
-- Rebuild foreign collecting panel with ~10K collectors
-- Add `foreign_share` to regression specifications (OLS + WLS)
+- Second LLM round for 137 still-unresolved ORGs
