@@ -16,8 +16,9 @@ Inputs:
   Data/processed/gbif/plantae/gbif_plantae_preserved_material_minimal.csv
   Data/processed/discovery/natural_products/species_to_compounds.csv
 
-Output:
+Outputs:
   Data/processed/discovery/shared/shared_species_universe.csv
+  Data/processed/discovery/shared/bin_consensus_lookup.csv
 
 Usage:
   python3 Scripts/26_build_shared_species_universe.py
@@ -67,6 +68,14 @@ DEFAULT_OUTPUT = (
     / "discovery"
     / "shared"
     / "shared_species_universe.csv"
+)
+DEFAULT_BIN_LOOKUP = (
+    PROJECT_ROOT
+    / "Data"
+    / "processed"
+    / "discovery"
+    / "shared"
+    / "bin_consensus_lookup.csv"
 )
 
 EQUAL_AREA_CRS = "EPSG:6933"
@@ -381,6 +390,7 @@ def main() -> int:
     parser.add_argument("--np-summary", type=Path, default=DEFAULT_NP)
     parser.add_argument("--land-cells", type=Path, default=DEFAULT_LAND_CELLS)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--bin-lookup-out", type=Path, default=DEFAULT_BIN_LOOKUP)
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -413,6 +423,39 @@ def main() -> int:
     # ── BOLD pass 1: BIN consensus ───────────────────────────────────
     print(flush=True)
     bin_lookup = build_bin_consensus(args.bold, max_rows)
+
+    # ── Persist BIN consensus lookup ────────────────────────────────
+    args.bin_lookup_out.parent.mkdir(parents=True, exist_ok=True)
+    with args.bin_lookup_out.open("w", newline="", encoding="utf-8") as bf:
+        bw = csv.DictWriter(
+            bf,
+            fieldnames=[
+                "bin_uri",
+                "consensus_species",
+                "kingdom",
+                "genus",
+                "concordance",
+                "is_strict",
+            ],
+        )
+        bw.writeheader()
+        for bin_uri, (sp, kingdom, genus, conc) in sorted(bin_lookup.items()):
+            bw.writerow(
+                {
+                    "bin_uri": bin_uri,
+                    "consensus_species": sp,
+                    "kingdom": kingdom,
+                    "genus": genus,
+                    "concordance": f"{conc:.4f}",
+                    "is_strict": 1 if conc >= 0.80 else 0,
+                }
+            )
+    print(
+        f"Wrote BIN consensus lookup: {args.bin_lookup_out} "
+        f"({len(bin_lookup):,} BINs, "
+        f"{sum(1 for _, _, _, c in bin_lookup.values() if c >= 0.80):,} strict)",
+        flush=True,
+    )
 
     # ── Stream BOLD (pass 2) + GBIF ──────────────────────────────────
     species_data: dict[str, dict] = defaultdict(
