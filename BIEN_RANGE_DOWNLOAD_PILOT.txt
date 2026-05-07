@@ -1,35 +1,55 @@
-BIEN top-5000 range download
+BIEN batch workflow
 
 From project root:
 
 cd ~/Documents/Diversity_Discoveries
 
-1) Availability check only on the default top 5000 GBIF plant species
-Rscript Scripts/18_bien_range_download_pilot.R --availability-only
+Completed sweep over the full canonical GBIF plant species-like pool (`236,166` names):
 
-2) Download the default top 5000 GBIF plant species
-Rscript Scripts/18_bien_range_download_pilot.R
+- Batch 1: ranks `1-5000` → `Data/raw/bien/batches/batch_001_ranks_000001_005000/` → `3,736` downloaded species
+- Batch 2: ranks `5001-30000` → `Data/raw/bien/batches/batch_002_ranks_005001_030000/` → `12,852` downloaded species
+- Batch 3: ranks `30001-80000` → `Data/raw/bien/batches/batch_003_ranks_030001_080000/` → `17,124` downloaded species
+- Batch 4: ranks `80001-230000` → `Data/raw/bien/batches/batch_004_ranks_080001_230000/` → `30,241` downloaded species
+- Batch 5: ranks `230001-236166` → `Data/raw/bien/batches/batch_005_ranks_230001_236166/` → `807` downloaded species
 
-3) Use a different cutoff or a different output directory
+Total downloaded BIEN range-map species: `64,760`
+
+Generic pattern for a new batch:
+
+1) Availability-only
 Rscript Scripts/18_bien_range_download_pilot.R \
-  --top-n 20000 \
-  --outdir Data/raw/bien/range_top20000
+  --batch-id <N> \
+  --rank-start <START_RANK> \
+  --top-n <BATCH_SIZE> \
+  --outdir Data/raw/bien/batches/batch_<NNN>_ranks_<START>_<END> \
+  --availability-only
 
-4) Optional: build skinny ranges and a local richness raster
+2) Download
 Rscript Scripts/18_bien_range_download_pilot.R \
-  --outdir Data/raw/bien/range_top5000_with_raster \
+  --batch-id <N> \
+  --rank-start <START_RANK> \
+  --top-n <BATCH_SIZE> \
+  --outdir Data/raw/bien/batches/batch_<NNN>_ranks_<START>_<END> \
+  --overwrite
+
+3) Optional: build skinny ranges and a local richness raster for a batch
+Rscript Scripts/18_bien_range_download_pilot.R \
+  --batch-id 1 \
+  --rank-start 1 \
+  --top-n 5000 \
+  --outdir Data/raw/bien/batches/batch_001_ranks_000001_005000 \
   --template-raster /absolute/path/to/template_raster.tif \
   --overwrite
 
 Outputs:
-- Data/raw/bien/range_top5000/downloads/
-- Data/raw/bien/range_top5000/manifests/requested_species.csv
-- Data/raw/bien/range_top5000/manifests/availability.csv
-- Data/raw/bien/range_top5000/manifests/downloaded_layers.csv
-- Data/raw/bien/range_top5000/manifests/file_manifest.csv
-- Data/raw/bien/range_top5000/manifests/summary.csv
+- Data/raw/bien/batches/batch_001_ranks_000001_005000/
+- Data/raw/bien/batches/batch_002_ranks_005001_030000/
+- Data/raw/bien/batches/batch_003_ranks_030001_080000/
+- Data/raw/bien/batches/batch_004_ranks_080001_230000/
+- Data/raw/bien/batches/batch_005_ranks_230001_236166/
 
 Notes:
 - This uses the ranked GBIF preserved/material plant species universe, not a hand-built pilot list.
+- The current completed sweep covers the full canonical species-like pool.
 - It records timing (`availability_seconds`, `download_seconds`) and file sizes (`total_bytes`, `shp_bytes`, etc.) in `summary.csv`.
 - Use a fresh `--outdir` for each distinct run unless you intentionally pass `--overwrite`.

@@ -17,7 +17,21 @@ DEFAULT_UNIVERSE_CSV <- file.path(
   "plants",
   "gbif_plantae_species_universe_1999_2025.csv"
 )
-DEFAULT_OUTDIR <- file.path(PROJECT_ROOT, "Data", "raw", "bien", "range_top5000")
+DEFAULT_BATCH_ID <- 1L
+DEFAULT_RANK_START <- 1L
+DEFAULT_TOP_N <- 5000L
+
+default_outdir <- function(batch_id, rank_start, top_n) {
+  rank_end <- rank_start + top_n - 1L
+  file.path(
+    PROJECT_ROOT,
+    "Data",
+    "raw",
+    "bien",
+    "batches",
+    sprintf("batch_%03d_ranks_%06d_%06d", batch_id, rank_start, rank_end)
+  )
+}
 
 usage <- function() {
   cat(
@@ -27,19 +41,22 @@ usage <- function() {
       "",
       "Default behavior:",
       "  - read the GBIF plant species universe CSV",
-      "  - keep the top 5000 species by total_records",
+      "  - keep ranks 1-5000 by total_records (batch 1)",
       "  - check BIEN range availability",
       "  - download available BIEN range shapefiles into a fresh local directory",
       "",
       "Options:",
       "  --species-universe-csv PATH   Ranked GBIF species universe CSV.",
-      "  --top-n N                     Number of top species to send to BIEN (default 5000).",
+      "  --batch-id N                  Batch label used in the default output path (default 1).",
+      "  --rank-start N                1-indexed start rank in the canonical species pool (default 1).",
+      "  --top-n N                     Number of ranked species in this batch (default 5000).",
       "  --availability-batch-size N   Batch size for BIEN availability queries (default 250).",
       "  --outdir PATH                 Output directory for BIEN download and manifests.",
       "  --batch-size N                Batch size passed to BIEN_ranges_species_bulk().",
       "  --template-raster PATH        Optional raster template for skinny/richness build.",
       "  --skinny-rds PATH             Optional output RDS for skinny ranges.",
       "  --richness-raster PATH        Optional output raster path for richness raster.",
+      "  --notify-email EMAIL          Optional completion email via Apple Mail on macOS.",
       "  --use-parallel                Ask BIEN bulk downloader to parallelize batches.",
       "  --availability-only           Check BIEN range availability, do not download files.",
       "  --overwrite                   Allow reuse of an existing outdir.",
@@ -52,13 +69,16 @@ usage <- function() {
 parse_args <- function(args) {
   out <- list(
     species_universe_csv = DEFAULT_UNIVERSE_CSV,
-    top_n = 5000L,
+    batch_id = DEFAULT_BATCH_ID,
+    rank_start = DEFAULT_RANK_START,
+    top_n = DEFAULT_TOP_N,
     availability_batch_size = 250L,
-    outdir = DEFAULT_OUTDIR,
+    outdir = default_outdir(DEFAULT_BATCH_ID, DEFAULT_RANK_START, DEFAULT_TOP_N),
     batch_size = 25L,
     template_raster = NULL,
     skinny_rds = NULL,
     richness_raster = NULL,
+    notify_email = NULL,
     use_parallel = FALSE,
     availability_only = FALSE,
     overwrite = FALSE,
@@ -93,6 +113,8 @@ parse_args <- function(args) {
     }
     value <- args[[i + 1L]]
     if (key == "--species-universe-csv") out$species_universe_csv <- value
+    else if (key == "--batch-id") out$batch_id <- as.integer(value)
+    else if (key == "--rank-start") out$rank_start <- as.integer(value)
     else if (key == "--top-n") out$top_n <- as.integer(value)
     else if (key == "--availability-batch-size") out$availability_batch_size <- as.integer(value)
     else if (key == "--outdir") out$outdir <- value
@@ -100,6 +122,7 @@ parse_args <- function(args) {
     else if (key == "--template-raster") out$template_raster <- value
     else if (key == "--skinny-rds") out$skinny_rds <- value
     else if (key == "--richness-raster") out$richness_raster <- value
+    else if (key == "--notify-email") out$notify_email <- value
     else stop("Unknown argument: ", key, call. = FALSE)
     i <- i + 2L
   }
@@ -197,6 +220,46 @@ assert_fresh_outdir <- function(outdir, overwrite) {
   )
 }
 
+send_mail_macos <- function(to_email, subject, body) {
+  if (is.null(to_email) || !nzchar(to_email)) {
+    return(invisible(FALSE))
+  }
+  if (Sys.info()[["sysname"]] != "Darwin") {
+    warning("Email notification is only implemented for macOS Mail.", call. = FALSE)
+    return(invisible(FALSE))
+  }
+
+  esc <- function(x) {
+    x <- gsub("\\\\", "\\\\\\\\", x)
+    x <- gsub("\"", "\\\\\"", x)
+    x
+  }
+
+  script_lines <- c(
+    'tell application "Mail"',
+    sprintf('set newMessage to make new outgoing message with properties {subject:"%s", content:"%s", visible:false}', esc(subject), esc(body)),
+    'tell newMessage',
+    sprintf('make new to recipient at end of to recipients with properties {address:"%s"}', esc(to_email)),
+    "send",
+    "end tell",
+    "end tell"
+  )
+
+  script_path <- tempfile("bien_mail_", fileext = ".applescript")
+  writeLines(script_lines, script_path, useBytes = TRUE)
+  on.exit(unlink(script_path), add = TRUE)
+
+  status <- tryCatch(
+    system2("osascript", args = script_path, stdout = TRUE, stderr = TRUE),
+    error = function(e) e
+  )
+  if (inherits(status, "error")) {
+    warning("Failed to send Mail notification: ", conditionMessage(status), call. = FALSE)
+    return(invisible(FALSE))
+  }
+  invisible(TRUE)
+}
+
 availability_query_once <- function(species_vec) {
   result <- tryCatch(
     BIEN::BIEN_ranges_species(
@@ -274,6 +337,12 @@ main <- function() {
   if (!file.exists(opts$species_universe_csv)) {
     stop("Missing species universe CSV: ", opts$species_universe_csv, call. = FALSE)
   }
+  if (!is.finite(opts$batch_id) || opts$batch_id <= 0) {
+    stop("--batch-id must be a positive integer", call. = FALSE)
+  }
+  if (!is.finite(opts$rank_start) || opts$rank_start <= 0) {
+    stop("--rank-start must be a positive integer", call. = FALSE)
+  }
   if (!is.finite(opts$top_n) || opts$top_n <= 0) {
     stop("--top-n must be a positive integer", call. = FALSE)
   }
@@ -310,8 +379,11 @@ main <- function() {
       .groups = "drop"
     ) |>
     arrange(desc(total_records), bien_query_name) |>
-    slice_head(n = opts$top_n) |>
+    mutate(canonical_rank = row_number()) |>
+    filter(canonical_rank >= opts$rank_start, canonical_rank < opts$rank_start + opts$top_n) |>
     mutate(species_bien_key = gsub(" ", "_", bien_query_name))
+
+  rank_end <- if (nrow(selected) == 0L) opts$rank_start - 1L else max(selected$canonical_rank)
 
   requested_path <- file.path(manifest_dir, "requested_species.csv")
   availability_path <- file.path(manifest_dir, "availability.csv")
@@ -321,7 +393,10 @@ main <- function() {
 
   readr::write_csv(selected, requested_path)
 
-  message("Checking BIEN range availability for top ", nrow(selected), " GBIF canonical species")
+  message(
+    "Checking BIEN range availability for batch ", opts$batch_id,
+    " (ranks ", opts$rank_start, "-", rank_end, ", n=", nrow(selected), ")"
+  )
   t0 <- Sys.time()
   availability_raw <- run_batched_availability(selected$bien_query_name, opts$availability_batch_size)
   availability_seconds <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
@@ -365,7 +440,10 @@ main <- function() {
   summary <- tibble(
     metric = c(
       "species_universe_csv",
+      "batch_id",
       "species_like_pool",
+      "rank_start",
+      "rank_end",
       "top_n_requested",
       "available_species",
       "availability_share",
@@ -383,10 +461,13 @@ main <- function() {
     ),
     value = c(
       opts$species_universe_csv,
+      opts$batch_id,
       nrow(universe |>
         mutate(bien_query_name = canonical_binomial(species_name)) |>
         filter(nzchar(bien_query_name)) |>
         distinct(bien_query_name)),
+      opts$rank_start,
+      rank_end,
       nrow(selected),
       length(available_species),
       if (nrow(selected) > 0) length(available_species) / nrow(selected) else 0,
@@ -436,6 +517,28 @@ main <- function() {
   message("Wrote downloaded layers manifest: ", downloaded_path)
   message("Wrote file manifest: ", file_manifest_path)
   message("Wrote summary: ", summary_path)
+
+  if (!is.null(opts$notify_email) && nzchar(opts$notify_email)) {
+    subject <- sprintf(
+      "BIEN batch %03d finished: ranks %d-%d",
+      opts$batch_id,
+      opts$rank_start,
+      rank_end
+    )
+    body <- paste(
+      sprintf("BIEN batch %03d completed.", opts$batch_id),
+      sprintf("Ranks: %d-%d", opts$rank_start, rank_end),
+      sprintf("Requested species: %d", nrow(selected)),
+      sprintf("Available species: %d", length(available_species)),
+      sprintf("Downloaded species: %d", dplyr::n_distinct(downloaded_layers$species_normalized)),
+      sprintf("Availability seconds: %.1f", availability_seconds),
+      sprintf("Download seconds: %.1f", download_seconds),
+      sprintf("Output directory: %s", normalizePath(opts$outdir, winslash = "/", mustWork = FALSE)),
+      sprintf("Summary file: %s", normalizePath(summary_path, winslash = "/", mustWork = FALSE)),
+      sep = "\n"
+    )
+    send_mail_macos(opts$notify_email, subject, body)
+  }
 }
 
 main()

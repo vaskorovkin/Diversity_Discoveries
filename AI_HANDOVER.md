@@ -227,7 +227,15 @@ do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_spec1_gbif
 
 The GBIF plant panel is a mirror of `reg_spec1.do`: same RHS, same FE structure, same 2005-2023 sample restriction, but with GBIF preserved/material Plantae outcomes. The merged Stata panel also now carries static pre-period plant-richness aliases (`gbif_p_rich_base`, `gbif_p_rich_log`, `gbif_p_rich_z`, `gbif_p_genrich_base`, `gbif_p_genrich_log`, `gbif_p_genrich_z`, `gbif_p_rich_log_std`). `reg_spec1_gbif_plantae.do` now includes Table 6: conflict interacted with GBIF pre-period plant richness, using `log1p` then standardization to match the updated Table 5 richness scaling.
 
-BIEN remains a secondary plant-richness route. Direct `BIEN_list_sf()` cell-by-cell queries over the 100 km grid were too brittle and slow. The current exploratory path is to first build the observed GBIF species universe with `Scripts/19_extract_gbif_plantae_species_universe.py`, then run `Scripts/18_bien_range_download_pilot.R` in rank windows over the canonical species pool. Batch 1 is the completed run for ranks `1-5000`, stored at `Data/raw/bien/batches/batch_001_ranks_000001_005000/`. Batch 2 is defined as ranks `5001-30000`, with target directory `Data/raw/bien/batches/batch_002_ranks_005001_030000/`. The script records timing and file-size metrics in each batch summary manifest and can optionally build BIEN skinny ranges and a local richness raster if a template raster is provided.
+BIEN remains a secondary plant-richness route. Direct `BIEN_list_sf()` cell-by-cell queries over the 100 km grid were too brittle and slow. The current exploratory path is to first build the observed GBIF species universe with `Scripts/19_extract_gbif_plantae_species_universe.py`, then run `Scripts/18_bien_range_download_pilot.R` in rank windows over the canonical species pool. The current completed BIEN sweep covers the full canonical pool of `236,166` species-like names in five batches:
+
+- batch 1: ranks `1-5000` → `Data/raw/bien/batches/batch_001_ranks_000001_005000/` → `3,736` downloaded species
+- batch 2: ranks `5001-30000` → `Data/raw/bien/batches/batch_002_ranks_005001_030000/` → `12,852` downloaded species
+- batch 3: ranks `30001-80000` → `Data/raw/bien/batches/batch_003_ranks_030001_080000/` → `17,124` downloaded species
+- batch 4: ranks `80001-230000` → `Data/raw/bien/batches/batch_004_ranks_080001_230000/` → `30,241` downloaded species
+- batch 5: ranks `230001-236166` → `Data/raw/bien/batches/batch_005_ranks_230001_236166/` → `807` downloaded species
+
+Total downloaded BIEN range-map species: `64,760`. The script records timing and file-size metrics in each batch summary manifest and can optionally build BIEN skinny ranges and a local richness raster if a template raster is provided.
 
 TerraClimate climate anomalies (drought, heat, precipitation):
 
