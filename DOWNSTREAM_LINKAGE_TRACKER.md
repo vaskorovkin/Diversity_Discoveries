@@ -115,28 +115,61 @@ pipeline returns signal.
 - [ ] Fungi subset re-run for consistency check with Option B
 
 ### Option B — Natural products
-- [ ] Download LOTUS dump (cleanest, Wikidata-linked) →
-      `Data/raw/natural_products/lotus/`
-- [ ] Add COCONUT and KNApSAcK as supplementary (especially for
-      animal-derived compounds: venoms, marine invertebrate metabolites,
-      insect alkaloids — sparse but real)
-- [ ] Build species → compound count map →
+- [x] Download LOTUS dump (Wikidata-linked) →
+      `Data/raw/natural_products/lotus/` (Zenodo v11, 260413_frozen.csv.gz
+      + 260413_frozen_metadata.csv.gz; Scripts/22_download_lotus.py)
+- [x] Download COCONUT dump (largest aggregated NP collection) →
+      `Data/raw/natural_products/coconut/` (COCONUT 2.0,
+      coconut_csv-05-2026.zip 208 MB; Scripts/22b_download_coconut.py)
+- [ ] Add KNApSAcK as supplementary (especially for plant secondary
+      metabolites and animal-derived compounds: venoms, marine invertebrate
+      metabolites, insect alkaloids — sparse but real)
+- [x] Build species → compound mapping (LOTUS + COCONUT as co-equal
+      primary sources, dedup compounds via InChIKey across DBs) →
+      `Data/processed/discovery/natural_products/species_compound_pairs.csv`
+      (long format, 1,324,226 rows) and
       `Data/processed/discovery/natural_products/species_to_compounds.csv`
-- [ ] Build the **shared species universe** across all upstream pipelines:
-      - BOLD records (from `bold_minimal_records.csv`, all kingdoms)
-      - GBIF Plantae preserved-material (from
-        `gbif_plantae_preserved_material_minimal.csv`)
-      - GBIF Plantae human-observation (if present, separate column)
+      (per-species summary, 58,546 species; 26,430 Plantae, 3,596 Fungi,
+      2,505 Animalia, 26,015 unknown kingdom from COCONUT-only entries —
+      to be backfilled in harmonization). Cross-source overlap: 33,510
+      species in both DBs, 189,768 compounds in both. Median 7 compounds
+      per species; max 6,168. Scripts/23_build_species_to_compounds.py
+- [x] Build the **shared species universe** (BOLD ∪ GBIF, the samplable
+      set; species in NP-DBs but not BOLD/GBIF excluded since they can't
+      enter cell-year regressions):
+      - BOLD records with BIN consensus recovery (1.55M unnamed records
+        in named BINs assigned plurality species; no concordance threshold)
+      - GBIF Plantae preserved-material (12.1M with binomial species)
       - Output: `Data/processed/discovery/shared/shared_species_universe.csv`
-        with columns: species_name, kingdom, n_records_bold,
-        n_records_gbif_pm, n_records_gbif_ho, cells_present, source_priority
-      - Plants will be GBIF-dominated (~3× BOLD coverage); animals/fungi
-        BOLD-dominated. Use existing
-        `Scripts/19_extract_gbif_plantae_species_universe.py` as a template
-- [ ] Taxonomic name harmonization (WCVP/POWO for plants, MycoBank for fungi,
-      NCBI Taxonomy as fallback for animals)
-- [ ] Build cell-level "chemical potential" measure per kingdom (richness ×
-      mean compound yield in the cell's species pool)
+        (742,864 species; 435K Animalia, 265K Plantae, 37K Fungi, 6K Bacteria;
+        32,988 NP-DB matches at 4.4% by exact name)
+      - Scripts/26_build_shared_species_universe.py;
+        Scripts/audit_bin_species_consensus.py for BIN audit
+- [x] Download GBIF Backbone Taxonomy →
+      `Data/raw/gbif/backbone/backbone.zip` (926 MB, Taxon.tsv 2.1 GB
+      uncompressed, 7.7M taxa with synonym→accepted mappings;
+      Scripts/24_download_gbif_backbone.py)
+- [x] Taxonomic name harmonization via GBIF backbone (single authority
+      incorporating WCVP, Index Fungorum, Catalogue of Life):
+      - Step 1: gbifid_lookup (31,176 LOTUS species via organism_taxonomy_gbifid)
+      - Step 2: name_match_exact (517,348 species via canonicalName)
+      - Step 3: name_match_fuzzy (2,658 species via GBIF /v1/species/match API)
+      - 41,052 synonym redirects; 551,182 of 768,422 names resolved (71.7%)
+      - NP→universe linkage: 56.3% → 71.3% (+8,767 NP species; +6,796 Plantae,
+        +1,217 Fungi, +490 Animalia)
+      - Output: `Data/processed/discovery/shared/species_name_resolution.csv`
+      - Scripts/25_resolve_species_names.py
+- [ ] Build cell × year × kingdom "chemical potential" panel (apply name
+      resolution before joining; deduplicate species across BOLD ∪ GBIF
+      within each cell-year):
+      - n_species_sampled, n_species_with_compounds, any_compound_species,
+        n_compounds_in_cell_sampled, n_compounds_unique_inchikey
+        (deduped via InChIKey from species_compound_pairs.csv),
+        chemical_potential_share, plus log1p versions of count measures
+      - Per-source robustness: n_species_with_compounds_lotus and
+        n_species_with_compounds_coconut
+      - Output:
+        `Data/processed/discovery/natural_products/chemical_potential_cell_year.csv`
 - [ ] Stata regressions: does conflict reduce sampling of chemically valuable
       species disproportionately? Run pooled and per-kingdom (Plantae, Fungi,
       Animalia). For plants, the natural mirror is `reg_spec1_gbif_plantae.do`
