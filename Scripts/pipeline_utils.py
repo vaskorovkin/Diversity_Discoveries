@@ -46,6 +46,7 @@ MINIMAL_FIELDS = [
     "sequence_upload_year",
     "bin_uri",
     "bin_created_date",
+    "insdc_acs",
     "inst",
     "collection_code",
     "collectors",
