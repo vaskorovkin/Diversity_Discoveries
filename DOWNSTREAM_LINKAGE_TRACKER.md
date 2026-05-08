@@ -121,13 +121,31 @@ pipeline returns signal.
       dataset-level attribution: every occurrence in a linked dataset
       inherits dataset-citing publication links. Interpret as dataset
       publication exposure, not direct specimen citation.
-- [ ] Output: `Data/processed/discovery/publications/gbif_dataset_to_pubs.csv`
+- [x] Output: `Data/processed/discovery/publications/gbif_dataset_to_pubs.csv`
+      (842,961 logical publication rows; 2,556 dataset keys with at least one
+      publication row; 2,659 valid UUID dataset keys fetched/cached; 21
+      malformed non-UUID `dataset_key` values excluded after GBIF returned
+      `Invalid UUID string`).
 
 **Subtask A3: Unified panel and regressions**
-- [ ] Build cell × year publication-count panel →
+- [x] Fetch PubMed metadata for BOLD-linked PMIDs →
+      `Data/processed/discovery/publications/pubmed_id_to_metadata.csv`
+      (`Scripts/20b_fetch_pubmed_metadata.py`). This is required because
+      `bold_accession_to_pubmed.csv` contains PMID links but not publication
+      years. Output has 24,093 unique PMIDs; 49 lack usable NCBI year/title
+      metadata and will be excluded from year-based panel construction.
+- [x] Build cell × year publication-count panel →
       `Data/processed/discovery/publications/pubs_cell_year_panel.csv`
-      (union of A1 + A2; per-kingdom/per-phylum breakdowns: Chordata,
-      Mollusca, Insecta, Fungi, Plantae, others; also `source = bold|gbif`)
+      (`Scripts/28_build_publication_cell_year_panel.py`; union of A1 + A2;
+      source breakdowns `bold|gbif|all`; kingdom breakdowns Animalia,
+      Plantae, Fungi, Bacteria, other/blank, all). Script number `28` avoids
+      conflict with Option B script `25_resolve_species_names.py`. Final
+      outputs: 305,886 land-cell-year rows, 498,448 long audit rows, 114,667
+      cell-years with any linked publication exposure, 38,396 BOLD-linked
+      publication counts, and 46,947,009 GBIF dataset-publication exposure
+      counts. GBIF totals are large by design because dataset-level links are
+      inherited by every cell where the dataset has preserved-material Plantae
+      occurrences.
 - [ ] Stata regressions mirroring `reg_spec1.do` Tables 3 + 5 with new LHS,
       run pooled and per-kingdom (and per-phylum for Arthropoda); also
       decompose by source as a robustness check

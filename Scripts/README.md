@@ -88,6 +88,15 @@ domestic vs foreign (regional / distant) collecting. Run in order:
 - `13a_merge_all_classifications.py`: merges original 633 + batch 1-5 LLM classifications (~10K collectors) into a single expanded affiliations file. Detects local collector names from the full 101K list. Applies reviewed DISAGREE and ORG decisions, plus hardcoded dual-affiliation fixes. Two-stage: writes `_expanded_prereview.csv` (pure LLM), then `_expanded.csv` (with decisions). Run BEFORE `13_build_foreign_collecting_panel.py`.
 - `13_build_foreign_collecting_panel.py`: builds cell x year panel of foreign vs domestic collecting. Matches collector names to home countries (via `_expanded.csv`), compares to BOLD `country_iso`. Splits foreign into regional (same continent) and distant (different continent). Outputs both categorical record counts and fractional score sums. Tracks local-foreign collaborations. Output: `collectors/bold_foreign_collecting_cell_year_panel.csv`.
 
+## Publication Linkage Pipeline — Option A (20–21, 28)
+
+Maps BOLD and GBIF records to downstream publication exposure.
+
+- `20_link_bold_to_pubmed.py`: builds resumable BOLD GenBank/INSDC accession → PubMed links. Output: `Data/processed/discovery/publications/bold_accession_to_pubmed.csv`.
+- `20b_fetch_pubmed_metadata.py`: fetches PubMed `year`/DOI/title/journal metadata for PMIDs linked from BOLD GenBank accessions. Output: `Data/processed/discovery/publications/pubmed_id_to_metadata.csv`; cache: `pubmed_metadata_cache.db`.
+- `21_link_gbif_datasets_to_publications.py`: links GBIF Plantae preserved-material `dataset_key` values to GBIF Literature API records. Output: `Data/processed/discovery/publications/gbif_dataset_to_pubs.csv`; cache: `gbif_literature_cache.db`. This is dataset-level attribution, not direct specimen citation.
+- `28_build_publication_cell_year_panel.py`: builds the unified Option A publication cell-year panel from BOLD accession→PubMed links plus GBIF dataset→literature links. Outputs: `Data/processed/discovery/publications/pubs_cell_year_panel_long.csv` and `pubs_cell_year_panel.csv`.
+
 ## Natural Products Pipeline — Option B (22–27)
 
 Downstream discovery linkage: maps species sampled in BOLD/GBIF to bioactive

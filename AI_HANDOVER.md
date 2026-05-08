@@ -929,14 +929,27 @@ failures. If another repair attempt is needed, target only
 `--workers 1`, and very small `--efetch-batch-size`; otherwise document the
 remaining 0.104% unresolved accessions and proceed.
 
+Completed Option A publication outputs:
+- `Scripts/21_link_gbif_datasets_to_publications.py` produced
+  `gbif_dataset_to_pubs.csv` with 842,961 logical dataset-publication rows.
+  This is dataset-level attribution: every occurrence in a linked dataset
+  inherits dataset-citing publication links.
+- `Scripts/20b_fetch_pubmed_metadata.py` produced
+  `pubmed_id_to_metadata.csv` for 24,093 BOLD-linked PMIDs; 49 PMIDs lack
+  usable NCBI year/title metadata and are excluded from year-based panel
+  construction.
+- `Scripts/28_build_publication_cell_year_panel.py` produced
+  `pubs_cell_year_panel_long.csv` and `pubs_cell_year_panel.csv`. The wide
+  panel has 305,886 land-cell-year rows; the long audit panel has 498,448
+  rows; totals are 38,396 BOLD-linked publication counts and 46,947,009 GBIF
+  dataset-publication exposure counts.
+
 Next Option A steps:
-- Audit GBIF Plantae minimal CSV for `datasetKey` and `gbifID` coverage.
-- Build GBIF Literature API cache/output (`gbif_dataset_to_pubs.csv`) with
-  the dataset-level attribution caveat.
-- Fetch PubMed metadata for BOLD PMIDs before constructing the cell-year
-  publication panel.
-- Build the union publication cell-year panel and then the Stata merge and
-  publication regressions.
+- Extend `DoFiles/merge_all_regressors.do` to import
+  `pubs_cell_year_panel.csv`.
+- Write/run `DoFiles/reg_publications.do` mirroring `reg_spec1.do` Tables 3
+  and 5 with pooled, per-kingdom, per-source, and fungi-only consistency
+  checks.
 
 ### Coordination with Option A
 
