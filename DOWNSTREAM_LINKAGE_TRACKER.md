@@ -109,11 +109,18 @@ pipeline returns signal.
       0.104% of linked-accession universe).
 
 **Subtask A2: GBIF Plantae → GBIF Literature API (plants)**
-- [ ] Audit GBIF preserved-material occurrences for `datasetKey` /
+- [x] Audit GBIF preserved-material occurrences for `datasetKey` /
       `gbifID` coverage in the existing
-      `gbif_plantae_preserved_material_minimal.csv`
-- [ ] Build pipeline: occurrence → datasetKey → GBIF Literature API
-      (`api.gbif.org/v1/literature?gbifDatasetKey=...`) → citing publications
+      `gbif_plantae_preserved_material_minimal.csv`. The minimal file uses
+      normalized `dataset_key` / `gbif_id` columns. First 1,000 rows are 100%
+      filled for both; full file has 15,097,585 rows, 15,097,564 non-empty
+      `dataset_key` values (99.999861%), and 100% non-empty `gbif_id`.
+- [x] Write pipeline: occurrence dataset_key → GBIF Literature API
+      (`api.gbif.org/v1/literature/search?gbifDatasetKey=...`) → citing publications
+      (`Scripts/21_link_gbif_datasets_to_publications.py`). This is
+      dataset-level attribution: every occurrence in a linked dataset
+      inherits dataset-citing publication links. Interpret as dataset
+      publication exposure, not direct specimen citation.
 - [ ] Output: `Data/processed/discovery/publications/gbif_dataset_to_pubs.csv`
 
 **Subtask A3: Unified panel and regressions**
@@ -142,10 +149,13 @@ pipeline returns signal.
       (long format, 1,324,226 rows) and
       `Data/processed/discovery/natural_products/species_to_compounds.csv`
       (per-species summary, 58,546 species; 26,430 Plantae, 3,596 Fungi,
-      2,505 Animalia, 26,015 unknown kingdom from COCONUT-only entries —
-      to be backfilled in harmonization). Cross-source overlap: 33,510
-      species in both DBs, 189,768 compounds in both. Median 7 compounds
-      per species; max 6,168. Scripts/23_build_species_to_compounds.py
+      2,505 Animalia; 26,015 unknown kingdom from COCONUT-only entries
+      in the initial pass — finalized to ~few hundred after Script 25
+      backfill). Cross-source overlap: 33,510 species in both DBs,
+      189,768 compounds in both. Median 7 compounds per species;
+      max 6,168. Script 23 writes initial pairs/summary;
+      Script 25 rewrites both with backfilled kingdoms.
+      Scripts/23_build_species_to_compounds.py
 - [x] Build the **shared species universe** (BOLD ∪ GBIF, the samplable
       set; species in NP-DBs but not BOLD/GBIF excluded since they can't
       enter cell-year regressions):
@@ -228,8 +238,12 @@ pipeline returns signal.
       stacked null, GP5 10-col intensive-margin benchmark — conflict
       effect -0.083*** on rec>0 sample vanishes with GBIF effort control.
 - [x] Pipeline fixes: _no_bin ≡ _named_only bug fixed in Script 27
-      (distinct species_no_bin set), kingdom backfill from GBIF backbone
-      in Script 23 (unknown kingdom 26K → 8K).
+      (distinct species_no_bin set); kingdom backfill consolidated into
+      Script 25 (species-level via GBIF backbone + genus-level via
+      genus_to_kingdom map, cross-kingdom homonyms skipped). Script 23
+      writes initial outputs only; 25 finalizes. Linear run order:
+      22, 22b → 23 → 24 → 25 → 26 → 27. Unknown kingdom: 26K → 8K
+      (species pass) → low-hundreds (genus pass).
 - [ ] Fungi subset re-run for consistency check with Option A
 
 ## Coordination

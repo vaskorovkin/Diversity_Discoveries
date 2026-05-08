@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Resolve species names via GBIF backbone taxonomy.
+"""Resolve species names via GBIF backbone taxonomy + finalize NP-DB outputs.
 
 Maps every species name from the NP databases and the shared species
 universe to a canonical accepted name, so downstream joins operate on
@@ -11,14 +11,24 @@ Resolution priority:
   3. name_match_fuzzy — GBIF /v1/species/match API (NP-DB names only)
   4. unresolved       — no match found
 
+Also finalizes the NP-DB outputs originally written by Script 23: applies
+species-level kingdom backfill (via resolution) and genus-level backfill
+(via genus_to_kingdom map; cross-kingdom homonyms excluded), then rewrites
+species_compound_pairs.csv and species_to_compounds.csv with completed
+kingdoms.
+
 Inputs:
   Data/raw/gbif/backbone/backbone.zip  (Taxon.tsv inside)
   Data/raw/natural_products/lotus/260413_frozen_metadata.csv.gz
-  Data/processed/discovery/natural_products/species_to_compounds.csv
+  Data/processed/discovery/natural_products/species_to_compounds.csv  (from 23)
+  Data/processed/discovery/natural_products/species_compound_pairs.csv (from 23)
   Data/processed/discovery/shared/shared_species_universe.csv
 
-Output:
+Outputs:
   Data/processed/discovery/shared/species_name_resolution.csv
+  Data/processed/discovery/shared/genus_to_kingdom.csv
+  Data/processed/discovery/natural_products/species_compound_pairs.csv  (rewritten)
+  Data/processed/discovery/natural_products/species_to_compounds.csv    (rewritten)
 
 Usage:
   python3 Scripts/25_resolve_species_names.py
@@ -272,6 +282,35 @@ def main() -> int:
 
     # ── Step 0: load backbone ───────────────────────────────────────
     by_taxonid, by_canonical = load_backbone(args.backbone)
+
+    # ── Build genus → kingdom map (skip homonyms across kingdoms) ───
+    # Side artifact for downstream kingdom backfill of genus-only / sp.
+    # placeholder NP-DB names that fail species-level resolution.
+    print("Building genus → kingdom map ...", flush=True)
+    genus_kingdoms: dict[str, set[str]] = defaultdict(set)
+    for _tid, (cn, _anui, ts, kingdom, rank) in by_taxonid.items():
+        if rank == "genus" and ts == "accepted" and cn and kingdom:
+            genus_kingdoms[cn.lower()].add(kingdom)
+    genus_to_kingdom: dict[str, str] = {}
+    n_homonym = 0
+    for g, ks in genus_kingdoms.items():
+        if len(ks) == 1:
+            genus_to_kingdom[g] = next(iter(ks))
+        else:
+            n_homonym += 1
+    print(
+        f"  {len(genus_to_kingdom):,} genera mapped, "
+        f"{n_homonym:,} skipped (cross-kingdom homonyms, e.g. Morus)",
+        flush=True,
+    )
+    genus_map_path = args.output.parent / "genus_to_kingdom.csv"
+    genus_map_path.parent.mkdir(parents=True, exist_ok=True)
+    with genus_map_path.open("w", newline="", encoding="utf-8") as gf:
+        gw = csv.DictWriter(gf, fieldnames=["genus_lower", "kingdom"])
+        gw.writeheader()
+        for g in sorted(genus_to_kingdom):
+            gw.writerow({"genus_lower": g, "kingdom": genus_to_kingdom[g]})
+    print(f"Wrote: {genus_map_path}", flush=True)
 
     # ── Load LOTUS gbifids ──────────────────────────────────────────
     lotus_gbifids = load_lotus_gbifids(args.lotus_meta)
@@ -647,6 +686,101 @@ def main() -> int:
             print(f"    {k:<20s} {c:>7,}", flush=True)
 
     print("=" * 70, flush=True)
+
+    # ── Finalize NP-DB kingdoms ─────────────────────────────────────
+    # Overwrites Script 23's initial outputs with kingdom-backfilled
+    # versions. Two-pass backfill on species_compound_pairs.csv:
+    #   1. species-level via results[sp].kingdom_resolved (GBIF backbone)
+    #   2. genus-level via genus_to_kingdom (skips cross-kingdom homonyms)
+    # Then per-species summary is rebuilt from the patched pairs.
+    print("\nFinalizing NP-DB kingdoms ...", flush=True)
+    import pandas as pd
+
+    pairs_path = args.np_summary.parent / "species_compound_pairs.csv"
+    pairs = pd.read_csv(pairs_path, dtype=str).fillna("")
+
+    # species-level map: input_name (lowercase) → kingdom_resolved
+    sp_kingdom = {
+        sp: r["kingdom_resolved"]
+        for sp, r in results.items()
+        if r.get("kingdom_resolved")
+    }
+
+    missing0 = (pairs["kingdom"] == "").sum()
+    pairs_lower = pairs["species_name"].str.lower()
+    fill_sp = (pairs["kingdom"] == "") & pairs_lower.isin(sp_kingdom)
+    pairs.loc[fill_sp, "kingdom"] = pairs_lower[fill_sp].map(sp_kingdom)
+    missing1 = (pairs["kingdom"] == "").sum()
+
+    pairs_genus_lower = pairs["genus"].str.lower().str.strip()
+    fill_g = (pairs["kingdom"] == "") & pairs_genus_lower.isin(genus_to_kingdom)
+    pairs.loc[fill_g, "kingdom"] = pairs_genus_lower[fill_g].map(genus_to_kingdom)
+    missing2 = (pairs["kingdom"] == "").sum()
+
+    print(
+        f"  pair rows w/ empty kingdom: {missing0:,} → {missing1:,} (species pass) "
+        f"→ {missing2:,} (genus pass; remainder: placeholder/unknown/homonym)",
+        flush=True,
+    )
+
+    pairs.to_csv(pairs_path, index=False)
+    print(f"  Re-wrote: {pairs_path}", flush=True)
+
+    # Rebuild per-species summary from patched pairs.
+    def _agg_species(g):
+        return pd.Series(
+            {
+                "genus": g["genus"].iloc[0],
+                "kingdom": (
+                    g["kingdom"].loc[g["kingdom"] != ""].iloc[0]
+                    if (g["kingdom"] != "").any()
+                    else ""
+                ),
+                "n_compounds_lotus": g.loc[
+                    g["source_set"].str.contains("lotus"), "inchikey"
+                ].nunique(),
+                "n_compounds_coconut": g.loc[
+                    g["source_set"].str.contains("coconut"), "inchikey"
+                ].nunique(),
+                "n_unique_compounds_total": g["inchikey"].nunique(),
+                "sources": ",".join(
+                    sorted({s for ss in g["source_set"] for s in ss.split(",")})
+                ),
+            }
+        )
+
+    summary = (
+        pairs.groupby(pairs["species_name"].str.lower(), sort=False)
+        .apply(_agg_species, include_groups=False)
+        .reset_index()
+    )
+    summary.rename(columns={"species_name": "species_name_lower"}, inplace=True)
+    display = (
+        pairs[["species_name"]]
+        .assign(species_lower=pairs["species_name"].str.lower())
+        .drop_duplicates(subset="species_lower")
+        .set_index("species_lower")["species_name"]
+    )
+    summary["species_name"] = summary["species_name_lower"].map(display)
+    summary = summary[
+        [
+            "species_name",
+            "genus",
+            "kingdom",
+            "n_compounds_lotus",
+            "n_compounds_coconut",
+            "n_unique_compounds_total",
+            "sources",
+        ]
+    ].sort_values("n_unique_compounds_total", ascending=False)
+
+    summary.to_csv(args.np_summary, index=False)
+    print(
+        f"  Re-wrote: {args.np_summary} ({len(summary):,} rows; "
+        f"kingdom unknown: {(summary['kingdom']=='').sum():,})",
+        flush=True,
+    )
+
     return 0
 
 

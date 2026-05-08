@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
-"""Build unified species → compound maps from LOTUS and COCONUT.
+"""Build unified species → compound maps from LOTUS and COCONUT (initial pass).
 
 Step 3a: Parse each NP database into long-format (species, compound) pairs.
 Step 3b: Deduplicate across sources by (species_name_lower, inchikey),
          producing species_compound_pairs.csv.
 Step 3c: Aggregate per species, producing species_to_compounds.csv.
 
-Outputs:
+Note on kingdom: LOTUS rows carry a kingdom; COCONUT rows do not. Outputs
+of this script have raw kingdoms only — Script 25 finalizes them via
+species-level (GBIF backbone) and genus-level backfill, overwriting both
+CSVs in place.
+
+Outputs (initial — overwritten by Script 25):
   Data/processed/discovery/natural_products/species_compound_pairs.csv
   Data/processed/discovery/natural_products/species_to_compounds.csv
   Output/audits/np_kingdom_disagreements.csv
@@ -65,14 +70,6 @@ DEFAULT_SUMMARY_OUT = (
 )
 DEFAULT_AUDIT_OUT = (
     PROJECT_ROOT / "Output" / "audits" / "np_kingdom_disagreements.csv"
-)
-DEFAULT_RESOLUTION = (
-    PROJECT_ROOT
-    / "Data"
-    / "processed"
-    / "discovery"
-    / "shared"
-    / "species_name_resolution.csv"
 )
 
 INCHIKEY_RE = re.compile(r"^[A-Z]{14}-[A-Z]{10}-[A-Z]$")
@@ -483,12 +480,6 @@ def main() -> int:
     parser.add_argument("--summary-out", type=Path, default=DEFAULT_SUMMARY_OUT)
     parser.add_argument("--audit-out", type=Path, default=DEFAULT_AUDIT_OUT)
     parser.add_argument(
-        "--resolution",
-        type=Path,
-        default=DEFAULT_RESOLUTION,
-        help="species_name_resolution.csv for kingdom backfill.",
-    )
-    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Process first 100k rows per source only.",
@@ -534,40 +525,13 @@ def main() -> int:
     # ── Kingdom audit ────────────────────────────────────────────────
     audit_kingdom_disagreements(all_rows, args.audit_out)
 
-    # ── Kingdom backfill from GBIF backbone resolution ──────────────
-    if args.resolution.exists():
-        print(f"\nBackfilling kingdom from {args.resolution.name} ...", flush=True)
-        res = pd.read_csv(
-            args.resolution,
-            usecols=["input_name", "kingdom_resolved"],
-            dtype=str,
-        ).dropna(subset=["kingdom_resolved"])
-        res = res[res["kingdom_resolved"] != ""]
-        res_map = dict(zip(res["input_name"].str.strip(), res["kingdom_resolved"]))
+    # NOTE: kingdom backfill (species-level via GBIF backbone, genus-level
+    # via genus_to_kingdom.csv) lives in Script 25, which overwrites
+    # `species_compound_pairs.csv` and `species_to_compounds.csv` with
+    # finalized kingdoms. This script's outputs are the *initial* pass —
+    # raw kingdoms from LOTUS only; COCONUT entries are kingdom-blank.
 
-        missing_before = (pairs["kingdom"] == "").sum()
-        pairs_lower = pairs["species_name"].str.lower()
-        fill_mask = (pairs["kingdom"] == "") & pairs_lower.isin(res_map)
-        pairs.loc[fill_mask, "kingdom"] = pairs_lower[fill_mask].map(res_map)
-        missing_after = (pairs["kingdom"] == "").sum()
-        filled = missing_before - missing_after
-        print(
-            f"  Backfilled {filled:,} pair rows "
-            f"({missing_before:,} → {missing_after:,} missing kingdom)",
-            flush=True,
-        )
-
-        # re-write pairs with backfilled kingdom
-        pairs.to_csv(args.pairs_out, index=False)
-        print(f"  Re-wrote pairs: {args.pairs_out}", flush=True)
-    else:
-        print(
-            f"\nWARNING: resolution file not found: {args.resolution} "
-            f"— skipping kingdom backfill",
-            flush=True,
-        )
-
-    # ── Step 3c: per-species summary ─────────────────────────────────
+    # ── Step 3c: per-species summary (initial — pre-backfill) ───────
     summary = build_summary(pairs)
 
     args.summary_out.parent.mkdir(parents=True, exist_ok=True)

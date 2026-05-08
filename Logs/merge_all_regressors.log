@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  /Users/vasilykorovkin/Documents/Diversity_Discoveries/Logs/merge_all_regressors.log
   log type:  text
- opened on:   6 May 2026, 13:48:34
+ opened on:   8 May 2026, 14:29:13
 
 . 
 . * -------------------------------------------------------------------
@@ -19,7 +19,7 @@
 . tempfile BOLD
 
 . save `BOLD'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000001 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.000001 saved
 
 . 
 . * --- Panel regressors (cell_id × year) ---
@@ -30,7 +30,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000001 saved
 . tempfile ucdp
 
 . save `ucdp'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000002 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.000002 saved
 
 . 
 . import delimited "`proj'/Data/regressors/hansen/hansen_forest_loss_100km_panel.csv", clear
@@ -39,7 +39,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000002 saved
 . tempfile hansen
 
 . save `hansen'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000003 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.000003 saved
 
 . 
 . import delimited "`proj'/Data/regressors/modis/modis_burned_area_100km_panel.csv", clear
@@ -48,7 +48,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000003 saved
 . tempfile modis
 
 . save `modis'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000004 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.000004 saved
 
 . 
 . import delimited "`proj'/Data/regressors/terraclimate/terraclimate_100km_panel.csv", clear
@@ -57,7 +57,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000004 saved
 . tempfile terraclimate
 
 . save `terraclimate'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000005 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.000005 saved
 
 . 
 . import delimited "`proj'/Data/regressors/chirps/chirps_100km_panel.csv", clear
@@ -66,7 +66,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000005 saved
 . tempfile chirps
 
 . save `chirps'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000006 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.000006 saved
 
 . 
 . import delimited "`proj'/Data/regressors/wdpa/wdpa_protected_panel_100km.csv", clear
@@ -75,7 +75,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000006 saved
 . tempfile wdpa_panel
 
 . save `wdpa_panel'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000007 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.000007 saved
 
 . 
 . * --- Static baselines (cell_id only) ---
@@ -86,7 +86,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000007 saved
 . tempfile resolve
 
 . save `resolve'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000008 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.000008 saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/cepf_hotspots_100km_cells.csv", clear
@@ -95,7 +95,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000008 saved
 . tempfile cepf
 
 . save `cepf'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000009 saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.000009 saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/wdpa_protected_share_100km_cells.csv", clear
@@ -104,7 +104,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.000009 saved
 . tempfile wdpa_static
 
 . save `wdpa_static'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000a saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000a saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/grip_roads_100km_cells.csv", clear
@@ -113,7 +113,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000a saved
 . tempfile grip
 
 . save `grip'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000b saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000b saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/globio_msa_100km_cells.csv", clear
@@ -122,7 +122,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000b saved
 . tempfile globio
 
 . save `globio'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000c saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000c saved
 
 . 
 . import delimited "`proj'/Data/regressors/worldbank/worldbank_gdp_pcap_panel.csv", clear
@@ -131,7 +131,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000c saved
 . tempfile wbgdp
 
 . save `wbgdp'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000d saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000d saved
 
 . 
 . import delimited "`proj'/Data/regressors/nightlights/nightlights_100km_panel.csv", clear
@@ -140,7 +140,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000d saved
 . tempfile ntl
 
 . save `ntl'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000e saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000e saved
 
 . 
 . import delimited "`proj'/Data/regressors/acled/acled_100km_cell_year_2005_2024.csv", clear
@@ -149,7 +149,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000e saved
 . tempfile acled
 
 . save `acled'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000f saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000f saved
 
 . 
 . import delimited "`proj'/Data/regressors/ibtracs/ibtracs_100km_cell_year_2005_2025.csv", clear
@@ -161,7 +161,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000f saved
 . tempfile ibtracs
 
 . save `ibtracs'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000g saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000g saved
 
 . 
 . import delimited "`proj'/Data/regressors/comcat/comcat_100km_cell_year_2005_2025.csv", clear
@@ -173,7 +173,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000g saved
 . tempfile comcat
 
 . save `comcat'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000h saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000h saved
 
 . 
 . import delimited "`proj'/Data/processed/bold/collectors/bold_foreign_collecting_cell_year_panel.csv", clear
@@ -182,7 +182,76 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000h saved
 . tempfile foreign_collecting
 
 . save `foreign_collecting'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000i saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000i saved
+
+. 
+. * --- Chemical-potential panel (Option B) ---
+. local have_chempot 0
+
+. capture confirm file "`proj'/Data/processed/discovery/natural_products/cell_year_chemical_potential.csv"
+
+. if _rc==0 {
+.     import delimited "`proj'/Data/processed/discovery/natural_products/cell_year_chemical_potential.csv", clear
+(16 vars, 246,348 obs)
+.     keep if year<=2024
+(4,107 observations deleted)
+.     * keep combined rows as primary; bold/gbif as source decomposition
+.     keep if source_group=="combined"
+(138,501 observations deleted)
+.     drop source_group
+.     rename n_species_sampled              np_species_sampled
+.     rename n_species_with_compounds       np_species_w_comp
+.     rename n_compounds_total              np_compounds_total
+.     rename n_unique_compounds             np_unique_compounds
+.     rename share_np_species               np_share
+.     rename n_animalia_with_compounds      np_animalia
+.     rename n_plantae_with_compounds       np_plantae
+.     rename n_fungi_with_compounds         np_fungi
+.     rename n_species_with_compounds_strict     np_sp_strict
+.     rename n_species_with_compounds_no_fuzz   np_sp_no_fuzzy
+.     rename n_species_with_compounds_no_bin    np_sp_no_bin
+.     rename n_species_with_compounds_named_o   np_sp_named_only
+.     rename n_records                       np_records
+.     * log transforms
+.     gen np_species_w_comp_log = ln(np_species_w_comp + 1)
+.     gen np_unique_compounds_log = ln(np_unique_compounds + 1)
+.     gen np_species_w_comp_any = (np_species_w_comp > 0)
+.     tempfile chempot
+.     save `chempot'
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000j saved
+.     local have_chempot 1
+. 
+.     * also save per-source decomposition
+.     import delimited "`proj'/Data/processed/discovery/natural_products/cell_year_chemical_potential.csv", clear
+(16 vars, 246,348 obs)
+.     keep if year<=2024
+(4,107 observations deleted)
+.     keep if source_group=="bold"
+(193,329 observations deleted)
+.     drop source_group
+.     rename n_species_with_compounds np_bold_sp_w_comp
+.     rename n_species_sampled        np_bold_sp_sampled
+.     rename share_np_species         np_bold_share
+.     keep cell_id year np_bold_sp_w_comp np_bold_sp_sampled np_bold_share
+.     tempfile chempot_bold
+.     save `chempot_bold'
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000k saved
+. 
+.     import delimited "`proj'/Data/processed/discovery/natural_products/cell_year_chemical_potential.csv", clear
+(16 vars, 246,348 obs)
+.     keep if year<=2024
+(4,107 observations deleted)
+.     keep if source_group=="gbif_plantae"
+(152,652 observations deleted)
+.     drop source_group
+.     rename n_species_with_compounds np_gbif_sp_w_comp
+.     rename n_species_sampled        np_gbif_sp_sampled
+.     rename share_np_species         np_gbif_share
+.     keep cell_id year np_gbif_sp_w_comp np_gbif_sp_sampled np_gbif_share
+.     tempfile chempot_gbif
+.     save `chempot_gbif'
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000l saved
+. }
 
 . 
 . local have_gbif_plantae 0
@@ -211,7 +280,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000i saved
 .     rename log1p_material_sample_records gbif_p_log_material
 .     tempfile gbif_plantae
 .     save `gbif_plantae'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000j saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000m saved
 .     local have_gbif_plantae 1
 . }
 
@@ -224,7 +293,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000j saved
 . tempfile richness
 
 . save `richness'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000k saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000n saved
 
 . 
 . import delimited "`proj'/Data/regressors/baseline_geography/species_richness_birds_100km_cells.csv", clear
@@ -233,7 +302,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000k saved
 . tempfile richness_birds
 
 . save `richness_birds'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000l saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000o saved
 
 . 
 . local have_gbif_preperiod_richness 0
@@ -258,7 +327,7 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000l saved
 .     rename gbif_plant_genus_richness_base_z gbif_p_genrich_z
 .     tempfile gbif_preperiod_richness
 .     save `gbif_preperiod_richness'
-file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000m saved
+file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_16639.00000p saved
 .     local have_gbif_preperiod_richness 1
 . }
 
@@ -433,6 +502,75 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000m saved
 . }
 
 . 
+. if `have_chempot' == 1 {
+.     merge 1:1 cell_id year using `chempot'
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                       263,312
+        from master                   263,312  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                           103,740  (_merge==3)
+    -----------------------------------------
+.     rename _merge _merge_chempot
+.     merge 1:1 cell_id year using `chempot_bold'
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                       318,140
+        from master                   318,140  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                            48,912  (_merge==3)
+    -----------------------------------------
+.     rename _merge _merge_chempot_bold
+.     merge 1:1 cell_id year using `chempot_gbif'
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                       277,463
+        from master                   277,463  (_merge==1)
+        from using                          0  (_merge==2)
+
+    matched                            89,589  (_merge==3)
+    -----------------------------------------
+.     rename _merge _merge_chempot_gbif
+. 
+.     * Zero-fill NP vars for master-only cell-years (no sampling → no NP)
+.     foreach v of varlist np_species_w_comp np_unique_compounds ///
+>             np_sp_strict np_sp_no_fuzzy np_sp_no_bin np_sp_named_only ///
+>             np_animalia np_plantae np_fungi np_compounds_total np_records ///
+>             np_species_sampled {
+  2.         replace `v' = 0 if missing(`v')
+  3.     }
+(263,312 real changes made)
+(263,312 real changes made)
+(263,312 real changes made)
+(263,312 real changes made)
+(263,312 real changes made)
+(263,312 real changes made)
+(263,312 real changes made)
+(263,312 real changes made)
+(263,312 real changes made)
+(263,312 real changes made)
+(263,312 real changes made)
+(263,312 real changes made)
+.     replace np_share = 0 if missing(np_share)
+(263,312 real changes made)
+.     replace np_species_w_comp_log = 0 if missing(np_species_w_comp_log)
+(263,312 real changes made)
+.     replace np_unique_compounds_log = 0 if missing(np_unique_compounds_log)
+(263,312 real changes made)
+.     replace np_species_w_comp_any = 0 if missing(np_species_w_comp_any)
+(263,312 real changes made)
+.     foreach v of varlist np_bold_sp_w_comp np_bold_sp_sampled np_bold_share ///
+>             np_gbif_sp_w_comp np_gbif_sp_sampled np_gbif_share {
+  2.         capture replace `v' = 0 if missing(`v')
+  3.     }
+. }
+
+. 
 . * -------------------------------------------------------------------
 . * 3. Merge static baselines m:1 on cell_id
 . * -------------------------------------------------------------------
@@ -602,9 +740,10 @@ file /var/folders/w0/tc29qfyn6jggvzj9fybmrn2r0000gn/T//S_66311.00000m saved
 
 . 
 . compress
+  variable np_species_w_comp_any was float now byte
   variable cell_area_km2 was float now int
   variable country_name was str30 now str24
-  (2,626,960 bytes saved)
+  (3,612,070 bytes saved)
 
 . save "`proj'/Data/analysis/BOLD_regressor_panel.dta", replace
 file /Users/vasilykorovkin/Documents/Diversity_Discoveries/Data/analysis/BOLD_regressor_panel.dta saved
@@ -797,12 +936,41 @@ _merge_foreign_collecti |
 ------------------------+-----------------------------------
                   Total |    328,370      100.00
 
+. capture confirm variable _merge_chempot
+
+. if _rc==0 {
+.     tab _merge_chempot
+
+         _merge_chempot |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+        master only (1) |    224,826       68.47       68.47
+            matched (3) |    103,544       31.53      100.00
+------------------------+-----------------------------------
+                  Total |    328,370      100.00
+.     tab _merge_chempot_bold
+
+    _merge_chempot_bold |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+        master only (1) |    279,564       85.14       85.14
+            matched (3) |     48,806       14.86      100.00
+------------------------+-----------------------------------
+                  Total |    328,370      100.00
+.     tab _merge_chempot_gbif
+
+    _merge_chempot_gbif |      Freq.     Percent        Cum.
+------------------------+-----------------------------------
+        master only (1) |    238,887       72.75       72.75
+            matched (3) |     89,483       27.25      100.00
+------------------------+-----------------------------------
+                  Total |    328,370      100.00
+. }
+
 . 
 . describe
 
 Contains data from /Users/vasilykorovkin/Documents/Diversity_Discoveries/Data/analysis/BOLD_regressor_panel.dta
   obs:       328,370                          
- vars:           255                          6 May 2026 13:48
+ vars:           280                          8 May 2026 14:29
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
               storage   display    value
 variable name   type    format     label      variable label
@@ -1005,6 +1173,31 @@ gbif_p_log_pr~d float   %9.0g
 gbif_p_any_ma~l byte    %8.0g                 
 gbif_p_log_ma~l float   %9.0g                 
 _merge_gbif_p~e byte    %23.0g     _merge     
+np_records      long    %8.0g                 
+np_species_sa~d int     %8.0g                 
+np_species_w_~p int     %8.0g                 
+np_compounds_~l long    %8.0g                 
+np_unique_com~s long    %8.0g                 
+np_share        float   %9.0g                 
+np_animalia     byte    %8.0g                 
+np_plantae      int     %8.0g                 
+np_fungi        int     %8.0g                 
+np_sp_strict    int     %8.0g                 
+np_sp_no_fuzzy  int     %8.0g                 n_species_with_compounds_no_fuzzy
+np_sp_no_bin    int     %8.0g                 
+np_sp_named_o~y int     %8.0g                 n_species_with_compounds_named_only
+np_species_w_~g float   %9.0g                 
+np_unique_com~g float   %9.0g                 
+np_species_w_~y byte    %9.0g                 
+_merge_chempot  byte    %23.0g     _merge     
+np_bold_sp_sa~d int     %8.0g                 
+np_bold_sp_w_~p int     %8.0g                 
+np_bold_share   float   %9.0g                 
+_merge_chempo~d byte    %23.0g     _merge     
+np_gbif_sp_sa~d int     %8.0g                 
+np_gbif_sp_w_~p int     %8.0g                 
+np_gbif_share   float   %9.0g                 
+_merge_chempo~f byte    %23.0g     _merge     
 resolve_eco_id  int     %8.0g                 
 resolve_eco_n~e str65   %65s                  
 resolve_biome~m byte    %8.0g                 
@@ -1306,6 +1499,36 @@ gbif_p_log~d |    269,680    1.030832    1.793184          0   9.872719
 gbif_p_a~ial |    269,680    .0427247    .2022362          0          1
 gbif_p_l~ial |    269,680    .1040988    .6200441          0   10.71277
 _merge_gbi~e |    328,370    2.642537    .7662555          1          3
+  np_records |    328,370    45.92859    504.2008          0      74985
+np_species~d |    328,370    17.20105    90.56971          0       8904
+-------------+---------------------------------------------------------
+np_species~p |    328,370    5.333118    25.17263          0       1154
+np_compoun~l |    328,370    311.3236    1679.841          0      93700
+np_unique_~s |    328,370    246.2571    1133.971          0      45624
+    np_share |    328,370    .0967983    .2163791          0          1
+ np_animalia |    328,370    .0641837    .7287044          0         61
+-------------+---------------------------------------------------------
+  np_plantae |    328,370    5.254344    24.99381          0       1154
+    np_fungi |    328,370    .0135152    .5454754          0        203
+np_sp_strict |    328,370    5.330874    25.16839          0       1154
+np_sp_no_f~y |    328,370    5.332372    25.17049          0       1154
+np_sp_no_bin |    328,370    5.324993    25.15966          0       1154
+-------------+---------------------------------------------------------
+np_sp_name~y |    328,370    5.324253    25.15755          0       1154
+np_species~g |    328,370    .5093943    1.121307          0   7.051856
+np_unique_~g |    328,370    1.265839    2.500933          0   10.72821
+np_species~y |    328,370    .2321802     .422224          0          1
+_merge_che~t |    328,370    1.630654    .9292935          1          3
+-------------+---------------------------------------------------------
+np_bold_sp~d |    328,370     3.65326    63.65682          0       8830
+np_bold_sp~p |    328,370    .1466791    2.378701          0        293
+np_bold_sh~e |    328,370    .0098754    .0800664          0          1
+_merge_che~d |    328,370    1.297262    .7114501          1          3
+np_gbif_sp~d |    328,370    13.68425    58.13133          0       1958
+-------------+---------------------------------------------------------
+np_gbif_sp~p |    328,370    5.252261    24.98475          0       1154
+np_gbif_sh~e |    328,370    .1045644    .2310266          0          1
+_merge_che~f |    328,370    1.545013    .8904996          1          3
 resolve_ec~d |    322,342    463.7695    277.6707          0        846
 resol~o_name |          0
 -------------+---------------------------------------------------------
@@ -1380,5 +1603,5 @@ collab_share |     26,307    .0366334    .1732469          0          1
       name:  <unnamed>
        log:  /Users/vasilykorovkin/Documents/Diversity_Discoveries/Logs/merge_all_regressors.log
   log type:  text
- closed on:   6 May 2026, 13:48:53
+ closed on:   8 May 2026, 14:29:34
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
