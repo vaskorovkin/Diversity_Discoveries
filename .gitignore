@@ -1,6 +1,7 @@
 # OS/editor noise
 .DS_Store
 **/.DS_Store
+~$*.docx
 
 # Data downloads and derived datasets
 Data/raw/

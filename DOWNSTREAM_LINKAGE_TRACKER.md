@@ -93,8 +93,20 @@ pipeline returns signal.
       class dragging Arthropoda's kingdom-level fill down. Costa Rica
       Cecidomyiidae capped file is a near-empty diagnostic (0.0014%) —
       exclude from elink.
-- [ ] Build NCBI Entrez `elink` pipeline (nuccore → pubmed) in batched mode
-- [ ] Output: `Data/processed/discovery/publications/bold_accession_to_pubmed.csv`
+- [x] Build NCBI publication-linkage pipeline in batched/resumable mode
+      (`Scripts/20_link_bold_to_pubmed.py`). The original Entrez
+      `epost`/`elink` path was tested but proved unreliable for
+      per-accession attribution because NCBI often returns collapsed
+      batch-level linksets. The production path therefore uses GenBank
+      `efetch` flat files and parses per-record `PUBMED` references, with
+      optional `--skip-elink-screen`, atomic chunk writes, repair mode, and
+      failure logging.
+- [x] Output: `Data/processed/discovery/publications/bold_accession_to_pubmed.csv`
+      (10,461 chunks; 5,230,497 accessions; 5,239,623 accession-PMID/blank
+      rows after repair; 1,983,992 accessions with at least one PMID).
+      Persistent unresolved NCBI `400` failures are documented in
+      `bold_pubmed_efetch_failures_remaining.csv` (5,435 accessions,
+      0.104% of linked-accession universe).
 
 **Subtask A2: GBIF Plantae → GBIF Literature API (plants)**
 - [ ] Audit GBIF preserved-material occurrences for `datasetKey` /

@@ -894,6 +894,50 @@ amplifies the effect (GP3), unlike generic species richness (NP3).
 3. **Kingdom backfill** (Script 23): COCONUT-only species now get kingdom
    from GBIF backbone resolution. Unknown kingdom dropped 26K → 8K.
 
+## Option A Publication Linkage Status
+
+The BOLD-to-PubMed branch is implemented in
+`Scripts/20_link_bold_to_pubmed.py`. It reads
+`Data/processed/bold/bold_minimal_records.csv`, extracts unique `insdc_acs`
+tokens, writes resumable chunks under
+`Data/processed/discovery/publications/chunks/`, and concatenates
+`Data/processed/discovery/publications/bold_accession_to_pubmed.csv`.
+
+Important methodological note: the original plan used Entrez
+`epost` + `elink` (`nuccore` -> `pubmed`) for attribution. That path was
+empirically unsuitable at this scale because NCBI often returns collapsed
+batch-level linksets, which cannot be assigned safely to individual
+accessions. The script still supports the screen, but production runs used
+`--skip-elink-screen` and parse GenBank `efetch` flat files for per-record
+`PUBMED` references. This avoids cartesian-expanding collapsed `elink`
+results.
+
+Final BOLD PubMed output after repair:
+- Chunks: 10,461 complete chunk files, no missing indices.
+- Accessions covered: 5,230,497.
+- Final CSV rows: 5,239,623 unique `(accession, pubmed_id)` rows, including
+  blank-PMID rows for accessions with no linked PubMed record.
+- Linked accessions: 1,983,992 with at least one PMID.
+- Remaining unresolved accession failures: 5,435 accessions in
+  `bold_pubmed_efetch_failures_remaining.csv` (persistent NCBI HTTP 400s
+  after conservative repair at workers=1, efetch-batch-size=10, timeout=45).
+
+Do not rerun aggressive full linkage unless necessary. Safe reruns are
+resume-aware, but the previous `--workers 16` run caused almost all repair
+failures. If another repair attempt is needed, target only
+`bold_pubmed_efetch_failures_remaining.csv` using `--repair-failures`,
+`--workers 1`, and very small `--efetch-batch-size`; otherwise document the
+remaining 0.104% unresolved accessions and proceed.
+
+Next Option A steps:
+- Audit GBIF Plantae minimal CSV for `datasetKey` and `gbifID` coverage.
+- Build GBIF Literature API cache/output (`gbif_dataset_to_pubs.csv`) with
+  the dataset-level attribution caveat.
+- Fetch PubMed metadata for BOLD PMIDs before constructing the cell-year
+  publication panel.
+- Build the union publication cell-year panel and then the Stata merge and
+  publication regressions.
+
 ### Coordination with Option A
 
 See `DOWNSTREAM_LINKAGE_TRACKER.md`. Shared artifacts in
