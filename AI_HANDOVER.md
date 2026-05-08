@@ -821,7 +821,7 @@ Data/processed/discovery/shared/
 
 ### Regression results (`reg_natural_products.do`)
 
-Six tables, all using Table 3 FE structure (cell + country×year + biome×year
+Seven tables, all using Table 3 FE structure (cell + country×year + biome×year
 + road×year), cell-clustered SEs. Sample: 2005-2023.
 
 **Table NP1** — NP species count: Conflict reduces NP species sampling at
@@ -843,9 +843,19 @@ twice (NP species, non-NP species), all controls and FEs interacted with
 type. **Conflict × NP is zero across all specifications** — clean null on
 disproportionality. Conflict reduces all species sampling uniformly.
 
-**Bottom line**: Conflict reduces NP-relevant species sampling, but
-proportionally to total sampling — no selective avoidance of chemically
-valuable species. The NP decline is entirely volume-driven.
+**Table NP7** — Intensive-margin benchmark: Adds log(1+total_records)
+sampling control and restricts to cell-years with positive sampling.
+Conflict coefficient barely moves with sampling control (-0.037→-0.036
+contemp, -0.058→-0.055 cumulative). On intensive margin (total>0),
+cumulative effect persists at -0.053* (p<0.10). NP share on intensive
+margin: cumulative -0.015** — a small but significant compositional shift
+among active collectors.
+
+**Bottom line**: Conflict reduces NP-relevant species sampling. On the full
+sample, the NP6 stacked test shows no disproportionality — the decline is
+volume-driven. However, NP7 reveals a nuance: conditional on sampling
+happening, conflict modestly tilts composition away from NP species
+(NP share -0.015** on intensive margin).
 
 ### Coordination with Option A
 

@@ -161,7 +161,7 @@ Table 3 FE structure (Cell + Country×Year + Biome×Year + Road×Year) as
 `reg_spec1.do`. Requires the chemical-potential panel to be merged into
 `BOLD_regressor_panel.dta` (conditional import in `merge_all_regressors.do`).
 
-Six tables:
+Seven tables:
 
 - **Table NP1**: NP species count — 1[NP>0] (extensive) and ln(NP+1) (intensive).
   8 columns: {Contemp, Lags} × {log(1+events), 1[events>0]}.
@@ -177,6 +177,10 @@ Six tables:
   Each cell-year stacked as 2 rows (NP species, non-NP species). All
   controls and FEs interacted with type. 4 columns: {Contemp, Lags} ×
   {log(1+events), 1[events>0]}. Key coefficient: `Conflict × NP`.
+- **Table NP7**: Intensive-margin benchmark — sampling decomposition.
+  8 columns (all log(1+events), {Contemp, Lags}): cols 1-2 ln(NP+1)
+  baseline; cols 3-4 add log(1+total_records) sampling control; cols 5-6
+  same restricted to total_records>0; cols 7-8 NP share on total_records>0.
 
 Logs saved to `Logs/reg_natural_products.log`.
 

@@ -5,6 +5,7 @@
 * Table NP3: Conflict × Species Richness interaction with NP LHS
 * Table NP4: Source decomposition (BOLD vs GBIF)
 * Table NP5: Name-resolution robustness
+* Table NP7: Intensive-margin benchmark (sampling control + if total>0)
 
 clear all
 set more off
@@ -1266,5 +1267,227 @@ esttab np6_*, keep(conflict_cont conflict_cont_np ///
     compress
 
 restore
+
+* ===================================================================
+* TABLE NP7: Intensive-margin benchmark — sampling control decomposition
+*   All cols use log(1+events) conflict, paired as {contemp, lags}
+*   Cols 1-2: log(1+NP species) — full sample (baseline)
+*   Cols 3-4: log(1+NP species) + sampling effort control — full sample
+*   Cols 5-6: log(1+NP species) + sampling effort control — if total>0
+*   Cols 7-8: NP share — if total>0
+* ===================================================================
+
+est clear
+
+drop conflict L1_conflict L2_conflict
+gen conflict = log(1 + ucdp_events_all)
+gen L1_conflict = L.conflict
+gen L2_conflict = L2.conflict
+
+qui {
+* --- Col 1: log(1+NP species), contemporaneous, full sample ---
+eststo np7_1: reghdfe np_species_w_comp_log conflict forest_loss_share ///
+        burned_share cyclone earthquake pdsi_anomaly tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local sample_ctrl "None"
+estadd local sample_restr "Full"
+estadd local conflict_measure "log(1+events)"
+}
+
+qui {
+* --- Col 2: log(1+NP species), with lags, full sample ---
+eststo np7_2: reghdfe np_species_w_comp_log conflict L1_conflict L2_conflict ///
+        forest_loss_share burned_share cyclone earthquake ///
+        pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local sample_ctrl "None"
+estadd local sample_restr "Full"
+estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
+}
+
+qui {
+* --- Col 3: log(1+NP species) + sampling effort, contemporaneous ---
+eststo np7_3: reghdfe np_species_w_comp_log conflict log1p_total ///
+        forest_loss_share ///
+        burned_share cyclone earthquake pdsi_anomaly tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local sample_ctrl "log(1+total)"
+estadd local sample_restr "Full"
+estadd local conflict_measure "log(1+events)"
+}
+
+qui {
+* --- Col 4: log(1+NP species) + sampling effort, with lags ---
+eststo np7_4: reghdfe np_species_w_comp_log conflict L1_conflict L2_conflict ///
+        log1p_total ///
+        forest_loss_share burned_share cyclone earthquake ///
+        pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local sample_ctrl "log(1+total)"
+estadd local sample_restr "Full"
+estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
+}
+
+qui {
+* --- Col 5: log(1+NP species) + sampling effort, contemp., if total>0 ---
+eststo np7_5: reghdfe np_species_w_comp_log conflict log1p_total ///
+        forest_loss_share ///
+        burned_share cyclone earthquake pdsi_anomaly tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year ///
+        if total_records > 0, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local sample_ctrl "log(1+total)"
+estadd local sample_restr "total>0"
+estadd local conflict_measure "log(1+events)"
+}
+
+qui {
+* --- Col 6: log(1+NP species) + sampling effort, lags, if total>0 ---
+eststo np7_6: reghdfe np_species_w_comp_log conflict L1_conflict L2_conflict ///
+        log1p_total ///
+        forest_loss_share burned_share cyclone earthquake ///
+        pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year ///
+        if total_records > 0, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local sample_ctrl "log(1+total)"
+estadd local sample_restr "total>0"
+estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
+}
+
+qui {
+* --- Col 7: NP share, contemporaneous, if total>0 ---
+eststo np7_7: reghdfe np_share conflict log1p_total ///
+        forest_loss_share ///
+        burned_share cyclone earthquake pdsi_anomaly tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year ///
+        if total_records > 0, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local sample_ctrl "log(1+total)"
+estadd local sample_restr "total>0"
+estadd local conflict_measure "log(1+events)"
+}
+
+qui {
+* --- Col 8: NP share, with lags, if total>0 ---
+eststo np7_8: reghdfe np_share conflict L1_conflict L2_conflict ///
+        log1p_total ///
+        forest_loss_share burned_share cyclone earthquake ///
+        pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
+        tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
+        protected_share c.log_gdp_pc#c.protected_share ///
+        c.log_gdp_pc_sq#c.protected_share ///
+        c.road_density_km_per_km2#i.year ///
+        if total_records > 0, ///
+        absorb(cell_id_num country_num#year i.resolve_biome_num#i.year) ///
+        vce(cluster cell_id_num)
+estadd ysumm, mean sd
+estadd local fe_cell "\checkmark"
+estadd local fe_cy "\checkmark"
+estadd local fe_biome_yr "\checkmark"
+estadd local road_yr "\checkmark"
+estadd local sample_ctrl "log(1+total)"
+estadd local sample_restr "total>0"
+estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
+}
+
+* -------------------------------------------------------------------
+* Display Table NP7
+* -------------------------------------------------------------------
+
+esttab np7_*, keep(conflict log1p_total ///
+             L1_conflict L2_conflict) ///
+    order(conflict log1p_total ///
+          L1_conflict L2_conflict) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    varlabels(conflict "Conflict (log 1+events)" ///
+              log1p_total "Sampling effort (log)" ///
+              L1_conflict "Conflict (L1)" ///
+              L2_conflict "Conflict (L2)") ///
+    stats(conflict_sum_txt conflict_sum_se_txt ///
+          conflict_measure sample_ctrl sample_restr ///
+          ymean ysd N r2 ///
+          fe_cell fe_cy fe_biome_yr road_yr, ///
+          labels("Sum conflict L0-L2" " " ///
+                 "Conflict measure" "Sampling control" "Sample restriction" ///
+                 "Dep. var. mean" "Dep. var. SD" ///
+                 "Obs." "R-sq." ///
+                 "Cell FE" "Country x Year FE" ///
+                 "Biome x Year FE" "Road dens. x Year") ///
+          fmt(%s %s ///
+              %s %s %s ///
+              %9.4f %9.4f %9.0fc %9.4f %s %s %s %s)) ///
+    title("Table NP7: Intensive-Margin Benchmark — Sampling Decomposition") ///
+    mtitles("Contemp." "Lags" "Contemp." "Lags" "Contemp." "Lags" "Contemp." "Lags") ///
+    mgroups("ln(NP+1)" "ln(NP+1) | effort" "ln(NP+1) | effort, total>0" "NP share, total>0", ///
+            pattern(1 0 1 0 1 0 1 0)) ///
+    compress
 
 log close

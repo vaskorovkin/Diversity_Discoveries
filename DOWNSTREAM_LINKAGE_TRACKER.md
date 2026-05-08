@@ -181,7 +181,7 @@ pipeline returns signal.
         per combined cell-year, 82% nonzero); BOLD adds sparse animal/fungi
         signal (mean 0.98). Robustness columns confirm signal does not
         depend on aggressive name resolution.
-- [x] Stata regressions (DoFiles/reg_natural_products.do, 6 tables):
+- [x] Stata regressions (DoFiles/reg_natural_products.do, 7 tables):
       - NP1: NP species count (extensive + intensive), Table 3 FE structure,
         both conflict measures. Conflict reduces NP sampling: -0.045***
         (intensive, log events, with lags); cumulative L0-L2 -0.058**
@@ -199,6 +199,12 @@ pipeline returns signal.
         is zero across all specs — clean null on disproportionality.
         Conflict reduces all species sampling uniformly; NP decline is
         volume-driven.
+      - NP7: **Intensive-margin benchmark**. Adds sampling effort control
+        (log(1+total_records)) and restricts to total>0. Sampling control
+        barely attenuates conflict (-0.037→-0.036). On intensive margin,
+        cumulative effect persists at -0.053*. NP share on intensive margin:
+        cumulative -0.015** — small compositional shift among active
+        collectors.
       - Merge extension: DoFiles/merge_all_regressors.do imports
         chemical-potential panel (combined + BOLD/GBIF decomposition)
         with `have_chempot` guard. Handles Stata 32-char name truncation.
