@@ -93,6 +93,60 @@ import delimited "`proj'/Data/processed/bold/collectors/bold_foreign_collecting_
 tempfile foreign_collecting
 save `foreign_collecting'
 
+* --- Chemical-potential panel (Option B) ---
+local have_chempot 0
+capture confirm file "`proj'/Data/processed/discovery/natural_products/cell_year_chemical_potential.csv"
+if _rc==0 {
+    import delimited "`proj'/Data/processed/discovery/natural_products/cell_year_chemical_potential.csv", clear
+    keep if year<=2024
+    * keep combined rows as primary; bold/gbif as source decomposition
+    keep if source_group=="combined"
+    drop source_group
+    rename n_species_sampled              np_species_sampled
+    rename n_species_with_compounds       np_species_w_comp
+    rename n_compounds_total              np_compounds_total
+    rename n_unique_compounds             np_unique_compounds
+    rename share_np_species               np_share
+    rename n_animalia_with_compounds      np_animalia
+    rename n_plantae_with_compounds       np_plantae
+    rename n_fungi_with_compounds         np_fungi
+    rename n_species_with_compounds_strict     np_sp_strict
+    rename n_species_with_compounds_no_fuzz   np_sp_no_fuzzy
+    rename n_species_with_compounds_no_bin    np_sp_no_bin
+    rename n_species_with_compounds_named_o   np_sp_named_only
+    rename n_records                       np_records
+    * log transforms
+    gen np_species_w_comp_log = ln(np_species_w_comp + 1)
+    gen np_unique_compounds_log = ln(np_unique_compounds + 1)
+    gen np_species_w_comp_any = (np_species_w_comp > 0)
+    tempfile chempot
+    save `chempot'
+    local have_chempot 1
+
+    * also save per-source decomposition
+    import delimited "`proj'/Data/processed/discovery/natural_products/cell_year_chemical_potential.csv", clear
+    keep if year<=2024
+    keep if source_group=="bold"
+    drop source_group
+    rename n_species_with_compounds np_bold_sp_w_comp
+    rename n_species_sampled        np_bold_sp_sampled
+    rename share_np_species         np_bold_share
+    keep cell_id year np_bold_sp_w_comp np_bold_sp_sampled np_bold_share
+    tempfile chempot_bold
+    save `chempot_bold'
+
+    import delimited "`proj'/Data/processed/discovery/natural_products/cell_year_chemical_potential.csv", clear
+    keep if year<=2024
+    keep if source_group=="gbif_plantae"
+    drop source_group
+    rename n_species_with_compounds np_gbif_sp_w_comp
+    rename n_species_sampled        np_gbif_sp_sampled
+    rename share_np_species         np_gbif_share
+    keep cell_id year np_gbif_sp_w_comp np_gbif_sp_sampled np_gbif_share
+    tempfile chempot_gbif
+    save `chempot_gbif'
+}
+
 local have_gbif_plantae 0
 capture confirm file "`proj'/Data/processed/gbif/plantae/gbif_plantae_preserved_material_cell_year_panel_2005_2025.csv"
 if _rc==0 {
@@ -194,6 +248,15 @@ if `have_gbif_plantae' == 1 {
     rename _merge _merge_gbif_plantae
 }
 
+if `have_chempot' == 1 {
+    merge 1:1 cell_id year using `chempot'
+    rename _merge _merge_chempot
+    merge 1:1 cell_id year using `chempot_bold'
+    rename _merge _merge_chempot_bold
+    merge 1:1 cell_id year using `chempot_gbif'
+    rename _merge _merge_chempot_gbif
+}
+
 * -------------------------------------------------------------------
 * 3. Merge static baselines m:1 on cell_id
 * -------------------------------------------------------------------
@@ -272,6 +335,12 @@ if _rc==0 tab _merge_gbif_preperiod_richness
 tab _merge_foreign_collecting
 capture confirm variable _merge_gbif_plantae
 if _rc==0 tab _merge_gbif_plantae
+capture confirm variable _merge_chempot
+if _rc==0 {
+    tab _merge_chempot
+    tab _merge_chempot_bold
+    tab _merge_chempot_gbif
+}
 
 describe
 summarize

@@ -149,6 +149,37 @@ Compact 8-column table comparing conflict coefficients across outcomes:
 All columns use log(1+events) conflict measure. Logs saved to
 `Logs/reg_spec_benchmark.log`.
 
+### Natural Products (Option B)
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_natural_products.do"
+```
+
+Tests whether conflict reduces sampling of natural-product-relevant species
+(species with known bioactive compounds in LOTUS/COCONUT). Uses the same
+Table 3 FE structure (Cell + Country×Year + Biome×Year + Road×Year) as
+`reg_spec1.do`. Requires the chemical-potential panel to be merged into
+`BOLD_regressor_panel.dta` (conditional import in `merge_all_regressors.do`).
+
+Six tables:
+
+- **Table NP1**: NP species count — 1[NP>0] (extensive) and ln(NP+1) (intensive).
+  8 columns: {Contemp, Lags} × {log(1+events), 1[events>0]}.
+- **Table NP2**: NP share (compositional test) and ln(unique compounds + 1).
+  Same 8-column structure.
+- **Table NP3**: Conflict × Species Richness interaction with NP LHS.
+  Mirrors Table 5 from `reg_spec1.do`.
+- **Table NP4**: Source decomposition — BOLD vs GBIF. 4 columns:
+  {ln(NP+1), NP share} × {BOLD, GBIF}. With lags, log(1+events) only.
+- **Table NP5**: Name-resolution robustness. 4 columns: strict BIN,
+  no fuzzy, no BIN, named only. With lags, log(1+events) only.
+- **Table NP6**: Stacked NP vs non-NP — direct differential test.
+  Each cell-year stacked as 2 rows (NP species, non-NP species). All
+  controls and FEs interacted with type. 4 columns: {Contemp, Lags} ×
+  {log(1+events), 1[events>0]}. Key coefficient: `Conflict × NP`.
+
+Logs saved to `Logs/reg_natural_products.log`.
+
 ### Foreign vs Domestic Collecting Composition
 
 ```stata

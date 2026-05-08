@@ -140,11 +140,16 @@ pipeline returns signal.
       - BOLD records with BIN consensus recovery (1.55M unnamed records
         in named BINs assigned plurality species; no concordance threshold)
       - GBIF Plantae preserved-material (12.1M with binomial species)
-      - Output: `Data/processed/discovery/shared/shared_species_universe.csv`
+      - Outputs:
+        `Data/processed/discovery/shared/shared_species_universe.csv`
         (742,864 species; 435K Animalia, 265K Plantae, 37K Fungi, 6K Bacteria;
-        32,988 NP-DB matches at 4.4% by exact name)
+        32,988 NP-DB matches at 4.4% by exact name) and
+        `Data/processed/discovery/shared/bin_consensus_lookup.csv`
+        (414K BINs with `consensus_species, kingdom, genus, concordance,
+        is_strict`; 371K strict at ≥80%; persisted by 26 so B7 doesn't
+        re-stream BOLD)
       - Scripts/26_build_shared_species_universe.py;
-        Scripts/audit_bin_species_consensus.py for BIN audit
+        Scripts/audit_bin_species_consensus.py for source-group BIN audit
 - [x] Download GBIF Backbone Taxonomy →
       `Data/raw/gbif/backbone/backbone.zip` (926 MB, Taxon.tsv 2.1 GB
       uncompressed, 7.7M taxa with synonym→accepted mappings;
@@ -159,23 +164,44 @@ pipeline returns signal.
         +1,217 Fungi, +490 Animalia)
       - Output: `Data/processed/discovery/shared/species_name_resolution.csv`
       - Scripts/25_resolve_species_names.py
-- [ ] Build cell × year × kingdom "chemical potential" panel (apply name
-      resolution before joining; deduplicate species across BOLD ∪ GBIF
-      within each cell-year):
-      - n_species_sampled, n_species_with_compounds, any_compound_species,
-        n_compounds_in_cell_sampled, n_compounds_unique_inchikey
-        (deduped via InChIKey from species_compound_pairs.csv),
-        chemical_potential_share, plus log1p versions of count measures
-      - Per-source robustness: n_species_with_compounds_lotus and
-        n_species_with_compounds_coconut
+- [x] Build cell × year × source_group "chemical potential" panel
+      (Scripts/27_build_chemical_potential_panel.py; streams BOLD 20M +
+      GBIF 15M with on-the-fly EPSG:6933 / 100km gridding matching 26):
+      - Schema: n_records, n_species_sampled, n_species_with_compounds,
+        n_compounds_total, n_unique_compounds (InChIKey-deduped from
+        species_compound_pairs.csv), share_np_species, per-kingdom
+        breakdowns (animalia/plantae/fungi), and four robustness
+        columns: `_strict` (BIN consensus ≥80%), `_no_fuzzy` (drops
+        GBIF API matches), `_no_bin` / `_named_only` (drops BIN-recovered
+        records entirely)
       - Output:
-        `Data/processed/discovery/natural_products/chemical_potential_cell_year.csv`
-- [ ] Stata regressions: does conflict reduce sampling of chemically valuable
-      species disproportionately? Run pooled and per-kingdom (Plantae, Fungi,
-      Animalia). For plants, the natural mirror is `reg_spec1_gbif_plantae.do`
-      since the GBIF plant panel and pre-period richness controls are already
-      in the merged regression panel. Report per-kingdom NP-DB coverage as
-      a robustness statistic
+        `Data/processed/discovery/natural_products/cell_year_chemical_potential.csv`
+        (246,348 rows: 49K bold + 91K gbif_plantae + 106K combined cell-years)
+      - Findings: signal is plant-driven via GBIF (mean 19.1 NP species
+        per combined cell-year, 82% nonzero); BOLD adds sparse animal/fungi
+        signal (mean 0.98). Robustness columns confirm signal does not
+        depend on aggressive name resolution.
+- [x] Stata regressions (DoFiles/reg_natural_products.do, 6 tables):
+      - NP1: NP species count (extensive + intensive), Table 3 FE structure,
+        both conflict measures. Conflict reduces NP sampling: -0.045***
+        (intensive, log events, with lags); cumulative L0-L2 -0.058**
+      - NP2: NP share + compound diversity. NP share effect is insignificant —
+        conflict does not shift composition away from NP species
+      - NP3: Conflict × Richness interaction with NP LHS. Interaction small
+        and insignificant
+      - NP4: Source decomposition. GBIF drives the signal (cumulative
+        -0.083***); BOLD is sparse but BOLD NP share is significant (-0.014**)
+      - NP5: Name-resolution robustness (strict BIN, no fuzzy, no BIN,
+        named only). All four variants give near-identical coefficients
+      - NP6: **Stacked NP vs non-NP direct differential test**. Each
+        cell-year stacked as 2 rows (NP species, non-NP species), all
+        controls and FEs interacted with type. Conflict × NP interaction
+        is zero across all specs — clean null on disproportionality.
+        Conflict reduces all species sampling uniformly; NP decline is
+        volume-driven.
+      - Merge extension: DoFiles/merge_all_regressors.do imports
+        chemical-potential panel (combined + BOLD/GBIF decomposition)
+        with `have_chempot` guard. Handles Stata 32-char name truncation.
 - [ ] Fungi subset re-run for consistency check with Option A
 
 ## Coordination
@@ -191,6 +217,10 @@ pipeline returns signal.
 - Shared species universe lives in
   `Data/processed/discovery/shared/shared_species_universe.csv`. If both
   agents need it, the first to need it builds it; the second reads.
+- Companion shared artifacts (also written by Window B): the per-BIN
+  consensus lookup `bin_consensus_lookup.csv` and the GBIF-backbone name
+  resolution `species_name_resolution.csv`. Window A may read these for
+  taxonomic cleanup but should not rewrite them.
 
 ## Workflow
 

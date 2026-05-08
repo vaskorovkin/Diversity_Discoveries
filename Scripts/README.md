@@ -88,6 +88,20 @@ domestic vs foreign (regional / distant) collecting. Run in order:
 - `13a_merge_all_classifications.py`: merges original 633 + batch 1-5 LLM classifications (~10K collectors) into a single expanded affiliations file. Detects local collector names from the full 101K list. Applies reviewed DISAGREE and ORG decisions, plus hardcoded dual-affiliation fixes. Two-stage: writes `_expanded_prereview.csv` (pure LLM), then `_expanded.csv` (with decisions). Run BEFORE `13_build_foreign_collecting_panel.py`.
 - `13_build_foreign_collecting_panel.py`: builds cell x year panel of foreign vs domestic collecting. Matches collector names to home countries (via `_expanded.csv`), compares to BOLD `country_iso`. Splits foreign into regional (same continent) and distant (different continent). Outputs both categorical record counts and fractional score sums. Tracks local-foreign collaborations. Output: `collectors/bold_foreign_collecting_cell_year_panel.csv`.
 
+## Natural Products Pipeline — Option B (22–27)
+
+Downstream discovery linkage: maps species sampled in BOLD/GBIF to bioactive
+compounds via LOTUS+COCONUT, then tests whether conflict-induced sampling
+shocks affect chemically valuable species. Run in order:
+
+- `22_download_lotus.py`: downloads LOTUS Zenodo dump (Wikidata-linked, v11). Output: `Data/raw/natural_products/lotus/`.
+- `22b_download_coconut.py`: downloads COCONUT 2.0 CSV dump (208 MB). Output: `Data/raw/natural_products/coconut/`.
+- `23_build_species_to_compounds.py`: builds species → compound mapping from LOTUS + COCONUT, deduplicates via InChIKey across DBs. Outputs: `Data/processed/discovery/natural_products/species_compound_pairs.csv` (1.3M rows, long format) and `species_to_compounds.csv` (58,546 species).
+- `24_download_gbif_backbone.py`: downloads GBIF Backbone Taxonomy zip (926 MB, Taxon.tsv 2.1 GB, 7.7M taxa). Output: `Data/raw/gbif/backbone/backbone.zip`.
+- `25_resolve_species_names.py`: three-step taxonomic name harmonization via GBIF backbone — (1) gbifid_lookup from LOTUS metadata, (2) exact canonicalName match, (3) GBIF API fuzzy fallback (confidence ≥ 90). Resolves 551K of 768K names (71.7%); NP→universe linkage: 56% → 71% (+8,767 species). Output: `Data/processed/discovery/shared/species_name_resolution.csv`. API cache: `Data/processed/discovery/shared/cache/gbif_match_cache.csv`.
+- `26_build_shared_species_universe.py`: builds BOLD ∪ GBIF samplable species universe (742,864 species) with BIN consensus recovery. Also persists `bin_consensus_lookup.csv` (414K BINs). Output: `Data/processed/discovery/shared/`.
+- `27_build_chemical_potential_panel.py`: streams BOLD (20M) + GBIF (15M) with on-the-fly EPSG:6933 gridding, joins to NP-DB via resolved names, outputs cell × year × source_group panel (246K rows: 49K bold + 91K gbif + 106K combined). Schema: n_records, n_species_sampled, n_species_with_compounds, n_unique_compounds (InChIKey-deduped), share_np_species, per-kingdom breakdowns, four robustness columns (strict/no_fuzzy/no_bin/named_only). Output: `Data/processed/discovery/natural_products/cell_year_chemical_potential.csv`.
+
 ## BOLD Pipeline (00–07)
 
 Run order from project root:
@@ -118,6 +132,7 @@ Outputs: `Data/processed/bold/` (data), `Exhibits/tables/`, `Exhibits/figures/`,
 
 - `DoFiles/merge_all_regressors.do`: imports all outcome and regressor CSVs, merges panels 1:1 on `cell_id year` and static baselines m:1 on `cell_id`, drops Antarctica and date-line edge cells, saves `Data/analysis/BOLD_regressor_panel.dta`. Log output: `Logs/merge_all_regressors.log`.
 - `DoFiles/reg_foreign_collecting.do`: foreign vs domestic collecting composition regressions. 8 tables (FC3a-d, FC5a-d), 64 specifications. Panel A: conflict = log(1+events); Panel B: conflict = 1[events>0]. FC3 tables use Table 3 FE; FC5 tables add Conflict×Richness interaction. Each table: 8 columns = {Domestic, Foreign, Distant, Collaboration} × {Contemp, Lags}. Log output: `Logs/reg_foreign_collecting.log`.
+- `DoFiles/reg_natural_products.do`: natural-products discovery regressions (Option B). 6 tables: NP species count (NP1), NP share + compound diversity (NP2), Conflict×Richness with NP LHS (NP3), BOLD vs GBIF source decomposition (NP4), name-resolution robustness (NP5), stacked NP vs non-NP direct differential test (NP6). Requires chemical-potential panel merged via `merge_all_regressors.do`. Log output: `Logs/reg_natural_products.log`.
 
 ## Examples
 

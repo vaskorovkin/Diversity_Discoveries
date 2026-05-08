@@ -755,6 +755,105 @@ Each table: 8 columns = {Domestic, Foreign, Distant, Collaboration} ×
 **Sample**: 247,692 obs (contemporaneous), 221,626 (with lags). Outcome means:
 log1p_domestic 0.17, log1p_foreign 0.12, log1p_distant 0.09, log1p_collab 0.02.
 
+## Natural Products Pipeline (Option B)
+
+Downstream discovery linkage: maps species sampled in BOLD/GBIF to bioactive
+compounds via LOTUS+COCONUT NP databases. Tests whether conflict-induced
+sampling shocks disproportionately affect chemically valuable species.
+
+### Build order
+
+```bash
+python3 Scripts/22_download_lotus.py
+python3 Scripts/22b_download_coconut.py
+python3 Scripts/23_build_species_to_compounds.py
+python3 Scripts/24_download_gbif_backbone.py
+python3 Scripts/25_resolve_species_names.py        # ~40 min (includes GBIF API calls)
+python3 Scripts/26_build_shared_species_universe.py # ~10 min
+python3 Scripts/27_build_chemical_potential_panel.py # ~25 min
+stata -b do DoFiles/merge_all_regressors.do
+stata -b do DoFiles/reg_natural_products.do
+```
+
+### Key data files
+
+```text
+Data/raw/natural_products/lotus/             — LOTUS Zenodo dump (v11)
+Data/raw/natural_products/coconut/           — COCONUT 2.0 CSV
+Data/raw/gbif/backbone/backbone.zip          — GBIF Backbone Taxonomy (926 MB)
+Data/processed/discovery/natural_products/
+  species_compound_pairs.csv                 — 1.3M species-compound pairs (long)
+  species_to_compounds.csv                   — 58,546 species summaries
+  cell_year_chemical_potential.csv           — 246K cell × year × source_group rows
+Data/processed/discovery/shared/
+  shared_species_universe.csv                — 742,864 species (BOLD ∪ GBIF)
+  bin_consensus_lookup.csv                   — 414K BINs with consensus species
+  species_name_resolution.csv                — 768K names, 551K resolved (71.7%)
+  cache/gbif_match_cache.csv                 — GBIF API fuzzy match cache
+```
+
+### Pipeline design
+
+1. **Species → compound mapping** (Script 23): LOTUS + COCONUT as co-equal
+   primary NP sources; compounds deduped via InChIKey across DBs. 58,546
+   species with ≥1 compound; median 7 compounds per species.
+
+2. **Taxonomic harmonization** (Scripts 24-25): Three-step name resolution
+   via GBIF Backbone — gbifid_lookup (LOTUS metadata), exact canonicalName
+   match, GBIF API fuzzy fallback (confidence ≥ 90). 41K synonym redirects;
+   NP→universe linkage improves from 56% to 71% (+8,767 NP species).
+
+3. **Shared species universe** (Script 26): BOLD (with BIN consensus
+   recovery for 1.55M unnamed records) ∪ GBIF Plantae preserved-material.
+   BIN consensus lookup persisted for downstream reuse.
+
+4. **Chemical potential panel** (Script 27): Streams BOLD 20M + GBIF 15M
+   with on-the-fly EPSG:6933 / 100km gridding (matching existing pipeline).
+   Computes NP species count, compound count (InChIKey-deduped), NP share,
+   per-kingdom breakdowns, and four robustness columns (strict BIN, no
+   fuzzy, no BIN, named only). Signal is plant-driven via GBIF (mean 19.1
+   NP species per combined cell-year, 82% nonzero).
+
+5. **Merge** (merge_all_regressors.do): Conditional import behind
+   `have_chempot` flag. Imports combined rows as primary + BOLD/GBIF
+   decomposition. Handles Stata 32-char column name truncation. Generates
+   log transforms and extensive-margin indicator.
+
+### Regression results (`reg_natural_products.do`)
+
+Six tables, all using Table 3 FE structure (cell + country×year + biome×year
++ road×year), cell-clustered SEs. Sample: 2005-2023.
+
+**Table NP1** — NP species count: Conflict reduces NP species sampling at
+-0.045*** (intensive, log events with lags). Cumulative L0-L2: -0.058**.
+
+**Table NP2** — NP share: Insignificant — conflict does not shift sampling
+composition toward/away from NP species. Compound diversity: -0.072**.
+
+**Table NP3** — Conflict × Richness: Interaction is small and insignificant.
+
+**Table NP4** — Source decomposition: GBIF drives the signal (cumulative
+-0.083***); BOLD NP share significant at -0.014**.
+
+**Table NP5** — Name-resolution robustness: All four variants give
+near-identical coefficients (-0.045*** to -0.046***).
+
+**Table NP6** — Stacked direct differential test: Each cell-year appears
+twice (NP species, non-NP species), all controls and FEs interacted with
+type. **Conflict × NP is zero across all specifications** — clean null on
+disproportionality. Conflict reduces all species sampling uniformly.
+
+**Bottom line**: Conflict reduces NP-relevant species sampling, but
+proportionally to total sampling — no selective avoidance of chemically
+valuable species. The NP decline is entirely volume-driven.
+
+### Coordination with Option A
+
+See `DOWNSTREAM_LINKAGE_TRACKER.md`. Shared artifacts in
+`Data/processed/discovery/shared/` (universe, BIN lookup, name resolution)
+may be read by Option A (publication linkage) but should not be rewritten.
+Fungi consistency check across Options A and B is pending.
+
 ### Next steps
 
 - Deduplicate ~221 name variants in expanded affiliations
