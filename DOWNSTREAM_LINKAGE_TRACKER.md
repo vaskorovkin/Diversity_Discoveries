@@ -208,6 +208,16 @@ pipeline returns signal.
       - Merge extension: DoFiles/merge_all_regressors.do imports
         chemical-potential panel (combined + BOLD/GBIF decomposition)
         with `have_chempot` guard. Handles Stata 32-char name truncation.
+        Zero-fills NP vars for master-only cell-years.
+- [x] GBIF Plantae–only regressions (DoFiles/reg_natural_products_gbif.do,
+      5 tables): GP1 NP species count (-0.028***, cumul -0.046***), GP2
+      share null + compounds -0.085***, GP3 Conflict × Plant Richness
+      interaction -0.021*** (stronger than NP3 with IUCN richness), GP4
+      stacked null, GP5 10-col intensive-margin benchmark — conflict
+      effect -0.083*** on rec>0 sample vanishes with GBIF effort control.
+- [x] Pipeline fixes: _no_bin ≡ _named_only bug fixed in Script 27
+      (distinct species_no_bin set), kingdom backfill from GBIF backbone
+      in Script 23 (unknown kingdom 26K → 8K).
 - [ ] Fungi subset re-run for consistency check with Option A
 
 ## Coordination

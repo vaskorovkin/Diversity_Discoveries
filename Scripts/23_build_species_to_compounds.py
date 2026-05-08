@@ -66,6 +66,14 @@ DEFAULT_SUMMARY_OUT = (
 DEFAULT_AUDIT_OUT = (
     PROJECT_ROOT / "Output" / "audits" / "np_kingdom_disagreements.csv"
 )
+DEFAULT_RESOLUTION = (
+    PROJECT_ROOT
+    / "Data"
+    / "processed"
+    / "discovery"
+    / "shared"
+    / "species_name_resolution.csv"
+)
 
 INCHIKEY_RE = re.compile(r"^[A-Z]{14}-[A-Z]{10}-[A-Z]$")
 
@@ -475,6 +483,12 @@ def main() -> int:
     parser.add_argument("--summary-out", type=Path, default=DEFAULT_SUMMARY_OUT)
     parser.add_argument("--audit-out", type=Path, default=DEFAULT_AUDIT_OUT)
     parser.add_argument(
+        "--resolution",
+        type=Path,
+        default=DEFAULT_RESOLUTION,
+        help="species_name_resolution.csv for kingdom backfill.",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Process first 100k rows per source only.",
@@ -519,6 +533,39 @@ def main() -> int:
 
     # ── Kingdom audit ────────────────────────────────────────────────
     audit_kingdom_disagreements(all_rows, args.audit_out)
+
+    # ── Kingdom backfill from GBIF backbone resolution ──────────────
+    if args.resolution.exists():
+        print(f"\nBackfilling kingdom from {args.resolution.name} ...", flush=True)
+        res = pd.read_csv(
+            args.resolution,
+            usecols=["input_name", "kingdom_resolved"],
+            dtype=str,
+        ).dropna(subset=["kingdom_resolved"])
+        res = res[res["kingdom_resolved"] != ""]
+        res_map = dict(zip(res["input_name"].str.strip(), res["kingdom_resolved"]))
+
+        missing_before = (pairs["kingdom"] == "").sum()
+        pairs_lower = pairs["species_name"].str.lower()
+        fill_mask = (pairs["kingdom"] == "") & pairs_lower.isin(res_map)
+        pairs.loc[fill_mask, "kingdom"] = pairs_lower[fill_mask].map(res_map)
+        missing_after = (pairs["kingdom"] == "").sum()
+        filled = missing_before - missing_after
+        print(
+            f"  Backfilled {filled:,} pair rows "
+            f"({missing_before:,} → {missing_after:,} missing kingdom)",
+            flush=True,
+        )
+
+        # re-write pairs with backfilled kingdom
+        pairs.to_csv(args.pairs_out, index=False)
+        print(f"  Re-wrote pairs: {args.pairs_out}", flush=True)
+    else:
+        print(
+            f"\nWARNING: resolution file not found: {args.resolution} "
+            f"— skipping kingdom backfill",
+            flush=True,
+        )
 
     # ── Step 3c: per-species summary ─────────────────────────────────
     summary = build_summary(pairs)

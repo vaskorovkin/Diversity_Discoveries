@@ -184,6 +184,32 @@ Seven tables:
 
 Logs saved to `Logs/reg_natural_products.log`.
 
+### Natural Products — GBIF Plantae Only (Option B)
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_natural_products_gbif.do"
+```
+
+Restricts NP outcomes to the GBIF Plantae pipeline only (98.5% of NP
+species observations). Imports `gbif_plantae` rows from the chemical-
+potential CSV directly. Uses GBIF pre-period plant richness as the
+interaction moderator instead of IUCN total richness.
+
+Five tables:
+
+- **Table GP1**: GBIF plant NP species count. 8 columns:
+  {extensive, intensive} × {Contemp, Lags} × {log(1+events), 1[events>0]}.
+- **Table GP2**: NP share + compound diversity. Same 8-column structure.
+- **Table GP3**: Conflict × GBIF Plant Richness interaction. 8 columns.
+- **Table GP4**: Stacked NP vs non-NP plants — direct differential test.
+  4 columns: {Contemp, Lags} × {log(1+events), 1[events>0]}.
+- **Table GP5**: Intensive-margin benchmark. 10 columns (all log(1+events)):
+  cols 1-2 baseline full sample; cols 3-4 restricted to GBIF rec>0 without
+  effort control; cols 5-6 full with effort control; cols 7-8 rec>0 with
+  effort control; cols 9-10 NP share on rec>0.
+
+Logs saved to `Logs/reg_natural_products_gbif.log`.
+
 ### Foreign vs Domestic Collecting Composition
 
 ```stata

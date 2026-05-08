@@ -851,11 +851,48 @@ cumulative effect persists at -0.053* (p<0.10). NP share on intensive
 margin: cumulative -0.015** — a small but significant compositional shift
 among active collectors.
 
-**Bottom line**: Conflict reduces NP-relevant species sampling. On the full
-sample, the NP6 stacked test shows no disproportionality — the decline is
-volume-driven. However, NP7 reveals a nuance: conditional on sampling
-happening, conflict modestly tilts composition away from NP species
-(NP share -0.015** on intensive margin).
+### GBIF Plantae–only regressions (`reg_natural_products_gbif.do`)
+
+GBIF Plantae accounts for 98.5% of NP species observations. This do-file
+runs 5 tables on GBIF-only data with source-matched effort controls.
+
+**Table GP1** — GBIF plant NP species count: -0.028*** contemp, cumulative
+-0.046***. Near-identical to pooled NP1 — confirms combined result is
+entirely GBIF-driven.
+
+**Table GP2** — NP share null (-0.004). Compound diversity -0.085*** cumul.
+
+**Table GP3** — Conflict × GBIF Plant Richness: interaction -0.021***
+contemp, cumulative -0.035*** on intensive margin. Stronger than NP3
+(which used IUCN total richness and found a null). Plant-specific richness
+moderator picks up heterogeneity the generic measure missed.
+
+**Table GP4** — Stacked NP vs non-NP plants: Conflict × NP is zero (cumul.
+0.001 log events). Same null as NP6.
+
+**Table GP5** — 10-column intensive-margin benchmark. Key result: among
+active GBIF collecting cells (rec>0), conflict effect is -0.043** contemp,
+-0.083*** cumulative WITHOUT effort control (cols 3-4). Adding GBIF effort
+control kills it entirely (cols 7-8: -0.003, -0.002). NP share zero (cols
+9-10). Conflict reduces NP species where GBIF collects, but entirely
+through the sampling-volume channel.
+
+**Bottom line**: Conflict reduces NP-relevant plant sampling, concentrated
+in cells where GBIF actively collects. The effect is fully mediated by
+sampling volume (GP5 cols 3-4 vs 7-8). No compositional shift — NP species
+decline proportionally to total plant sampling. Plant-specific richness
+amplifies the effect (GP3), unlike generic species richness (NP3).
+
+### Pipeline fixes applied this session
+
+1. **`_no_bin` ≡ `_named_only` bug** (Script 27): Added distinct
+   `species_no_bin` set. `_no_bin` = drops BIN-recovered, keeps fuzzy;
+   `_named_only` = drops both BIN and fuzzy.
+2. **Zero-fill after merge** (merge_all_regressors.do): NP vars now
+   zero-filled for master-only cell-years. Regression sample expanded
+   from ~94K to ~248K, matching reg_spec1.do.
+3. **Kingdom backfill** (Script 23): COCONUT-only species now get kingdom
+   from GBIF backbone resolution. Unknown kingdom dropped 26K → 8K.
 
 ### Coordination with Option A
 

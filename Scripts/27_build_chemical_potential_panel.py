@@ -140,6 +140,7 @@ class CellYearAccum:
         "species_all",
         "species_strict",
         "species_no_fuzzy",
+        "species_no_bin",
         "species_named_only",
     )
 
@@ -148,6 +149,7 @@ class CellYearAccum:
         self.species_all: set[str] = set()
         self.species_strict: set[str] = set()
         self.species_no_fuzzy: set[str] = set()
+        self.species_no_bin: set[str] = set()
         self.species_named_only: set[str] = set()
 
 
@@ -275,6 +277,8 @@ def main() -> int:
             if method != "name_match_fuzzy":
                 acc.species_no_fuzzy.add(sp)
             if not is_bin:
+                acc.species_no_bin.add(sp)
+            if not is_bin and method != "name_match_fuzzy":
                 acc.species_named_only.add(sp)
         batch_sp.clear()
         batch_method.clear()
@@ -412,7 +416,9 @@ def main() -> int:
             acc.species_strict.add(sp)
             if method != "name_match_fuzzy":
                 acc.species_no_fuzzy.add(sp)
-            acc.species_named_only.add(sp)
+            acc.species_no_bin.add(sp)
+            if method != "name_match_fuzzy":
+                acc.species_named_only.add(sp)
         gbatch_sp.clear()
         gbatch_method.clear()
         gbatch_lat.clear()
@@ -498,12 +504,14 @@ def main() -> int:
         species_all: set[str],
         species_strict: set[str],
         species_no_fuzzy: set[str],
+        species_no_bin: set[str],
         species_named_only: set[str],
         n_records: int,
     ) -> dict:
         np_all = species_all & np_species_set
         np_strict = species_strict & np_species_set
         np_no_fuzzy = species_no_fuzzy & np_species_set
+        np_no_bin = species_no_bin & np_species_set
         np_named = species_named_only & np_species_set
 
         n_sampled = len(species_all)
@@ -541,7 +549,7 @@ def main() -> int:
             "n_fungi_with_compounds": n_fungi,
             "n_species_with_compounds_strict": len(np_strict),
             "n_species_with_compounds_no_fuzzy": len(np_no_fuzzy),
-            "n_species_with_compounds_no_bin": len(np_named),
+            "n_species_with_compounds_no_bin": len(np_no_bin),
             "n_species_with_compounds_named_only": len(np_named),
         }
 
@@ -555,8 +563,8 @@ def main() -> int:
                 compute_row(
                     cell_id, year, "bold",
                     ba.species_all, ba.species_strict,
-                    ba.species_no_fuzzy, ba.species_named_only,
-                    ba.n_records,
+                    ba.species_no_fuzzy, ba.species_no_bin,
+                    ba.species_named_only, ba.n_records,
                 )
             )
 
@@ -565,8 +573,8 @@ def main() -> int:
                 compute_row(
                     cell_id, year, "gbif_plantae",
                     ga.species_all, ga.species_strict,
-                    ga.species_no_fuzzy, ga.species_named_only,
-                    ga.n_records,
+                    ga.species_no_fuzzy, ga.species_no_bin,
+                    ga.species_named_only, ga.n_records,
                 )
             )
 
@@ -574,25 +582,28 @@ def main() -> int:
         c_all: set[str] = set()
         c_strict: set[str] = set()
         c_no_fuzzy: set[str] = set()
+        c_no_bin: set[str] = set()
         c_named: set[str] = set()
         c_records = 0
         if ba:
             c_all |= ba.species_all
             c_strict |= ba.species_strict
             c_no_fuzzy |= ba.species_no_fuzzy
+            c_no_bin |= ba.species_no_bin
             c_named |= ba.species_named_only
             c_records += ba.n_records
         if ga:
             c_all |= ga.species_all
             c_strict |= ga.species_strict
             c_no_fuzzy |= ga.species_no_fuzzy
+            c_no_bin |= ga.species_no_bin
             c_named |= ga.species_named_only
             c_records += ga.n_records
 
         out_rows.append(
             compute_row(
                 cell_id, year, "combined",
-                c_all, c_strict, c_no_fuzzy, c_named,
+                c_all, c_strict, c_no_fuzzy, c_no_bin, c_named,
                 c_records,
             )
         )

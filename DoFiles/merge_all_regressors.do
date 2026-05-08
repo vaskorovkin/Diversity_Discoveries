@@ -255,6 +255,22 @@ if `have_chempot' == 1 {
     rename _merge _merge_chempot_bold
     merge 1:1 cell_id year using `chempot_gbif'
     rename _merge _merge_chempot_gbif
+
+    * Zero-fill NP vars for master-only cell-years (no sampling → no NP)
+    foreach v of varlist np_species_w_comp np_unique_compounds ///
+            np_sp_strict np_sp_no_fuzzy np_sp_no_bin np_sp_named_only ///
+            np_animalia np_plantae np_fungi np_compounds_total np_records ///
+            np_species_sampled {
+        replace `v' = 0 if missing(`v')
+    }
+    replace np_share = 0 if missing(np_share)
+    replace np_species_w_comp_log = 0 if missing(np_species_w_comp_log)
+    replace np_unique_compounds_log = 0 if missing(np_unique_compounds_log)
+    replace np_species_w_comp_any = 0 if missing(np_species_w_comp_any)
+    foreach v of varlist np_bold_sp_w_comp np_bold_sp_sampled np_bold_share ///
+            np_gbif_sp_w_comp np_gbif_sp_sampled np_gbif_share {
+        capture replace `v' = 0 if missing(`v')
+    }
 }
 
 * -------------------------------------------------------------------
