@@ -7,6 +7,7 @@ set more off
 
 local proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
 
+capture log close
 log using "`proj'/Logs/merge_all_regressors.log", replace text
 
 * -------------------------------------------------------------------

@@ -19,6 +19,7 @@ Output/
 # Local literature and logs
 Literature/
 Logs/
+/Logs/merge_all_regressors.log
 
 # LaTeX build products
 Notes/*.aux
