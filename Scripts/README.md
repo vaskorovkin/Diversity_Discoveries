@@ -88,14 +88,17 @@ domestic vs foreign (regional / distant) collecting. Run in order:
 - `13a_merge_all_classifications.py`: merges original 633 + batch 1-5 LLM classifications (~10K collectors) into a single expanded affiliations file. Detects local collector names from the full 101K list. Applies reviewed DISAGREE and ORG decisions, plus hardcoded dual-affiliation fixes. Two-stage: writes `_expanded_prereview.csv` (pure LLM), then `_expanded.csv` (with decisions). Run BEFORE `13_build_foreign_collecting_panel.py`.
 - `13_build_foreign_collecting_panel.py`: builds cell x year panel of foreign vs domestic collecting. Matches collector names to home countries (via `_expanded.csv`), compares to BOLD `country_iso`. Splits foreign into regional (same continent) and distant (different continent). Outputs both categorical record counts and fractional score sums. Tracks local-foreign collaborations. Output: `collectors/bold_foreign_collecting_cell_year_panel.csv`.
 
-## Publication Linkage Pipeline — Option A (20–21, 28)
+## Publication Linkage Pipeline — Option A (20–21, 28–30)
 
-Maps BOLD and GBIF records to downstream publication exposure.
+Maps BOLD records to delayed downstream publication yield and keeps GBIF
+literature links as a separate dataset-level exposure layer.
 
 - `20_link_bold_to_pubmed.py`: builds resumable BOLD GenBank/INSDC accession → PubMed links. Output: `Data/processed/discovery/publications/bold_accession_to_pubmed.csv`.
 - `20b_fetch_pubmed_metadata.py`: fetches PubMed `year`/DOI/title/journal metadata for PMIDs linked from BOLD GenBank accessions. Output: `Data/processed/discovery/publications/pubmed_id_to_metadata.csv`; cache: `pubmed_metadata_cache.db`.
 - `21_link_gbif_datasets_to_publications.py`: links GBIF Plantae preserved-material `dataset_key` values to GBIF Literature API records. Output: `Data/processed/discovery/publications/gbif_dataset_to_pubs.csv`; cache: `gbif_literature_cache.db`. This is dataset-level attribution, not direct specimen citation.
-- `28_build_publication_cell_year_panel.py`: builds the unified Option A publication cell-year panel from BOLD accession→PubMed links plus GBIF dataset→literature links. Outputs: `Data/processed/discovery/publications/pubs_cell_year_panel_long.csv` and `pubs_cell_year_panel.csv`.
+- `28_build_publication_cell_year_panel.py`: builds the legacy publication-year exposure panel from BOLD accession→PubMed links plus GBIF dataset→literature links. Outputs: `Data/processed/discovery/publications/pubs_cell_year_panel_long.csv` and `pubs_cell_year_panel.csv`. Do not use pooled `pubs_total` as the headline causal outcome because it is dominated by GBIF dataset-level literature exposure.
+- `29_build_bold_publication_yield_panel.py`: builds the corrected BOLD specimen-cohort publication-yield panel. Unit: BOLD collection cell-year; outcomes count linked PubMed publications within 0–3, 0–5, and 0–10 years after collection, with completeness flags for each window. Output: `Data/processed/discovery/publications/bold_pub_yield_cell_year_panel.csv`.
+- `30_build_gbif_publication_exposure_panel.py`: builds the corrected-timing GBIF cohort exposure panel. Unit: GBIF occurrence collection cell-year; outcomes count dataset-linked GBIF Literature records within 0–3, 0–5, and 0–10 years after collection, with completeness flags. Output: `Data/processed/discovery/publications/gbif_pub_exposure_cell_year_panel.csv` (305,886 land-cell-year rows). This remains dataset-level exposure, not specimen-specific citation.
 
 ## Natural Products Pipeline — Option B (22–27)
 

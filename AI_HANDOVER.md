@@ -939,17 +939,45 @@ Completed Option A publication outputs:
   usable NCBI year/title metadata and are excluded from year-based panel
   construction.
 - `Scripts/28_build_publication_cell_year_panel.py` produced
-  `pubs_cell_year_panel_long.csv` and `pubs_cell_year_panel.csv`. The wide
-  panel has 305,886 land-cell-year rows; the long audit panel has 498,448
-  rows; totals are 38,396 BOLD-linked publication counts and 46,947,009 GBIF
-  dataset-publication exposure counts.
+  `pubs_cell_year_panel_long.csv` and `pubs_cell_year_panel.csv`. This is now
+  classified as a legacy publication-year exposure panel. The wide panel has
+  305,886 land-cell-year rows; the long audit panel has 498,448 rows; totals
+  are 38,396 BOLD-linked publication counts and 46,947,009 GBIF
+  dataset-publication exposure counts. Because pooled totals are dominated by
+  GBIF dataset-level exposure, they should not be used as the headline causal
+  downstream-publication outcome.
+- `Scripts/29_build_bold_publication_yield_panel.py` is the corrected main
+  Option A panel builder. It creates a BOLD-only collection-cohort panel:
+  specimens collected in cell-year `t` are linked to PubMed publications within
+  0–3, 0–5, and 0–10 years after collection. Output:
+  `Data/processed/discovery/publications/bold_pub_yield_cell_year_panel.csv`.
+- `Scripts/30_build_gbif_publication_exposure_panel.py` is the corrected-timing
+  GBIF companion. It creates a GBIF occurrence collection-cohort panel:
+  cell-year `t` is linked to dataset-level GBIF Literature records within
+  0–3, 0–5, and 0–10 years after collection. This fixes timing, but it remains
+  dataset-level exposure rather than specimen-specific publication yield.
+  Output: `Data/processed/discovery/publications/gbif_pub_exposure_cell_year_panel.csv`.
+  Final run completed in 3.76 minutes without an intermediate SQLite work DB:
+  305,886 land-cell-year rows; 431,461 unique GBIF dataset-cell-year cohorts;
+  9,598 unique publication keys; 0–3/0–5/0–10 year exposure totals of
+  30,467,940 / 51,080,647 / 118,526,444 respectively. These large totals are
+  expected under dataset-level attribution and should be interpreted as
+  dataset-citing exposure, not specimen-specific citation.
 
 Next Option A steps:
-- Extend `DoFiles/merge_all_regressors.do` to import
-  `pubs_cell_year_panel.csv`.
-- Write/run `DoFiles/reg_publications.do` mirroring `reg_spec1.do` Tables 3
-  and 5 with pooled, per-kingdom, per-source, and fungi-only consistency
-  checks.
+- `DoFiles/merge_all_regressors.do` has been rerun and imports both
+  `bold_pub_yield_cell_year_panel.csv` and
+  `gbif_pub_exposure_cell_year_panel.csv`, while keeping the old publication-
+  year exposure panel separate. Merge diagnostics for both corrected panels:
+  269,680 matched cell-years, 58,690 master-only rows, 0 using-only rows.
+- `DoFiles/reg_publications_gbif_exposure.do` was expanded to run horizon
+  sensitivity for 0–3, 0–5, and 0–10 year GBIF total and Plantae outcomes,
+  with explicit completeness-window sample diagnostics. The latest run reached
+  the corrected GBIF regression tables but ended on an overlong Stata local
+  macro name in the disabled legacy-diagnostics switch; this has been patched
+  (`run_legacy_pubyear`). Re-run the do-file once for a clean log.
+- Legacy publication-year exposure tables remain opt-in inside
+  `DoFiles/reg_publications_gbif_exposure.do`.
 
 ### Coordination with Option A
 

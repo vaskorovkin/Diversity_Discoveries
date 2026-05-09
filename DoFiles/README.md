@@ -149,6 +149,36 @@ Compact 8-column table comparing conflict coefficients across outcomes:
 All columns use log(1+events) conflict measure. Logs saved to
 `Logs/reg_spec_benchmark.log`.
 
+### Publication Linkage (Option A)
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_publications.do"
+```
+
+Runs the corrected BOLD specimen-cohort publication-yield tables. The outcome
+is downstream PubMed yield within fixed windows after specimen collection
+(`0-3`, `0-5`, and `0-10` years), with completeness flags by window. The main
+tables mirror the Table 3 and Table 5 structures from `reg_spec1.do`.
+
+Logs saved to `Logs/reg_publications.log`.
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_publications_gbif_exposure.do"
+```
+
+Runs the separate GBIF Literature API exposure tables. The default outcomes are
+cohort-timed (`gbif_pub_*_0_3yr`, `gbif_pub_*_0_5yr`, `gbif_pub_*_0_10yr`):
+collection cell-year `t` receives dataset-linked publications only in
+`[t, t+K]`. This fixes the timing problem but remains dataset-level exposure,
+not specimen-specific downstream publication yield. The 0-5 year horizon is
+the primary diagnostic; 0-3 and 0-10 years are horizon-sensitivity checks. The
+do-file runs total and Plantae outcomes for all three horizons and prints the
+effective sample years after each completeness-window restriction. Legacy
+publication-year exposure tables remain in the do-file behind an opt-in local
+switch.
+
+Logs saved to `Logs/reg_publications_gbif_exposure.log`.
+
 ### Natural Products (Option B)
 
 ```stata

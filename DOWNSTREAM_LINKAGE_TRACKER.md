@@ -136,8 +136,13 @@ pipeline returns signal.
       Literature records within 0–3, 0–5, and 0–10 years after collection.
       This fixes the timing problem but remains dataset-level exposure, not
       specimen-specific publication yield.
-- [ ] Run Script 30 and produce
-      `Data/processed/discovery/publications/gbif_pub_exposure_cell_year_panel.csv`.
+- [x] Run Script 30 and produce
+      `Data/processed/discovery/publications/gbif_pub_exposure_cell_year_panel.csv`
+      (305,886 land-cell-year rows; 431,461 unique GBIF dataset-cell-year
+      cohorts; 9,598 unique publication keys; 0–3 / 0–5 / 0–10 year exposure
+      totals of 30,467,940 / 51,080,647 / 118,526,444). These large counts are
+      expected under dataset-level attribution and remain diagnostic exposure,
+      not specimen-specific downstream yield.
 
 **Subtask A3: Unified panel and regressions**
 - [x] Fetch PubMed metadata for BOLD-linked PMIDs →
@@ -159,21 +164,28 @@ pipeline returns signal.
       inherited by every cell where the dataset has preserved-material Plantae
       occurrences. Do not use pooled `pubs_total` from this file as the main
       causal downstream-publication outcome.
-- [ ] Build corrected BOLD specimen-cohort publication-yield panel →
+- [x] Build corrected BOLD specimen-cohort publication-yield panel →
       `Data/processed/discovery/publications/bold_pub_yield_cell_year_panel.csv`
       (`Scripts/29_build_bold_publication_yield_panel.py`). Unit is BOLD
       collection cell-year; outcomes count linked PubMed publications within
       0–3, 0–5, and 0–10 years after specimen collection. This incorporates
       publication delay and avoids GBIF dataset-level attribution.
-- [ ] Re-run `merge_all_regressors.do` after Script 29, then re-run
-      `DoFiles/reg_publications.do`. The do-file now treats the 0–5 year
-      BOLD yield panel as the main Table 3/Table 5 outcome, with 0–3 and
-      0–10 year total-yield robustness checks; legacy GBIF exposure tables
-      are gated off by default.
+- [x] Re-run `merge_all_regressors.do` after Scripts 29 and 30. The merged
+      analysis panel now carries the corrected BOLD yield and corrected-timing
+      GBIF exposure panels. Merge diagnostics for each corrected publication
+      panel are 269,680 matched cell-years, 58,690 master-only rows, and 0
+      using-only rows.
+- [x] Run `DoFiles/reg_publications.do` for the corrected BOLD yield tables.
+      The do-file treats the 0–5 year BOLD yield panel as the main Table
+      3/Table 5 outcome, with 0–3 and 0–10 year total-yield robustness checks;
+      legacy GBIF exposure tables are gated off by default.
 - [x] Split GBIF publication regressions out of `reg_publications.do` into
       `DoFiles/reg_publications_gbif_exposure.do`. The default GBIF tables now
       target the corrected cohort-timed Script 30 variables; legacy
       publication-year exposure diagnostics remain opt-in.
+- [ ] Re-run `DoFiles/reg_publications_gbif_exposure.do` after the local macro
+      name patch so the corrected GBIF 0–3 / 0–5 / 0–10 horizon-sensitivity
+      tables finish with a clean log.
 - [ ] Fungi subset re-run for consistency check with Option B using corrected
       BOLD 0–5 year publication-yield outcome.
 
