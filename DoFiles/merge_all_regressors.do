@@ -172,6 +172,42 @@ if _rc==0 {
     local have_gbif_plantae 1
 }
 
+* --- Publication-linkage panel (Option A) ---
+local have_publications 0
+capture confirm file "`proj'/Data/processed/discovery/publications/pubs_cell_year_panel.csv"
+if _rc==0 {
+    import delimited "`proj'/Data/processed/discovery/publications/pubs_cell_year_panel.csv", clear
+    keep if year<=2024
+    drop cell_x cell_y centroid_lon centroid_lat continent country iso_a3 drop_rich_region_flag
+    tempfile publications
+    save `publications'
+    local have_publications 1
+}
+
+* --- BOLD delayed publication-yield panel (Option A corrected main outcome) ---
+local have_bold_pub_yield 0
+capture confirm file "`proj'/Data/processed/discovery/publications/bold_pub_yield_cell_year_panel.csv"
+if _rc==0 {
+    import delimited "`proj'/Data/processed/discovery/publications/bold_pub_yield_cell_year_panel.csv", clear
+    keep if year<=2024
+    drop cell_x cell_y centroid_lon centroid_lat continent country iso_a3 drop_rich_region_flag
+    tempfile bold_pub_yield
+    save `bold_pub_yield'
+    local have_bold_pub_yield 1
+}
+
+* --- GBIF cohort-timed dataset-publication exposure panel (Option A diagnostic) ---
+local have_gbif_pub_exposure 0
+capture confirm file "`proj'/Data/processed/discovery/publications/gbif_pub_exposure_cell_year_panel.csv"
+if _rc==0 {
+    import delimited "`proj'/Data/processed/discovery/publications/gbif_pub_exposure_cell_year_panel.csv", clear
+    keep if year<=2024
+    drop cell_x cell_y centroid_lon centroid_lat continent country iso_a3 drop_rich_region_flag
+    tempfile gbif_pub_exposure
+    save `gbif_pub_exposure'
+    local have_gbif_pub_exposure 1
+}
+
 * --- Static baselines: species richness ---
 
 import delimited "`proj'/Data/regressors/baseline_geography/species_richness_100km_cells.csv", clear
@@ -246,6 +282,89 @@ rename _merge _merge_foreign_collecting
 if `have_gbif_plantae' == 1 {
     merge 1:1 cell_id year using `gbif_plantae'
     rename _merge _merge_gbif_plantae
+}
+
+if `have_publications' == 1 {
+    merge 1:1 cell_id year using `publications'
+    rename _merge _merge_publications
+
+    * Zero-fill publication outcomes for master-only cell-years.
+    foreach v of varlist pubs_total pubs_bold pubs_gbif ///
+            pubs_animalia pubs_plantae pubs_fungi pubs_bacteria pubs_other_blank ///
+            pubs_bold_animalia pubs_bold_plantae pubs_bold_fungi pubs_bold_bacteria ///
+            pubs_bold_other_blank pubs_gbif_plantae ///
+            any_pubs_total any_pubs_bold any_pubs_gbif ///
+            any_pubs_animalia any_pubs_plantae any_pubs_fungi any_pubs_bacteria ///
+            any_pubs_other_blank any_pubs_bold_animalia any_pubs_bold_plantae ///
+            any_pubs_bold_fungi any_pubs_bold_bacteria any_pubs_bold_other_blank ///
+            any_pubs_gbif_plantae ///
+            log1p_pubs_total log1p_pubs_bold log1p_pubs_gbif ///
+            log1p_pubs_animalia log1p_pubs_plantae log1p_pubs_fungi ///
+            log1p_pubs_bacteria log1p_pubs_other_blank ///
+            log1p_pubs_bold_animalia log1p_pubs_bold_plantae ///
+            log1p_pubs_bold_fungi log1p_pubs_bold_bacteria ///
+            log1p_pubs_bold_other_blank log1p_pubs_gbif_plantae {
+        replace `v' = 0 if missing(`v')
+    }
+}
+
+if `have_bold_pub_yield' == 1 {
+    merge 1:1 cell_id year using `bold_pub_yield'
+    rename _merge _merge_bold_pub_yield
+
+    * Zero-fill publication-yield outcomes for master-only cell-years.
+    foreach v of varlist bold_pub_total_0_3yr bold_pub_animalia_0_3yr ///
+            bold_pub_plantae_0_3yr bold_pub_fungi_0_3yr bold_pub_bacteria_0_3yr ///
+            any_bold_pub_total_0_3yr any_bold_pub_animalia_0_3yr ///
+            any_bold_pub_plantae_0_3yr any_bold_pub_fungi_0_3yr ///
+            any_bold_pub_bacteria_0_3yr ///
+            log1p_bold_pub_total_0_3yr log1p_bold_pub_animalia_0_3yr ///
+            log1p_bold_pub_plantae_0_3yr log1p_bold_pub_fungi_0_3yr ///
+            log1p_bold_pub_bacteria_0_3yr ///
+            bold_pub_total_0_5yr bold_pub_animalia_0_5yr ///
+            bold_pub_plantae_0_5yr bold_pub_fungi_0_5yr bold_pub_bacteria_0_5yr ///
+            any_bold_pub_total_0_5yr any_bold_pub_animalia_0_5yr ///
+            any_bold_pub_plantae_0_5yr any_bold_pub_fungi_0_5yr ///
+            any_bold_pub_bacteria_0_5yr ///
+            log1p_bold_pub_total_0_5yr log1p_bold_pub_animalia_0_5yr ///
+            log1p_bold_pub_plantae_0_5yr log1p_bold_pub_fungi_0_5yr ///
+            log1p_bold_pub_bacteria_0_5yr ///
+            bold_pub_total_0_10yr bold_pub_animalia_0_10yr ///
+            bold_pub_plantae_0_10yr bold_pub_fungi_0_10yr bold_pub_bacteria_0_10yr ///
+            any_bold_pub_total_0_10yr any_bold_pub_animalia_0_10yr ///
+            any_bold_pub_plantae_0_10yr any_bold_pub_fungi_0_10yr ///
+            any_bold_pub_bacteria_0_10yr ///
+            log1p_bold_pub_total_0_10yr log1p_bold_pub_animalia_0_10yr ///
+            log1p_bold_pub_plantae_0_10yr log1p_bold_pub_fungi_0_10yr ///
+            log1p_bold_pub_bacteria_0_10yr {
+        replace `v' = 0 if missing(`v')
+    }
+
+    foreach v of varlist bold_pub_complete_0_3yr bold_pub_complete_0_5yr bold_pub_complete_0_10yr {
+        replace `v' = 0 if missing(`v')
+    }
+}
+
+if `have_gbif_pub_exposure' == 1 {
+    merge 1:1 cell_id year using `gbif_pub_exposure'
+    rename _merge _merge_gbif_pub_exposure
+
+    * Zero-fill GBIF cohort-timed dataset-publication exposure outcomes.
+    foreach v of varlist gbif_pub_total_0_3yr gbif_pub_plantae_0_3yr ///
+            any_gbif_pub_total_0_3yr any_gbif_pub_plantae_0_3yr ///
+            log1p_gbif_pub_total_0_3yr log1p_gbif_pub_plantae_0_3yr ///
+            gbif_pub_total_0_5yr gbif_pub_plantae_0_5yr ///
+            any_gbif_pub_total_0_5yr any_gbif_pub_plantae_0_5yr ///
+            log1p_gbif_pub_total_0_5yr log1p_gbif_pub_plantae_0_5yr ///
+            gbif_pub_total_0_10yr gbif_pub_plantae_0_10yr ///
+            any_gbif_pub_total_0_10yr any_gbif_pub_plantae_0_10yr ///
+            log1p_gbif_pub_total_0_10yr log1p_gbif_pub_plantae_0_10yr {
+        replace `v' = 0 if missing(`v')
+    }
+
+    foreach v of varlist gbif_pub_complete_0_3yr gbif_pub_complete_0_5yr gbif_pub_complete_0_10yr {
+        replace `v' = 0 if missing(`v')
+    }
 }
 
 if `have_chempot' == 1 {
@@ -351,6 +470,12 @@ if _rc==0 tab _merge_gbif_preperiod_richness
 tab _merge_foreign_collecting
 capture confirm variable _merge_gbif_plantae
 if _rc==0 tab _merge_gbif_plantae
+capture confirm variable _merge_publications
+if _rc==0 tab _merge_publications
+capture confirm variable _merge_bold_pub_yield
+if _rc==0 tab _merge_bold_pub_yield
+capture confirm variable _merge_gbif_pub_exposure
+if _rc==0 tab _merge_gbif_pub_exposure
 capture confirm variable _merge_chempot
 if _rc==0 {
     tab _merge_chempot
