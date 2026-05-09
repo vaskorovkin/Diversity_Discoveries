@@ -36,10 +36,14 @@ the regression panel `BOLD_regressor_panel.dta`. Both options must use
 both upstream pipelines:
 
 - **Option A** has *two* linkage subtasks — BOLD specimens to PubMed via
-  GenBank accessions, and GBIF specimens to publications via the GBIF
-  Literature API. The final cell × year publication-count panel is the
-  **union** of both chains. Decomposing by source (BOLD-linked vs
-  GBIF-linked publications) is a useful robustness check.
+  GenBank accessions, and GBIF dataset keys to publications via the GBIF
+  Literature API. The corrected main downstream-publication outcome is the
+  BOLD specimen-cohort yield panel, which maps specimens collected in
+  cell-year `t` to linked PubMed publications within future windows. The
+  GBIF Literature API chain is retained as dataset-level literature exposure.
+  The corrected GBIF diagnostic should use occurrence collection cell-year `t`
+  and future dataset-linked publication windows; it is still not direct
+  specimen citation and should not be pooled into a headline causal `pubs_total`.
 - **Option B** uses *one* shared species universe drawn from both BOLD and
   GBIF. The species → compound join is identical regardless of upstream
   source. For plants, GBIF should dominate the species universe (~3× the
@@ -126,6 +130,14 @@ pipeline returns signal.
       publication row; 2,659 valid UUID dataset keys fetched/cached; 21
       malformed non-UUID `dataset_key` values excluded after GBIF returned
       `Invalid UUID string`).
+- [x] Write corrected-timing GBIF cohort exposure builder →
+      `Scripts/30_build_gbif_publication_exposure_panel.py`. Unit is GBIF
+      occurrence collection cell-year; outcomes count dataset-linked GBIF
+      Literature records within 0–3, 0–5, and 0–10 years after collection.
+      This fixes the timing problem but remains dataset-level exposure, not
+      specimen-specific publication yield.
+- [ ] Run Script 30 and produce
+      `Data/processed/discovery/publications/gbif_pub_exposure_cell_year_panel.csv`.
 
 **Subtask A3: Unified panel and regressions**
 - [x] Fetch PubMed metadata for BOLD-linked PMIDs →
@@ -136,7 +148,7 @@ pipeline returns signal.
       metadata and will be excluded from year-based panel construction.
 - [x] Build cell × year publication-count panel →
       `Data/processed/discovery/publications/pubs_cell_year_panel.csv`
-      (`Scripts/28_build_publication_cell_year_panel.py`; union of A1 + A2;
+      (`Scripts/28_build_publication_cell_year_panel.py`; legacy exposure panel;
       source breakdowns `bold|gbif|all`; kingdom breakdowns Animalia,
       Plantae, Fungi, Bacteria, other/blank, all). Script number `28` avoids
       conflict with Option B script `25_resolve_species_names.py`. Final
@@ -145,11 +157,25 @@ pipeline returns signal.
       publication counts, and 46,947,009 GBIF dataset-publication exposure
       counts. GBIF totals are large by design because dataset-level links are
       inherited by every cell where the dataset has preserved-material Plantae
-      occurrences.
-- [ ] Stata regressions mirroring `reg_spec1.do` Tables 3 + 5 with new LHS,
-      run pooled and per-kingdom (and per-phylum for Arthropoda); also
-      decompose by source as a robustness check
-- [ ] Fungi subset re-run for consistency check with Option B
+      occurrences. Do not use pooled `pubs_total` from this file as the main
+      causal downstream-publication outcome.
+- [ ] Build corrected BOLD specimen-cohort publication-yield panel →
+      `Data/processed/discovery/publications/bold_pub_yield_cell_year_panel.csv`
+      (`Scripts/29_build_bold_publication_yield_panel.py`). Unit is BOLD
+      collection cell-year; outcomes count linked PubMed publications within
+      0–3, 0–5, and 0–10 years after specimen collection. This incorporates
+      publication delay and avoids GBIF dataset-level attribution.
+- [ ] Re-run `merge_all_regressors.do` after Script 29, then re-run
+      `DoFiles/reg_publications.do`. The do-file now treats the 0–5 year
+      BOLD yield panel as the main Table 3/Table 5 outcome, with 0–3 and
+      0–10 year total-yield robustness checks; legacy GBIF exposure tables
+      are gated off by default.
+- [x] Split GBIF publication regressions out of `reg_publications.do` into
+      `DoFiles/reg_publications_gbif_exposure.do`. The default GBIF tables now
+      target the corrected cohort-timed Script 30 variables; legacy
+      publication-year exposure diagnostics remain opt-in.
+- [ ] Fungi subset re-run for consistency check with Option B using corrected
+      BOLD 0–5 year publication-yield outcome.
 
 ### Option B — Natural products
 - [x] Download LOTUS dump (Wikidata-linked) →
@@ -263,6 +289,24 @@ pipeline returns signal.
       22, 22b → 23 → 24 → 25 → 26 → 27. Unknown kingdom: 26K → 8K
       (species pass) → low-hundreds (genus pass).
 - [ ] Fungi subset re-run for consistency check with Option A
+- **Examined alternatives — compound-discovery-rate panel rejected.**
+  Considered building a per-cell-year LOTUS-compound-discovery panel
+  (LHS = newly published compounds attributed to species sampled in the
+  cell-year). Rejected after `Scripts/audit_lotus_geography.py`:
+  (1) LOTUS has zero geography (no country, locality, or coordinates
+  in either `260413_frozen_metadata.csv.gz` or `260413_frozen.csv.gz`),
+  so spatial attribution would have to come from BOLD/GBIF — which is
+  exactly what the current chemical-potential panel already uses;
+  (2) no `reference_year` column — recoverable via CrossRef
+  (`reference_doi`, 91,377 unique DOIs at 100% fill) or Wikidata SPARQL
+  (`reference_wikidata`, 91,421 unique refs at 100% fill), but the
+  10–30 year specimen-to-publication lag means the 2005–2024 conflict
+  shock window has insufficient post-period observation time;
+  (3) compound-publication outcomes are temporally and structurally
+  better measured by Option A's per-specimen publication-linkage chain
+  (BOLD→PubMed via A1; GBIF→Literature API via A2). Conclusion: LOTUS
+  is the right tool for "what *could* be discovered if these species
+  are sampled" (current design), not "what *was* discovered when."
 
 ## Coordination
 
