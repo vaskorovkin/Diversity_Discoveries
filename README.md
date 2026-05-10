@@ -53,12 +53,6 @@ Map BOLD Fungi on a 100 km equal-area grid:
 python3 Scripts/map_bold_fungi_grid.py --cell-km 100
 ```
 
-Import global BOLD Fungi into Stata:
-
-```stata
-do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/02_import_bold_fungi_global.do"
-```
-
 ## Exhibit Pipeline
 
 The current Stata-ready BOLD panel is generated from compact exhibit files, not
