@@ -46,9 +46,6 @@ L0-L2 distributed lags for conflict, PDSI, and tmax with `lincom` sum tests.
 
 Standard errors clustered at cell level. Logs saved to `Logs/reg_spec1.log`.
 
-Legacy files `reg_spec1_global_south.do` and `reg_spec1_country_year_fe.do` are
-superseded by `reg_spec1.do`.
-
 ### GBIF Plantae Regression Mirror
 
 ```stata
@@ -325,3 +322,14 @@ of `domestic_score_sum`, `foreign_score_sum` (regional+distant),
 before transformation.
 
 Logs saved to `Logs/reg_foreign_collecting.log`.
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/desc_foreign_collecting.do"
+```
+
+Standalone descriptive companion to `reg_foreign_collecting.do`. Reads
+`BOLD_regressor_panel.dta` and produces coverage counts, summary stats,
+correlations, histograms, and binscatters of foreign / domestic / distant /
+collaborative collecting against GDP, richness, biome, and hotspot status.
+Figures exported to `Exhibits/`. Logs saved to
+`Logs/desc_foreign_collecting.log`.
