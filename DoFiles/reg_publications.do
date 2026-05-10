@@ -1,6 +1,7 @@
 * reg_publications.do
 * Conflict -> downstream publication output (Option A)
 * Mirrors reg_spec1.do Table 3 and Table 5 using publication outcomes.
+* Companion event-study file: DoFiles/reg_event_study_publications_5yr.do
 
 clear all
 set more off

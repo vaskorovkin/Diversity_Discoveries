@@ -576,6 +576,15 @@ table. Key finding: conflict effect on new BIN discovery is almost entirely
 mediated by reduced sampling volume (the coefficient flips sign when
 conditioning on `log1p_total`).
 
+### BIN Event-Study Ladder (`reg_event_study_bin_new.do`)
+
+Log: `Logs/reg_event_study_bin_new.log`
+
+Companion event-study file for `any_n_new_bins` and `log1p_n_new_bins`.
+Mirrors the main sampling event-study ladder: conflict-only TWFE vs BJS,
+continuous-intensity distributed lag, dCDH, `csdid`, and multi-shock TWFE/BJS
+comparisons.
+
 ### Organism Heterogeneity (`reg_spec_organisms.do`)
 
 Log: `Logs/reg_spec_organisms.log`
@@ -603,6 +612,21 @@ Key findings across tables:
   sampling. Cumulative L0-L2 effect is small and imprecise.
 - Tmax (heat) is inconsistent.
 - GDP×PA interactions are entirely cross-country (disappear in Table 2+).
+
+### Sampling Event-Study Ladder (`reg_event_study.do`)
+
+Log: `Logs/reg_event_study.log`
+
+Main event-study file for `any_total` and `log1p_total`. Implements the
+dynamic identification ladder used for the conflict results:
+- explicit-dummy TWFE event-study
+- Borusyak-Jaravel-Spiess imputation
+- continuous-intensity distributed lag
+- dCDH heterogeneity-robust dynamic DID
+- `csdid` robustness
+- multi-shock TWFE/BJS comparison for conflict, drought, and fire
+
+Conflict onset uses `K=10`, while the main binary-onset window is `-6/+8`.
 
 ## Commit Preparation
 
@@ -883,6 +907,18 @@ sampling volume (GP5 cols 3-4 vs 7-8). No compositional shift — NP species
 decline proportionally to total plant sampling. Plant-specific richness
 amplifies the effect (GP3), unlike generic species richness (NP3).
 
+### GBIF Plantae NP Event-Study Ladder (`reg_event_study_natural_products_gbif.do`)
+
+Log: `Logs/reg_event_study_natural_products_gbif.log`
+
+Companion event-study file for the primary GBIF Plantae NP pair:
+- `gp_np_any`
+- `gp_np_log`
+
+Mirrors the main sampling event-study ladder: conflict-only TWFE vs BJS,
+continuous-intensity distributed lag, dCDH, `csdid`, and multi-shock TWFE/BJS
+comparisons.
+
 ### Pipeline fixes applied this session
 
 1. **`_no_bin` ≡ `_named_only` bug** (Script 27): Added distinct
@@ -978,6 +1014,20 @@ Next Option A steps:
   (`run_legacy_pubyear`). Re-run the do-file once for a clean log.
 - Legacy publication-year exposure tables remain opt-in inside
   `DoFiles/reg_publications_gbif_exposure.do`.
+
+### Publication Event-Study Ladder (`reg_event_study_publications_5yr.do`)
+
+Log: `Logs/reg_event_study_publications_5yr.log`
+
+Companion event-study file for the corrected downstream BOLD yield outcomes:
+- `any_bold_pub_total_0_5yr`
+- `log1p_bold_pub_total_0_5yr`
+
+Because the publication outcomes require `bold_pub_complete_0_5yr == 1`, the
+event-study design uses conflict onset `K=5` and a shorter `-5/+8` window.
+Otherwise it mirrors the main sampling event-study ladder: TWFE, BJS,
+continuous-intensity distributed lag, dCDH, `csdid`, and multi-shock TWFE/BJS
+comparisons.
 
 ### Coordination with Option A
 

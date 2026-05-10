@@ -5,6 +5,7 @@
 * Table 3: n_bins — Conflict × Richness interaction
 * Table 4: n_new_bins — Conflict × Richness interaction
 * Table 5: n_new_bins — Sampling effort control (+/- Conflict × Richness)
+* Companion event-study file: DoFiles/reg_event_study_bin_new.do
 
 clear all
 set more off

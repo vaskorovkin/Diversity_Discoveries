@@ -116,6 +116,18 @@ Replaces total-record LHS with BIN (Barcode Index Number) outcomes.
 
 Logs saved to `Logs/reg_spec_bin.log`.
 
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_event_study_bin_new.do"
+```
+
+Companion event-study file for the BIN discovery outcomes
+`any_n_new_bins` and `log1p_n_new_bins`. Mirrors the sampling event-study
+ladder: TWFE, BJS, continuous-intensity distributed lag, dCDH, `csdid`, and
+multi-shock TWFE/BJS comparisons.
+
+Logs saved to `Logs/reg_event_study_bin_new.log`. Figures saved to
+`Output/figures/event_study/`.
+
 ### Organism Heterogeneity
 
 ```stata
@@ -149,6 +161,34 @@ Compact 8-column table comparing conflict coefficients across outcomes:
 All columns use log(1+events) conflict measure. Logs saved to
 `Logs/reg_spec_benchmark.log`.
 
+### Sampling Event-Study Ladder
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_event_study.do"
+```
+
+Main event-study file for biodiversity sampling outcomes:
+
+- `any_total`
+- `log1p_total`
+
+Implements the dynamic identification ladder:
+
+- **Table 1**: conflict-only TWFE vs BJS event-study comparison
+- **Table 2**: continuous-treatment distributed lag + dCDH + `csdid`
+- **Table 3**: multi-shock BJS comparison (conflict, drought, fire)
+- **Table 4**: multi-shock TWFE comparison
+- **Figures 1-6**: paired TWFE/BJS plots, multi-shock plots, and
+  continuous-treatment plots
+
+The file has an FE clicker at the top:
+
+- `rich`: cell + country×year + biome×year FE
+- `simple`: cell + year FE only
+
+Logs saved to `Logs/reg_event_study.log`. Figures saved to
+`Output/figures/event_study/`.
+
 ### Publication Linkage (Option A)
 
 ```stata
@@ -161,6 +201,29 @@ is downstream PubMed yield within fixed windows after specimen collection
 tables mirror the Table 3 and Table 5 structures from `reg_spec1.do`.
 
 Logs saved to `Logs/reg_publications.log`.
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_event_study_publications_5yr.do"
+```
+
+Companion event-study file for the corrected 5-year downstream BOLD
+publication-yield outcomes:
+
+- `any_bold_pub_total_0_5yr`
+- `log1p_bold_pub_total_0_5yr`
+
+Because these outcomes require `bold_pub_complete_0_5yr == 1`, this file uses
+a shorter onset design than the sampling file:
+
+- conflict onset uses `K=5`
+- event-study window is `-5/+8`
+
+Otherwise it mirrors the main event-study ladder: TWFE, BJS,
+continuous-intensity distributed lag, dCDH, `csdid`, and multi-shock TWFE/BJS
+comparisons.
+
+Logs saved to `Logs/reg_event_study_publications_5yr.log`. Figures saved to
+`Output/figures/event_study/`.
 
 ```stata
 do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_publications_gbif_exposure.do"
@@ -239,6 +302,22 @@ Five tables:
   effort control; cols 9-10 NP share on rec>0.
 
 Logs saved to `Logs/reg_natural_products_gbif.log`.
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_event_study_natural_products_gbif.do"
+```
+
+Companion event-study file for the primary GBIF Plantae natural-products
+outcomes:
+
+- `gp_np_any`
+- `gp_np_log`
+
+Mirrors the main event-study ladder: TWFE, BJS, continuous-intensity
+distributed lag, dCDH, `csdid`, and multi-shock TWFE/BJS comparisons.
+
+Logs saved to `Logs/reg_event_study_natural_products_gbif.log`. Figures saved
+to `Output/figures/event_study/`.
 
 ### Foreign vs Domestic Collecting Composition
 

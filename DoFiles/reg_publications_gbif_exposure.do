@@ -318,14 +318,4 @@ run_gbif_exposure, ///
 
 }
 
-* ===================================================================
-* Simple TWFE event study: first conflict year -> GBIF 0-5yr exposure
-* ===================================================================
-
-local run_event_study 1
-
-if `run_event_study' == 1 {
-    do "`proj'/DoFiles/reg_publications_gbif_exposure_event_study.do"
-}
-
 log close

@@ -4,6 +4,7 @@
 * Restricts NP outcomes to the GBIF Plantae pipeline only (98.5% of NP
 * species observations). Uses GBIF plant richness as the interaction
 * moderator instead of IUCN total richness.
+* Companion event-study file: DoFiles/reg_event_study_natural_products_gbif.do
 *
 * Table GP1: NP species count (8 cols)
 * Table GP2: NP share + compound diversity (8 cols)

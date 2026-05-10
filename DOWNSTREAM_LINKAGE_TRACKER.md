@@ -179,6 +179,11 @@ pipeline returns signal.
       The do-file treats the 0–5 year BOLD yield panel as the main Table
       3/Table 5 outcome, with 0–3 and 0–10 year total-yield robustness checks;
       legacy GBIF exposure tables are gated off by default.
+- [x] Create `DoFiles/reg_event_study_publications_5yr.do` for the corrected
+      5-year publication-yield outcomes (`any_bold_pub_total_0_5yr`,
+      `log1p_bold_pub_total_0_5yr`). Uses conflict onset `K=5`, event window
+      `-5/+8`, and mirrors the main TWFE/BJS/continuous/dCDH/`csdid`/
+      multi-shock event-study ladder.
 - [x] Split GBIF publication regressions out of `reg_publications.do` into
       `DoFiles/reg_publications_gbif_exposure.do`. The default GBIF tables now
       target the corrected cohort-timed Script 30 variables; legacy
@@ -293,6 +298,10 @@ pipeline returns signal.
       interaction -0.021*** (stronger than NP3 with IUCN richness), GP4
       stacked null, GP5 10-col intensive-margin benchmark — conflict
       effect -0.083*** on rec>0 sample vanishes with GBIF effort control.
+- [x] Create `DoFiles/reg_event_study_natural_products_gbif.do` for the
+      primary GBIF Plantae NP pair (`gp_np_any`, `gp_np_log`). Mirrors the
+      main event-study ladder with TWFE, BJS, continuous-intensity DL, dCDH,
+      `csdid`, and multi-shock TWFE/BJS comparisons.
 - [x] Pipeline fixes: _no_bin ≡ _named_only bug fixed in Script 27
       (distinct species_no_bin set); kingdom backfill consolidated into
       Script 25 (species-level via GBIF backbone + genus-level via
