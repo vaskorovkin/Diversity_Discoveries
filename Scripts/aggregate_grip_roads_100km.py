@@ -18,7 +18,9 @@ from pathlib import Path
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import rasterio
+
+from panel_variants import get_variant
+from raster_zonal import aggregate_raster_file
 
 PROJECT_ROOT = Path("/Users/vasilykorovkin/Documents/Diversity_Discoveries")
 DEFAULT_GRIP_DIR = PROJECT_ROOT / "Data" / "raw" / "grip"
@@ -27,59 +29,30 @@ DEFAULT_OUTPUT = PROJECT_ROOT / "Data" / "regressors" / "baseline_geography" / "
 
 
 def extract_cell_mean(raster_path: Path, cells: gpd.GeoDataFrame) -> pd.Series:
-    """Extract mean raster value for each cell polygon using bounding box sampling."""
-    values = []
-
-    with rasterio.open(raster_path) as src:
-        nodata = src.nodata if src.nodata is not None else -9999
-        data = src.read(1)
-        transform = src.transform
-
-        # Ensure cells are in WGS84 (same as raster)
-        if cells.crs is not None and cells.crs.to_epsg() != 4326:
-            cells_reproj = cells.to_crs("EPSG:4326")
-        else:
-            cells_reproj = cells
-
-        for idx, row in cells_reproj.iterrows():
-            geom = row.geometry
-            minx, miny, maxx, maxy = geom.bounds
-
-            # Convert bounds to pixel coordinates
-            col_start = int((minx - transform.c) / transform.a)
-            col_end = int((maxx - transform.c) / transform.a)
-            row_start = int((transform.f - maxy) / (-transform.e))
-            row_end = int((transform.f - miny) / (-transform.e))
-
-            # Clamp to raster bounds
-            col_start = max(0, col_start)
-            col_end = min(data.shape[1], col_end)
-            row_start = max(0, row_start)
-            row_end = min(data.shape[0], row_end)
-
-            if col_start >= col_end or row_start >= row_end:
-                values.append(0.0)
-                continue
-
-            # Extract window
-            window = data[row_start:row_end, col_start:col_end]
-            # Mask nodata
-            valid = window[window != nodata]
-
-            if len(valid) > 0:
-                values.append(float(np.mean(valid)))
-            else:
-                values.append(0.0)
-
-    return pd.Series(values, index=cells.index)
+    """Extract mean raster value for each cell polygon."""
+    return aggregate_raster_file(
+        raster_path,
+        cells,
+        valid_mask=lambda arr: arr >= 0,
+        fill_empty=0.0,
+    )
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--variant", type=str, default=None)
     parser.add_argument("--grip-dir", type=Path, default=DEFAULT_GRIP_DIR)
-    parser.add_argument("--land-cells", type=Path, default=LAND_CELLS)
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--land-cells", type=Path, default=None)
+    parser.add_argument("--output", type=Path, default=None)
     args = parser.parse_args()
+
+    variant = get_variant(args.variant) if args.variant else None
+    land_cells_path = args.land_cells or (variant.land_cells_geojson if variant else LAND_CELLS)
+    if variant is not None:
+        output_path = args.output or variant.regressors_root / "baseline_geography" / f"grip_roads_{int(variant.cell_km)}km_cells.csv"
+        print(f"Variant: {variant.name} ({variant.suffix})", flush=True)
+    else:
+        output_path = args.output or DEFAULT_OUTPUT
 
     # Find the total density raster
     total_raster = args.grip_dir / "GRIP4_density_total.asc"
@@ -93,12 +66,12 @@ def main() -> int:
             print("Run: python3 Scripts/download_grip_roads.py")
             return 1
 
-    if not args.land_cells.exists():
-        raise FileNotFoundError(f"Missing: {args.land_cells}")
-    args.output.parent.mkdir(parents=True, exist_ok=True)
+    if not land_cells_path.exists():
+        raise FileNotFoundError(f"Missing: {land_cells_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    print(f"Loading land cells: {args.land_cells}", flush=True)
-    cells = gpd.read_file(args.land_cells)
+    print(f"Loading land cells: {land_cells_path}", flush=True)
+    cells = gpd.read_file(land_cells_path)
     print(f"  {len(cells):,} cells", flush=True)
 
     print(f"Loading GRIP4 raster: {total_raster}", flush=True)
@@ -116,8 +89,8 @@ def main() -> int:
     # Log transform for regression
     out["log_road_density"] = np.log1p(out["road_density_m_per_km2"])
 
-    out.to_csv(args.output, index=False)
-    print(f"\nWrote: {args.output}", flush=True)
+    out.to_csv(output_path, index=False)
+    print(f"\nWrote: {output_path}", flush=True)
     print(f"Rows: {len(out):,}", flush=True)
 
     # Summary

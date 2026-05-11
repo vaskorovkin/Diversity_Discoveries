@@ -91,6 +91,38 @@ The panel is intentionally a strict land-cell panel. Some coastal, island, and
 marine/coastal records fall outside the land-cell universe and are not included
 in the current regression panel.
 
+## Spatial-Time Experiment Panels
+
+The canonical pipeline remains `100 km x year`. Experimental alternatives are
+centralized in `Scripts/panel_variants.py`:
+
+```text
+baseline_100km_year
+test_50km_year
+test_50km_quarter
+```
+
+The 50 km variants write under `Data/processed/tests_spatial_time/`,
+`Data/regressors/tests_spatial_time/`, and
+`Data/analysis/tests_spatial_time/`, so they do not overwrite the baseline
+100 km outputs. The quarterly path is a true quarterly panel for BOLD, MODIS,
+UCDP, ComCat, IBTrACS, TerraClimate, and CHIRPS. Hansen forest loss,
+harmonized nightlights, WDPA, and World Bank GDP are source-limited annual
+series and are repeated within year/quarter with source-frequency flags where
+appropriate.
+
+Earth Engine scripts now live in `Scripts/earth_engine/`. The 50 km Earth
+Engine instructions are in:
+
+```text
+Scripts/earth_engine/tests_spatial_time_README.md
+```
+
+The raster aggregators for TerraClimate, CHIRPS, GRIP roads, and GLOBIO MSA
+use `Scripts/raster_zonal.py`, which rasterizes actual cell polygons and
+aggregates by rasterized cell labels. This replaced the older lon/lat
+bounding-box windows.
+
 The first non-BOLD regressor is UCDP GED conflict, aggregated to the same 100 km
 land cells:
 
@@ -129,16 +161,26 @@ This file has one row per BOLD land cell with `cepf_hotspot_any`,
 `cepf_hotspot_count`, and `cepf_hotspot_names`.
 
 A WDPA/Protected Planet protected-area share script is prepared for the local
-May 2026 WDPA/WDOECM polygon geodatabase:
+May 2026 WDPA/WDOECM polygon File Geodatabase:
 
 ```text
 Scripts/aggregate_wdpa_protected_share_100km.py
+Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 ```
 
-The output is a May 2026 snapshot, `protected_share_c`, not a historical
-cell-year protected-area panel. It is appropriate as a baseline control or
-heterogeneity variable. A time-varying protected-area measure would require a
-separate build using `STATUS_YR` and/or historical WDPA releases.
+The baseline 100 km output is
+`Data/regressors/baseline_geography/wdpa_protected_share_100km_cells.csv`.
+The 50 km experiment output is
+`Data/regressors/tests_spatial_time/baseline_geography/wdpa_protected_share_50km_cells.csv`.
+Both are May 2026 snapshots, not historical cell-year protected-area panels.
+They are appropriate as baseline controls or heterogeneity variables.
+
+The preferred analysis panels use the `STATUS_YR`-based WDPA panel built by:
+
+```bash
+python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+```
 
 Hansen Global Forest Change (tree-cover-weighted forest loss) is aggregated via
 Google Earth Engine:
@@ -147,7 +189,7 @@ Google Earth Engine:
 Data/regressors/hansen/hansen_forest_loss_100km_panel.csv
 ```
 
-See `Scripts/gee_hansen_forest_loss_README.md` for the Earth Engine workflow.
+See `Scripts/earth_engine/gee_hansen_forest_loss_README.md` for the Earth Engine workflow.
 Hansen covers 2001-2023; variables include `baseline_forest_km2`,
 `forest_loss_km2`, `forest_loss_share`, `cumulative_loss_km2`, and lags.
 
@@ -232,16 +274,13 @@ BOLD is not sufficient as the main plant layer. For plants, the project should u
 
 ## Next Steps
 
-1. Merge the 2005-2025 BOLD collection-year panel with the 2005-2024 UCDP GED
-   conflict panel and run first extensive/intensive-margin sampling regressions
-   over the common 2005-2024 window.
-2. Finish Hansen Global Forest Change aggregation from Earth Engine and merge
-   annual tree-cover loss into the same cell-year panel.
-3. Decide whether to create a second panel that includes all observed cells
-   plus land zero cells, rather than strict land-centroid cells only.
-4. Link sampling layers to discovery data and broader sequencing effort:
-   ENA for Europe/EMBL-EBI submissions; DDBJ for Japan-linked submissions;
-   NCBI GenBank/SRA/BioSample for global sequencing records; CNCB-NGDC GSA
-   and CNGBdb for China-linked sequencing data; plus COCONUT, NPAtlas,
-   PubChem, ChEMBL, patents, and publications for natural-product and
-   discovery proxies.
+1. Compare `reg_spec1.do` outputs across `100-yearly`, `50-yearly`, and
+   `50-quarterly` after every panel rebuild.
+2. Treat `reg_event_study_twfe_simple.do` and
+   `reg_conflict_signal_decomposition.do` as diagnostics for whether the
+   strong TWFE table signal comes from clean onset timing, repeated exposure,
+   or composition.
+3. Keep the 100 km yearly pipeline as the fallback benchmark until the 50 km
+   and quarterly results are stable across logs, tables, and sample audits.
+4. Continue discovery-linkage work through the corrected BOLD publication
+   yield, GBIF publication exposure diagnostics, and natural-products panels.

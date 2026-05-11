@@ -58,6 +58,11 @@ set matsize 11000
 
 global proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
 
+* HDFE backend for TWFE/continuous OLS steps. Switch to reghdfejl after
+* confirming Julia works in Stata.
+local hdfe_cmd "reghdfe"
+// local hdfe_cmd "reghdfejl"
+
 * -------------------------------------------------------------------
 * FE clicker
 *   Set to "rich"   for cell + country-year + biome-year FE
@@ -92,6 +97,15 @@ foreach pkg in did_imputation did_multiplegt_dyn csdid drdid coefplot ///
     }
 }
 
+capture which `hdfe_cmd'
+if _rc {
+    di as error "Requested HDFE backend `hdfe_cmd' is not installed."
+    if "`hdfe_cmd'" == "reghdfejl" {
+        di as text "Install in Stata with: ssc install julia; ssc install reghdfejl"
+    }
+    error 111
+}
+
 * -------------------------------------------------------------------
 * 1. Load, sample, encode (mirrors reg_spec1.do:14-38)
 * -------------------------------------------------------------------
@@ -119,6 +133,8 @@ gen log1p_conflict = log(1 + ucdp_events_all)
 * Composite FE IDs for did_imputation fe() argument (numeric groups required).
 egen country_year = group(country_num year)
 egen biome_year   = group(resolve_biome_num year)
+replace country_year = . if missing(country_num)
+replace biome_year   = . if missing(resolve_biome_num)
 
 if "`fe_mode'" == "rich" {
     local absorb_main "cell_id_num country_year biome_year"
@@ -140,6 +156,7 @@ else {
 }
 
 display _n "{txt}=== FE mode: `fe_mode_label' ==="
+display "{txt}=== HDFE backend: `hdfe_cmd' ==="
 
 * -------------------------------------------------------------------
 * 3. add_avg_rows helper (extends reg_spec1.do:72-92 sums to averages)
@@ -290,7 +307,7 @@ foreach v in lead6 lead5 lead4 lead3 lead2 lag0 lag1 lag2 lag3 lag4 lag5 lag6 la
 foreach lhs in any_total log1p_total {
     display _n "{txt}--- TWFE event-study: LHS = `lhs' ---"
 
-    qui reghdfe `lhs' ///
+    qui `hdfe_cmd' `lhs' ///
         lead6 lead5 lead4 lead3 lead2 ///
         lag0 lag1 lag2 lag3 lag4 lag5 lag6 lag7 lag8, ///
         absorb(`absorb_main') ///
@@ -373,7 +390,7 @@ forvalues k = 1/5 {
     gen L`k'_log1p_conflict = L`k'.log1p_conflict
 }
 
-qui reghdfe log1p_total ///
+qui `hdfe_cmd' log1p_total ///
     F5_log1p_conflict F4_log1p_conflict F3_log1p_conflict F2_log1p_conflict F1_log1p_conflict ///
     log1p_conflict ///
     L1_log1p_conflict L2_log1p_conflict L3_log1p_conflict L4_log1p_conflict L5_log1p_conflict, ///
@@ -425,7 +442,7 @@ display _n "{txt}=== STEP 3b: dCDH heterogeneity-robust dynamic DID ==="
 
 if "`fe_mode'" == "rich" {
     * Residualize log1p_total on the saturated FE structure (FW-style)
-    qui reghdfe log1p_total, ///
+    qui `hdfe_cmd' log1p_total, ///
         absorb(`absorb_main') ///
         resid(log1p_total_resid)
 
@@ -523,7 +540,7 @@ foreach shk in conflict drought fire {
         replace `v' = 0 if missing(`v')
     }
 
-    qui reghdfe log1p_total ///
+    qui `hdfe_cmd' log1p_total ///
         lead6 lead5 lead4 lead3 lead2 ///
         lag0 lag1 lag2 lag3 lag4 lag5 lag6 lag7 lag8, ///
         absorb(`absorb_main') ///

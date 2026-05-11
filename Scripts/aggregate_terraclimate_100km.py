@@ -15,11 +15,15 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+from typing import Optional
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 import xarray as xr
+
+from panel_variants import get_variant
+from raster_zonal import XarrayCellMeanExtractor
 
 PROJECT_ROOT = Path("/Users/vasilykorovkin/Documents/Diversity_Discoveries")
 DEFAULT_TERRACLIMATE_DIR = PROJECT_ROOT / "Data" / "raw" / "terraclimate"
@@ -48,9 +52,25 @@ def load_annual_mean(var_dir: Path, var: str, year: int) -> xr.DataArray:
     # TerraClimate variable names match the filename variable
     da = ds[var.lower()] if var.lower() in ds else ds[var]
     # Compute annual mean across time dimension
-    annual_mean = da.mean(dim="time")
+    annual_mean = da.mean(dim="time").load()
     ds.close()
     return annual_mean
+
+
+def load_quarter_value(var_dir: Path, var: str, year: int, quarter: int) -> xr.DataArray:
+    """Load a TerraClimate NetCDF and compute one quarter's value."""
+    path = var_dir / f"TerraClimate_{var}_{year}.nc"
+    if not path.exists():
+        raise FileNotFoundError(f"Missing: {path}")
+
+    ds = xr.open_dataset(path)
+    da = ds[var.lower()] if var.lower() in ds else ds[var]
+    months = [quarter * 3 - 2, quarter * 3 - 1, quarter * 3]
+    q = da.sel(time=da["time"].dt.month.isin(months))
+    # PDSI and tmax are state/mean variables; precipitation should accumulate.
+    out = (q.sum(dim="time") if var.lower() == "ppt" else q.mean(dim="time")).load()
+    ds.close()
+    return out
 
 
 def compute_baseline_climatology(var_dir: Path, var: str, start: int, end: int) -> xr.DataArray:
@@ -72,37 +92,40 @@ def compute_baseline_climatology(var_dir: Path, var: str, start: int, end: int) 
     return climatology
 
 
-def extract_cell_values(da: xr.DataArray, cells: gpd.GeoDataFrame) -> pd.Series:
-    """Extract mean raster values for each cell polygon."""
-    # Ensure CRS matches (TerraClimate is EPSG:4326)
-    if cells.crs.to_epsg() != 4326:
-        cells = cells.to_crs("EPSG:4326")
-
-    values = []
-    for idx, row in cells.iterrows():
-        geom = row.geometry
-        minx, miny, maxx, maxy = geom.bounds
-
-        # Clip raster to bounding box
+def compute_quarter_baseline_climatology(var_dir: Path, var: str, quarter: int, start: int, end: int) -> xr.DataArray:
+    print(f"  Computing {var} Q{quarter} baseline climatology ({start}-{end})...", flush=True)
+    quarter_values = []
+    for year in range(start, end + 1):
         try:
-            clipped = da.sel(lon=slice(minx, maxx), lat=slice(maxy, miny))
-            if clipped.size == 0:
-                values.append(np.nan)
-            else:
-                # Simple mean of all pixels in bounding box
-                # (For 100km cells at 4km resolution, this is ~625 pixels)
-                values.append(float(clipped.mean().values))
-        except Exception:
-            values.append(np.nan)
+            qv = load_quarter_value(var_dir, var, year, quarter)
+            quarter_values.append(qv)
+        except FileNotFoundError:
+            print(f"    Warning: missing {var} {year}, skipping", flush=True)
 
-    return pd.Series(values, index=cells.index)
+    if not quarter_values:
+        raise ValueError(f"No baseline data found for {var} Q{quarter}")
+
+    stacked = xr.concat(quarter_values, dim="year")
+    return stacked.mean(dim="year")
+
+
+def extract_cell_values(
+    da: xr.DataArray,
+    cells: gpd.GeoDataFrame,
+    extractor: Optional[XarrayCellMeanExtractor] = None,
+) -> pd.Series:
+    """Extract mean raster values for each cell polygon."""
+    if extractor is None:
+        extractor = XarrayCellMeanExtractor(cells)
+    return extractor.aggregate(da)
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--variant", type=str, default=None)
     parser.add_argument("--terraclimate-dir", type=Path, default=DEFAULT_TERRACLIMATE_DIR)
-    parser.add_argument("--land-cells", type=Path, default=LAND_CELLS)
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--land-cells", type=Path, default=None)
+    parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--panel-start", type=int, default=PANEL_START)
     parser.add_argument("--panel-end", type=int, default=PANEL_END)
     parser.add_argument("--baseline-start", type=int, default=BASELINE_START)
@@ -111,27 +134,43 @@ def main() -> int:
     parser.add_argument("--skip-baseline", action="store_true", help="Skip anomaly calculation, output raw values only.")
     args = parser.parse_args()
 
-    if not args.land_cells.exists():
-        raise FileNotFoundError(f"Missing land cells: {args.land_cells}")
-    args.output.parent.mkdir(parents=True, exist_ok=True)
+    variant = get_variant(args.variant) if args.variant else None
+    freq = "year"
+    land_cells_path = args.land_cells or (variant.land_cells_geojson if variant else LAND_CELLS)
+    if variant is not None:
+        freq = variant.freq
+        suffix = "quarter_panel" if freq == "quarter" else "panel"
+        output_path = args.output or variant.regressors_root / "terraclimate" / f"terraclimate_{int(variant.cell_km)}km_{suffix}.csv"
+        print(f"Variant: {variant.name} ({variant.suffix})", flush=True)
+    else:
+        output_path = args.output or DEFAULT_OUTPUT
 
-    print(f"Loading land cells: {args.land_cells}", flush=True)
-    cells = gpd.read_file(args.land_cells)
+    if not land_cells_path.exists():
+        raise FileNotFoundError(f"Missing land cells: {land_cells_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    print(f"Loading land cells: {land_cells_path}", flush=True)
+    cells = gpd.read_file(land_cells_path)
     print(f"  {len(cells):,} cells", flush=True)
+    cell_extractor = XarrayCellMeanExtractor(cells)
 
     years = list(range(args.panel_start, args.panel_end + 1))
     print(f"Panel years: {years[0]}-{years[-1]}", flush=True)
 
-    # Initialize output dataframe
     rows = []
     for _, row in cells.iterrows():
         for year in years:
-            rows.append({
-                "cell_id": row["cell_id"],
-                "cell_x": row["cell_x"],
-                "cell_y": row["cell_y"],
-                "year": year,
-            })
+            quarters = [1, 2, 3, 4] if freq == "quarter" else [None]
+            for quarter in quarters:
+                out_row = {
+                    "cell_id": row["cell_id"],
+                    "cell_x": row["cell_x"],
+                    "cell_y": row["cell_y"],
+                    "year": year,
+                }
+                if quarter is not None:
+                    out_row["quarter"] = quarter
+                rows.append(out_row)
     out = pd.DataFrame(rows)
 
     # Process each variable
@@ -144,47 +183,53 @@ def main() -> int:
 
         print(f"\nProcessing {var}...", flush=True)
 
-        # Compute baseline climatology if needed
         climatology = None
         clim_values = None
+        quarter_clim_values = {}
         if not args.skip_baseline:
             try:
-                climatology = compute_baseline_climatology(
-                    var_dir, var, args.baseline_start, args.baseline_end
-                )
-                clim_values = extract_cell_values(climatology, cells)
-                print(f"  Baseline climatology extracted for {len(cells):,} cells", flush=True)
+                if freq == "quarter":
+                    for quarter in [1, 2, 3, 4]:
+                        climatology = compute_quarter_baseline_climatology(
+                            var_dir, var, quarter, args.baseline_start, args.baseline_end
+                        )
+                        quarter_clim_values[quarter] = extract_cell_values(climatology, cells, cell_extractor)
+                    print(f"  Quarterly baseline climatology extracted for {len(cells):,} cells", flush=True)
+                else:
+                    climatology = compute_baseline_climatology(
+                        var_dir, var, args.baseline_start, args.baseline_end
+                    )
+                    clim_values = extract_cell_values(climatology, cells, cell_extractor)
+                    print(f"  Baseline climatology extracted for {len(cells):,} cells", flush=True)
             except Exception as e:
                 print(f"  Warning: could not compute baseline: {e}", flush=True)
                 print(f"  Proceeding without anomalies for {var}", flush=True)
 
-        # Process each year
         for year in years:
-            print(f"  {var} {year}...", flush=True)
-            try:
-                annual_mean = load_annual_mean(var_dir, var, year)
-
-                # Extract values for each cell
-                cell_values = extract_cell_values(annual_mean, cells)
-
-                # Add to output
-                mask = out["year"] == year
-                out.loc[mask, f"{var_lower}_mean"] = cell_values.values
-
-                # Compute anomaly if we have climatology
-                if clim_values is not None:
-                    anomaly = cell_values - clim_values
-                    out.loc[mask, f"{var_lower}_anomaly"] = anomaly.values
-
-            except FileNotFoundError:
-                print(f"    Missing data for {year}", flush=True)
-            except Exception as e:
-                print(f"    Error: {e}", flush=True)
+            quarters = [1, 2, 3, 4] if freq == "quarter" else [None]
+            for quarter in quarters:
+                label = f"{year} Q{quarter}" if quarter is not None else str(year)
+                print(f"  {var} {label}...", flush=True)
+                try:
+                    period_value = load_quarter_value(var_dir, var, year, quarter) if quarter is not None else load_annual_mean(var_dir, var, year)
+                    cell_values = extract_cell_values(period_value, cells, cell_extractor)
+                    mask = (out["year"] == year)
+                    if quarter is not None:
+                        mask = mask & (out["quarter"] == quarter)
+                    out.loc[mask, f"{var_lower}_mean"] = cell_values.values
+                    base_values = quarter_clim_values.get(quarter) if quarter is not None else clim_values
+                    if base_values is not None:
+                        out.loc[mask, f"{var_lower}_anomaly"] = (cell_values - base_values).values
+                except FileNotFoundError:
+                    print(f"    Missing data for {label}", flush=True)
+                except Exception as e:
+                    print(f"    Error: {e}", flush=True)
 
     # Sort and save
-    out = out.sort_values(["cell_id", "year"])
-    out.to_csv(args.output, index=False)
-    print(f"\nWrote: {args.output}", flush=True)
+    sort_cols = ["cell_id", "year"] + (["quarter"] if freq == "quarter" else [])
+    out = out.sort_values(sort_cols)
+    out.to_csv(output_path, index=False)
+    print(f"\nWrote: {output_path}", flush=True)
     print(f"Rows: {len(out):,}", flush=True)
 
     # Summary
@@ -198,8 +243,9 @@ def main() -> int:
             print(f"{var} anomaly: {anom_col.mean():.3f} (std: {anom_col.std():.3f})", flush=True)
 
     # Save summary
-    summary_path = args.output.with_name(args.output.stem + "_summary.csv")
-    summary = out.groupby("year").agg({
+    summary_path = output_path.with_name(output_path.stem + "_summary.csv")
+    group_cols = ["year"] + (["quarter"] if freq == "quarter" else [])
+    summary = out.groupby(group_cols).agg({
         col: ["mean", "std"] for col in out.columns
         if col.endswith("_mean") or col.endswith("_anomaly")
     }).round(4)

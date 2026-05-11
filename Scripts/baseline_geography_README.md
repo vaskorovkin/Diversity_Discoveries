@@ -112,7 +112,7 @@ Current expected audits:
 
 WDPA is not downloaded by `download_baseline_geography.py` because Protected
 Planet requires a separate user download and terms workflow. Use the polygon
-geodatabase/GPKG/SHP download, not the CSV-only download. The CSV file contains
+FileGDB/GPKG/SHP download, not the CSV-only download. The CSV file contains
 attributes but no polygon geometry, so it cannot be used to compute protected
 area share.
 
@@ -124,22 +124,35 @@ filename. For the May 2026 public WDPA/WDOECM geodatabase currently used here:
 python3 Scripts/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 ```
 
+For the 50 km `tests_spatial_time` experiment, use the same WDPA geodatabase
+and build the time-varying panel used by the 50 km Stata panels:
+
+```bash
+python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+```
+
+The 50 km quarterly build reuses this same cell-year WDPA panel and repeats it
+within quarters.
+
 The script automatically selects the polygon layer in a FileGDB/GPKG. By
 default it excludes proposed sites, fully marine sites where identifiable, and
 OECM-only records in combined WDPA/WDOECM files. Add `--include-oecm` if the
 target variable should include OECMs as conserved areas, and `--include-marine`
 if marine protected areas should be counted in coastal land cells.
 
-This output is a snapshot measure, conceptually `protected_share_c` as of the
-downloaded WDPA release. It should be used as a baseline control or
-heterogeneity variable. It is not a cell-year protection shock. To build a
-dynamic protected-area panel, use `STATUS_YR` and/or historical WDPA releases;
-current polygons applied backward by `STATUS_YR <= year` would be only an
-approximation because it does not recover historical boundary changes or
-downgrading/degazettement/reduction.
+The `aggregate_wdpa_protected_share_100km.py` output is a snapshot measure,
+conceptually `protected_share_c` as of the downloaded WDPA release. It should
+be used as a baseline control or heterogeneity variable. The
+`aggregate_wdpa_protected_panel_100km_v2.py` output is the preferred
+cell-year analysis control, using current polygons applied backward by
+`STATUS_YR <= year`. That is still an approximation because it does not recover
+historical boundary changes or downgrading/degazettement/reduction.
 
 Output:
 
 ```text
 Data/regressors/baseline_geography/wdpa_protected_share_100km_cells.csv
+Data/regressors/wdpa/wdpa_protected_panel_100km.csv
+Data/regressors/tests_spatial_time/baseline_geography/wdpa_protected_share_50km_cells.csv
+Data/regressors/tests_spatial_time/wdpa/wdpa_protected_panel_50km.csv
 ```

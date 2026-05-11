@@ -10,6 +10,8 @@ import numpy as np
 import pandas as pd
 from pyproj import Transformer
 
+from panel_variants import get_variant
+
 
 PROJECT_ROOT = Path("/Users/vasilykorovkin/Documents/Diversity_Discoveries")
 RAW_DIR = PROJECT_ROOT / "Data" / "raw" / "ibtracs"
@@ -70,10 +72,13 @@ def load_land_cells(path: Path) -> pd.DataFrame:
     return land
 
 
-def build_skeleton(land: pd.DataFrame, start_year: int, end_year: int) -> pd.DataFrame:
+def build_skeleton(land: pd.DataFrame, start_year: int, end_year: int, freq: str) -> pd.DataFrame:
     years = pd.DataFrame({"year": list(range(start_year, end_year + 1)), "key": 1})
     cells = land[["cell_id", "cell_x", "cell_y"]].drop_duplicates().assign(key=1)
-    return cells.merge(years, on="key").drop(columns="key")
+    if freq == "year":
+        return cells.merge(years, on="key").drop(columns="key")
+    quarters = pd.DataFrame({"quarter": [1, 2, 3, 4], "key2": 1})
+    return cells.merge(years, on="key").drop(columns="key").assign(key2=1).merge(quarters, on="key2").drop(columns="key2")
 
 
 def clean_points(
@@ -82,6 +87,7 @@ def clean_points(
     end_year: int,
     land_ids: set[str],
     main_track_only: bool,
+    cell_km: float,
 ) -> tuple[pd.DataFrame, dict[str, int]]:
     work = df.copy()
     stats = {"raw_rows": len(work)}
@@ -89,6 +95,7 @@ def clean_points(
     work["ISO_TIME"] = pd.to_datetime(work["ISO_TIME"], errors="coerce", utc=True)
     work = work.dropna(subset=["ISO_TIME"]).copy()
     work["year"] = work["ISO_TIME"].dt.year.astype(int)
+    work["quarter"] = work["ISO_TIME"].dt.quarter.astype(int)
     work = work[work["year"].between(start_year, end_year)].copy()
     stats["rows_in_year_window"] = len(work)
 
@@ -109,8 +116,9 @@ def clean_points(
 
     transformer = Transformer.from_crs("EPSG:4326", EQUAL_AREA_CRS, always_xy=True)
     x, y = transformer.transform(work["LON"].to_numpy(), work["LAT"].to_numpy())
-    cell_x = np.floor(x / 100_000).astype(int)
-    cell_y = np.floor(y / 100_000).astype(int)
+    cell_m = cell_km * 1000
+    cell_x = np.floor(x / cell_m).astype(int)
+    cell_y = np.floor(y / cell_m).astype(int)
     work["cell_x"] = cell_x
     work["cell_y"] = cell_y
     work["cell_id"] = np.char.add(np.char.add(cell_x.astype(str), "_"), cell_y.astype(str))
@@ -125,11 +133,12 @@ def clean_points(
     return work, stats
 
 
-def subset_counts(sub: pd.DataFrame, suffix: str) -> pd.DataFrame:
+def subset_counts(sub: pd.DataFrame, suffix: str, freq: str) -> pd.DataFrame:
+    keys = ["cell_id", "year"] + (["quarter"] if freq == "quarter" else [])
     if sub.empty:
-        return pd.DataFrame(columns=["cell_id", "year"])
+        return pd.DataFrame(columns=keys)
     return (
-        sub.groupby(["cell_id", "year"])
+        sub.groupby(keys)
         .agg(
             **{
                 f"ibtracs_points_{suffix}": ("SID", "size"),
@@ -140,9 +149,10 @@ def subset_counts(sub: pd.DataFrame, suffix: str) -> pd.DataFrame:
     )
 
 
-def aggregate(points: pd.DataFrame) -> pd.DataFrame:
+def aggregate(points: pd.DataFrame, freq: str) -> pd.DataFrame:
+    keys = ["cell_id", "year"] + (["quarter"] if freq == "quarter" else [])
     agg = (
-        points.groupby(["cell_id", "year"])
+        points.groupby(keys)
         .agg(
             ibtracs_points_all=("SID", "size"),
             ibtracs_storms_all=("SID", pd.Series.nunique),
@@ -155,12 +165,13 @@ def aggregate(points: pd.DataFrame) -> pd.DataFrame:
         (points[points["wind_34kt"]], "34kt"),
         (points[points["wind_64kt"]], "64kt"),
     ]:
-        agg = agg.merge(subset_counts(subset, suffix), on=["cell_id", "year"], how="left")
+        agg = agg.merge(subset_counts(subset, suffix, freq), on=keys, how="left")
     return agg
 
 
-def finalize(skeleton: pd.DataFrame, counts: pd.DataFrame) -> pd.DataFrame:
-    panel = skeleton.merge(counts, on=["cell_id", "year"], how="left")
+def finalize(skeleton: pd.DataFrame, counts: pd.DataFrame, freq: str) -> pd.DataFrame:
+    keys = ["cell_id", "year"] + (["quarter"] if freq == "quarter" else [])
+    panel = skeleton.merge(counts, on=keys, how="left")
     for col in [
         "ibtracs_points_all",
         "ibtracs_storms_all",
@@ -187,6 +198,7 @@ def write_summary(path: Path, panel: pd.DataFrame, stats: dict[str, int]) -> Non
             ("output_rows", len(panel)),
             ("output_cells", panel["cell_id"].nunique()),
             ("output_years", panel["year"].nunique()),
+            ("output_quarters", panel["quarter"].nunique() if "quarter" in panel.columns else ""),
             ("cell_years_with_cyclone", int((panel["ibtracs_any_all"] > 0).sum())),
             ("track_points_all", int(panel["ibtracs_points_all"].sum())),
             ("storms_all", int(panel["ibtracs_storms_all"].sum())),
@@ -200,18 +212,35 @@ def write_summary(path: Path, panel: pd.DataFrame, stats: dict[str, int]) -> Non
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--variant", type=str, default=None)
     parser.add_argument("--input", type=Path, default=None)
-    parser.add_argument("--land-cells", type=Path, default=LAND_CELLS)
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=OUTDIR / f"ibtracs_100km_cell_year_{DEFAULT_START_YEAR}_{DEFAULT_END_YEAR}.csv",
-    )
+    parser.add_argument("--land-cells", type=Path, default=None)
+    parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--summary", type=Path, default=None)
     parser.add_argument("--start-year", type=int, default=DEFAULT_START_YEAR)
     parser.add_argument("--end-year", type=int, default=DEFAULT_END_YEAR)
     parser.add_argument("--main-track-only", action="store_true")
+    parser.add_argument("--cell-km", type=float, default=100)
     args = parser.parse_args()
+
+    variant = get_variant(args.variant) if args.variant else None
+    freq = "year"
+    if variant is not None:
+        freq = variant.freq
+        args.cell_km = variant.cell_km
+        args.start_year = variant.start_year
+        args.end_year = min(variant.end_year, DEFAULT_END_YEAR)
+
+    land_cells_path = args.land_cells or (variant.land_cells_csv if variant else LAND_CELLS)
+    if variant is not None:
+        outdir = variant.regressors_root / "ibtracs"
+        period = "cell_quarter" if freq == "quarter" else "cell_year"
+        output_path = args.output or outdir / (
+            f"ibtracs_{int(args.cell_km)}km_{period}_{args.start_year}_{args.end_year}.csv"
+        )
+    else:
+        outdir = OUTDIR
+        output_path = args.output or OUTDIR / f"ibtracs_100km_cell_year_{DEFAULT_START_YEAR}_{DEFAULT_END_YEAR}.csv"
 
     input_path = args.input or find_default_input()
     if input_path is None:
@@ -219,25 +248,28 @@ def main() -> int:
         print("Run: python3 Scripts/download_ibtracs.py")
         return 1
 
-    OUTDIR.mkdir(parents=True, exist_ok=True)
-    summary_path = args.summary or args.output.with_name(args.output.stem + "_summary.csv")
+    outdir.mkdir(parents=True, exist_ok=True)
+    summary_path = args.summary or output_path.with_name(output_path.stem + "_summary.csv")
 
     points = load_ibtracs(input_path)
-    land = load_land_cells(args.land_cells)
-    skeleton = build_skeleton(land, args.start_year, args.end_year)
+    if variant is not None:
+        print(f"Variant: {variant.name} ({variant.suffix})", flush=True)
+    land = load_land_cells(land_cells_path)
+    skeleton = build_skeleton(land, args.start_year, args.end_year, freq)
     points, stats = clean_points(
         points,
         start_year=args.start_year,
         end_year=args.end_year,
         land_ids=set(land["cell_id"]),
         main_track_only=args.main_track_only,
+        cell_km=args.cell_km,
     )
     print(f"Track points in land cells, {args.start_year}-{args.end_year}: {len(points):,}", flush=True)
 
-    counts = aggregate(points)
-    panel = finalize(skeleton, counts)
-    panel.to_csv(args.output, index=False)
-    print(f"Wrote IBTrACS cell-year panel: {args.output}", flush=True)
+    counts = aggregate(points, freq)
+    panel = finalize(skeleton, counts, freq)
+    panel.to_csv(output_path, index=False)
+    print(f"Wrote IBTrACS panel: {output_path}", flush=True)
     write_summary(summary_path, panel, stats)
     return 0
 

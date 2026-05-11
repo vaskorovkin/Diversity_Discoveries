@@ -1,6 +1,10 @@
-# Hansen Forest Loss Aggregation to 100km Cells
+# Hansen Forest Loss Aggregation to BOLD Cells
 
-This document explains how to run the Google Earth Engine script that aggregates Hansen Global Forest Change data to 100km equal-area cells using tree-cover-weighted forest loss.
+This document explains how to run the Google Earth Engine script that
+aggregates Hansen Global Forest Change data to BOLD equal-area cells using
+tree-cover-weighted forest loss. The baseline script is 100 km. The 50 km
+experimental script is documented with the rest of the spatial/time workflow in
+`Scripts/earth_engine/tests_spatial_time_README.md`.
 
 ## Method
 
@@ -51,36 +55,55 @@ If you haven't registered for Earth Engine yet:
 
 ### 2. Upload the Grid as an Earth Engine Asset
 
-The GeoJSON file is at:
+**First check whether the asset already exists** under your project — open
+the **Assets** tab in the left panel of the Code Editor and look for:
+```
+projects/symmetric-lock-495018-e0/assets/bold_grid100_land_cells
+```
+If it's there, skip to Step 3.
+
+The source file is at:
 ```
 Data/processed/bold/bold_grid100_land_cells.geojson
 ```
 
-To upload:
+GEE no longer offers a direct GeoJSON option in the **NEW → Table upload**
+menu, so convert it to a zipped shapefile first. From a terminal:
 
-1. In the Earth Engine Code Editor, look at the left panel
-2. Click the **Assets** tab
-3. Click **NEW** → **Table upload** → **GeoJSON file**
-4. Select `bold_grid100_land_cells.geojson` from your computer
-5. Set Asset ID to: `bold_grid100_land_cells`
-6. Click **Upload**
-7. Wait for ingestion (5-15 minutes for 14K features)
+```bash
+cd Data/processed/bold
+ogr2ogr -f "ESRI Shapefile" bold_grid100_land_cells.shp bold_grid100_land_cells.geojson
+zip bold_grid100_land_cells.zip bold_grid100_land_cells.shp \
+    bold_grid100_land_cells.shx bold_grid100_land_cells.dbf \
+    bold_grid100_land_cells.prj
+```
+
+Then in the Code Editor:
+
+1. Click the **Assets** tab in the left panel.
+2. Click **NEW** (red button) → **Table upload** → **Shape files
+   (.shp, .shx, .dbf, .prj, or .zip)**.
+3. Select `bold_grid100_land_cells.zip` from your computer.
+4. Set **Asset ID** to:
+   `projects/symmetric-lock-495018-e0/assets/bold_grid100_land_cells`
+5. Click **Upload**.
+6. Wait for ingestion (5-15 minutes for ~14K features).
 
 You can check progress in the **Tasks** tab (orange gear icon, top right).
 
-Once complete, your asset path will be:
+Once complete, the asset path is:
 ```
-users/vaskorovkin/bold_grid100_land_cells
+projects/symmetric-lock-495018-e0/assets/bold_grid100_land_cells
 ```
 
 ### 3. Create and Run the Script
 
 1. In Earth Engine Code Editor, click **NEW** → **File**
 2. Name it `hansen_forest_loss_100km`
-3. Copy the contents of `Scripts/gee_hansen_forest_loss_100km.js` into the editor
+3. Copy the contents of `Scripts/earth_engine/gee_hansen_forest_loss_100km.js` into the editor
 4. Verify the `GRID_ASSET` path matches your uploaded asset:
    ```javascript
-   var GRID_ASSET = 'users/vaskorovkin/bold_grid100_land_cells';
+   var GRID_ASSET = 'projects/symmetric-lock-495018-e0/assets/bold_grid100_land_cells';
    ```
 5. Click **Run**
 
@@ -142,68 +165,16 @@ Exports run in parallel, so start all three and let them run.
 
 ## Merge Script (Python)
 
-Save this as `Scripts/merge_hansen_exports.py`:
+After downloading the Earth Engine exports, use the tracked merge script:
 
-```python
-#!/usr/bin/env python3
-"""Merge Hansen GEE exports with full cell panel."""
-
-import pandas as pd
-from pathlib import Path
-
-DATA_DIR = Path(__file__).parent.parent / "Data" / "regressors" / "hansen"
-EXHIBITS_DIR = Path(__file__).parent.parent / "Exhibits" / "data"
-
-# Load exports
-baseline = pd.read_csv(DATA_DIR / "hansen_baseline_forest_100km.csv")
-annual = pd.read_csv(DATA_DIR / "hansen_forest_loss_100km_annual.csv")
-
-# Load full cell list from panel
-panel = pd.read_csv(EXHIBITS_DIR / "bold_grid100_cell_year_panel_collection_2005_2025.csv")
-cells = panel[["cell_id", "cell_x", "cell_y"]].drop_duplicates()
-years = list(range(2001, 2024))
-
-# Create full cell-year skeleton
-skeleton = cells.assign(key=1).merge(
-    pd.DataFrame({"year": years, "key": 1}),
-    on="key"
-).drop(columns="key")
-
-# Merge baseline
-skeleton = skeleton.merge(
-    baseline[["cell_id", "baseline_forest_km2"]],
-    on="cell_id",
-    how="left"
-)
-
-# Merge annual loss
-skeleton = skeleton.merge(
-    annual[["cell_id", "year", "forest_loss_km2"]],
-    on=["cell_id", "year"],
-    how="left"
-)
-
-# Fill missing values
-skeleton["forest_loss_km2"] = skeleton["forest_loss_km2"].fillna(0)
-skeleton["baseline_forest_km2"] = skeleton["baseline_forest_km2"].fillna(0)
-
-# Compute derived variables
-skeleton["forest_loss_share"] = (
-    skeleton["forest_loss_km2"] / skeleton["baseline_forest_km2"]
-).fillna(0)
-
-# Cumulative loss
-skeleton = skeleton.sort_values(["cell_id", "year"])
-skeleton["cumulative_loss_km2"] = skeleton.groupby("cell_id")["forest_loss_km2"].cumsum()
-skeleton["cumulative_loss_share"] = (
-    skeleton["cumulative_loss_km2"] / skeleton["baseline_forest_km2"]
-).fillna(0)
-
-# Save
-out_path = DATA_DIR / "hansen_forest_loss_100km_panel.csv"
-skeleton.to_csv(out_path, index=False)
-print(f"Wrote {len(skeleton):,} rows to {out_path}")
+```bash
+python3 Scripts/merge_hansen_exports.py
+python3 Scripts/merge_hansen_exports.py --variant test_50km_year
+python3 Scripts/merge_hansen_exports.py --variant test_50km_quarter
 ```
+
+For quarterly variants, annual Hansen loss-year values are expanded to
+quarters and labeled with `hansen_source_freq = "annual"`.
 
 ## Variables for Regression
 

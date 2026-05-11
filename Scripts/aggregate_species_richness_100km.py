@@ -27,6 +27,8 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 
+from panel_variants import get_variant
+
 PROJECT_ROOT = Path("/Users/vasilykorovkin/Documents/Diversity_Discoveries")
 DEFAULT_RANGE_DIR = PROJECT_ROOT / "Data" / "raw" / "iucn_ranges"
 LAND_CELLS = PROJECT_ROOT / "Exhibits" / "data" / "bold_grid100_land_cells.geojson"
@@ -171,19 +173,28 @@ def main() -> int:
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
+    parser.add_argument("--variant", type=str, default=None)
     parser.add_argument("--range-dir", type=Path, default=DEFAULT_RANGE_DIR)
-    parser.add_argument("--land-cells", type=Path, default=LAND_CELLS)
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--land-cells", type=Path, default=None)
+    parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--no-filter", action="store_true",
                         help="Skip IUCN presence/origin/seasonal filters")
     args = parser.parse_args()
 
-    if not args.land_cells.exists():
-        raise FileNotFoundError(f"Missing: {args.land_cells}")
-    args.output.parent.mkdir(parents=True, exist_ok=True)
+    variant = get_variant(args.variant) if args.variant else None
+    land_cells_path = args.land_cells or (variant.land_cells_geojson if variant else LAND_CELLS)
+    if variant is not None:
+        output_path = args.output or variant.regressors_root / "baseline_geography" / f"species_richness_{int(variant.cell_km)}km_cells.csv"
+        print(f"Variant: {variant.name} ({variant.suffix})", flush=True)
+    else:
+        output_path = args.output or DEFAULT_OUTPUT
 
-    print(f"Loading land cells: {args.land_cells}", flush=True)
-    cells = gpd.read_file(args.land_cells)
+    if not land_cells_path.exists():
+        raise FileNotFoundError(f"Missing: {land_cells_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    print(f"Loading land cells: {land_cells_path}", flush=True)
+    cells = gpd.read_file(land_cells_path)
     print(f"  {len(cells):,} cells", flush=True)
 
     out = cells[["cell_id", "cell_x", "cell_y"]].copy()
@@ -221,8 +232,8 @@ def main() -> int:
         out["richness_total"] = out[richness_cols].sum(axis=1)
         out["log1p_richness_total"] = np.log1p(out["richness_total"])
 
-    out.to_csv(args.output, index=False)
-    print(f"\nWrote: {args.output}")
+    out.to_csv(output_path, index=False)
+    print(f"\nWrote: {output_path}")
     print(f"Rows: {len(out):,}")
     print(f"Columns: {list(out.columns)}")
 

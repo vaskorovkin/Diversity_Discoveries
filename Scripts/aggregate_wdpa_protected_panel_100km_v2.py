@@ -20,8 +20,8 @@ from typing import Optional
 
 import geopandas as gpd
 import pandas as pd
-import numpy as np
-from shapely.ops import unary_union
+
+from panel_variants import get_variant
 
 
 PROJECT_ROOT = Path("/Users/vasilykorovkin/Documents/Diversity_Discoveries")
@@ -71,10 +71,11 @@ def filter_wdpa(gdf: gpd.GeoDataFrame, include_marine: bool, include_oecm: bool)
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--variant", type=str, default=None)
     parser.add_argument("--wdpa", type=Path, required=True)
     parser.add_argument("--layer", default=None)
-    parser.add_argument("--land-cells", type=Path, default=LAND_CELLS)
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--land-cells", type=Path, default=None)
+    parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--start-year", type=int, default=START_YEAR)
     parser.add_argument("--end-year", type=int, default=END_YEAR)
     parser.add_argument("--include-marine", action="store_true")
@@ -82,17 +83,28 @@ def main() -> int:
     parser.add_argument("--progress-every", type=int, default=500)
     args = parser.parse_args()
 
+    variant = get_variant(args.variant) if args.variant else None
+    if variant is not None:
+        args.start_year = min(args.start_year, variant.start_year)
+        args.end_year = min(args.end_year, variant.end_year)
+        land_cells_path = args.land_cells or variant.land_cells_geojson
+        output_path = args.output or variant.regressors_root / "wdpa" / f"wdpa_protected_panel_{int(variant.cell_km)}km.csv"
+        print(f"Variant: {variant.name} ({variant.suffix})", flush=True)
+    else:
+        land_cells_path = args.land_cells or LAND_CELLS
+        output_path = args.output or DEFAULT_OUTPUT
+
     if not args.wdpa.exists():
         raise FileNotFoundError(f"Missing WDPA file: {args.wdpa}")
-    if not args.land_cells.exists():
-        raise FileNotFoundError(f"Missing land-cell polygons: {args.land_cells}")
-    args.output.parent.mkdir(parents=True, exist_ok=True)
+    if not land_cells_path.exists():
+        raise FileNotFoundError(f"Missing land-cell polygons: {land_cells_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     years = list(range(args.start_year, args.end_year + 1))
     print(f"Building panel for years: {years[0]}-{years[-1]}", flush=True)
 
-    print(f"Reading land-cell polygons: {args.land_cells}", flush=True)
-    cells = gpd.read_file(args.land_cells).to_crs(AREA_CRS)
+    print(f"Reading land-cell polygons: {land_cells_path}", flush=True)
+    cells = gpd.read_file(land_cells_path).to_crs(AREA_CRS)
     cells["cell_area_km2"] = cells.geometry.area / 1_000_000
     cells = cells.reset_index(drop=True)
     print(f"  {len(cells):,} cells", flush=True)
@@ -197,7 +209,8 @@ def main() -> int:
             for year in years:
                 panel_rows.append({
                     "cell_id": cid, "cell_x": crow["cell_x"], "cell_y": crow["cell_y"],
-                    "year": year, "protected_area_km2": 0.0, "protected_share": 0.0,
+                    "year": year, "cell_area_km2": cell_area,
+                    "protected_area_km2": 0.0, "protected_share": 0.0,
                     "any_protected": 0, "new_protection_km2": 0.0,
                 })
             continue
@@ -222,7 +235,8 @@ def main() -> int:
             share = running_area / cell_area if cell_area > 0 else 0.0
             panel_rows.append({
                 "cell_id": cid, "cell_x": crow["cell_x"], "cell_y": crow["cell_y"],
-                "year": year, "protected_area_km2": running_area,
+                "year": year, "cell_area_km2": cell_area,
+                "protected_area_km2": running_area,
                 "protected_share": min(share, 1.0),
                 "any_protected": int(running_area > 0),
                 "new_protection_km2": max(0.0, running_area - prev_area),
@@ -231,8 +245,8 @@ def main() -> int:
 
     out = pd.DataFrame(panel_rows)
     out = out.sort_values(["cell_id", "year"])
-    out.to_csv(args.output, index=False)
-    print(f"\nWrote: {args.output}", flush=True)
+    out.to_csv(output_path, index=False)
+    print(f"\nWrote: {output_path}", flush=True)
     print(f"Rows: {len(out):,} ({len(cells):,} cells x {len(years)} years)", flush=True)
 
     print(f"\nSummary by year:", flush=True)
@@ -244,7 +258,7 @@ def main() -> int:
     summary.columns = ["mean_protected_share", "cells_with_protection", "total_new_protection_km2"]
     print(summary.to_string(), flush=True)
 
-    summary_path = args.output.with_name(args.output.stem + "_summary.csv")
+    summary_path = output_path.with_name(output_path.stem + "_summary.csv")
     summary.to_csv(summary_path)
     print(f"\nWrote summary: {summary_path}", flush=True)
 

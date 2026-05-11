@@ -127,7 +127,7 @@ The useful empirical tests are comparative:
    - lagged/cumulative loss
 
    Current status: implemented via Google Earth Engine in
-   `Scripts/gee_hansen_forest_loss_100km.js`. Uses tree-cover-weighted method
+   `Scripts/earth_engine/gee_hansen_forest_loss_100km.js`. Uses tree-cover-weighted method
    (loss area = sum of treecover2000/100 × pixel area for loss pixels). Output:
 
    ```text
@@ -158,7 +158,7 @@ The useful empirical tests are comparative:
    - any burned area
 
    Current status: implemented via Google Earth Engine in
-   `Scripts/gee_modis_burned_area_100km.js`. Output:
+   `Scripts/earth_engine/gee_modis_burned_area_100km.js`. Output:
 
    ```text
    Data/regressors/modis/modis_burned_area_100km_panel.csv
@@ -227,7 +227,7 @@ The useful empirical tests are comparative:
    hotspot names represented; no cell centroid matched multiple hotspots.
 
    Current status for protected-area share: script prepared and local May 2026
-   WDPA/WDOECM polygon geodatabase is present. Script:
+   WDPA/WDOECM File Geodatabase is present. Script:
 
    ```text
    Scripts/aggregate_wdpa_protected_share_100km.py
@@ -237,6 +237,7 @@ The useful empirical tests are comparative:
 
    ```text
    Data/regressors/baseline_geography/wdpa_protected_share_100km_cells.csv
+   Data/regressors/tests_spatial_time/baseline_geography/wdpa_protected_share_50km_cells.csv
    ```
 
    This is a snapshot regressor, not a time-varying protected-area panel. Use
@@ -247,10 +248,13 @@ The useful empirical tests are comparative:
 
    ```text
    Data/regressors/wdpa/wdpa_protected_panel_100km.csv
+   Data/regressors/tests_spatial_time/wdpa/wdpa_protected_panel_50km.csv
    ```
 
    Variables: `protected_area_km2`, `protected_share`, `any_protected`,
-   `new_protection_km2`. Covers 2001-2024.
+   `new_protection_km2`. Covers 2001-2024. The 50 km yearly and quarterly
+   Stata panels use this `STATUS_YR`-based panel rather than the static
+   snapshot share.
 
    Current status for GLOBIO MSA: implemented in
    `Scripts/download_globio_msa.py` and `Scripts/aggregate_globio_msa_100km.py`.

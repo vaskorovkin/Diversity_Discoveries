@@ -19,6 +19,8 @@ import geopandas as gpd
 import pandas as pd
 from shapely.errors import GEOSException
 
+from panel_variants import get_variant
+
 
 PROJECT_ROOT = Path("/Users/vasilykorovkin/Documents/Diversity_Discoveries")
 LAND_CELLS = PROJECT_ROOT / "Exhibits" / "data" / "bold_grid100_land_cells.geojson"
@@ -113,23 +115,32 @@ def union_area_km2(candidates: gpd.GeoDataFrame, cell_geom) -> tuple[float, bool
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--variant", type=str, default=None)
     parser.add_argument("--wdpa", type=Path, required=True, help="Local WDPA polygon GPKG/SHP path.")
     parser.add_argument("--layer", default=None, help="Optional layer name for GDB/GPKG inputs. Defaults to first polygon layer.")
-    parser.add_argument("--land-cells", type=Path, default=LAND_CELLS)
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--land-cells", type=Path, default=None)
+    parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--include-marine", action="store_true", help="Keep WDPA records marked fully marine.")
     parser.add_argument("--include-oecm", action="store_true", help="Keep OECM records when the input is a combined WDPA/WDOECM file.")
     parser.add_argument("--progress-every", type=int, default=500)
     args = parser.parse_args()
 
+    variant = get_variant(args.variant) if args.variant else None
+    land_cells_path = args.land_cells or (variant.land_cells_geojson if variant else LAND_CELLS)
+    if variant is not None:
+        output_path = args.output or variant.regressors_root / "baseline_geography" / f"wdpa_protected_share_{int(variant.cell_km)}km_cells.csv"
+        print(f"Variant: {variant.name} ({variant.suffix})", flush=True)
+    else:
+        output_path = args.output or DEFAULT_OUTPUT
+
     if not args.wdpa.exists():
         raise FileNotFoundError(f"Missing WDPA file: {args.wdpa}")
-    if not args.land_cells.exists():
-        raise FileNotFoundError(f"Missing land-cell polygons: {args.land_cells}")
-    args.output.parent.mkdir(parents=True, exist_ok=True)
+    if not land_cells_path.exists():
+        raise FileNotFoundError(f"Missing land-cell polygons: {land_cells_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    print(f"Reading land-cell polygons: {args.land_cells}", flush=True)
-    cells = gpd.read_file(args.land_cells).to_crs(AREA_CRS)
+    print(f"Reading land-cell polygons: {land_cells_path}", flush=True)
+    cells = gpd.read_file(land_cells_path).to_crs(AREA_CRS)
     cells["cell_area_km2"] = cells.geometry.area / 1_000_000
 
     layer = args.layer or detect_polygon_layer(args.wdpa)
@@ -179,8 +190,8 @@ def main() -> int:
             print(f"processed {i:,}/{len(cells):,} cells ({i / elapsed:,.1f} cells/sec)", flush=True)
 
     out = pd.DataFrame(rows)
-    out.to_csv(args.output, index=False)
-    print(f"Wrote: {args.output}", flush=True)
+    out.to_csv(output_path, index=False)
+    print(f"Wrote: {output_path}", flush=True)
     print(f"Rows: {len(out):,}; unique cells: {out['cell_id'].nunique():,}", flush=True)
     print(f"Cells with any protected area: {int(out['wdpa_any_protected'].sum()):,}", flush=True)
     print(f"Mean protected share: {out['wdpa_protected_share'].mean():.4f}", flush=True)

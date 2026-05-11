@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a zero-filled BOLD cell-year panel for Stata regressions.
+"""Build a zero-filled BOLD cell-year or cell-quarter panel for Stata regressions.
 
 The main panel uses BOLD collection year, 2005-2025 by default. It bins
 coordinate records to the same 100 km equal-area cells used by the map and
@@ -16,6 +16,7 @@ import numpy as np
 import pandas as pd
 from pyproj import Transformer
 
+from panel_variants import get_variant
 from pipeline_utils import (
     EQUAL_AREA_CRS,
     PROCESSED_BOLD,
@@ -48,6 +49,7 @@ INPUT_COLUMNS = [
     "latitude",
     "longitude",
     "collection_year",
+    "collection_month",
     "bin_uri",
 ]
 
@@ -77,16 +79,25 @@ def load_land_cells(path: Path) -> pd.DataFrame:
     return land
 
 
-def build_zero_panel(land: pd.DataFrame, start_year: int, end_year: int) -> pd.DataFrame:
+def build_zero_panel(land: pd.DataFrame, start_year: int, end_year: int, freq: str) -> pd.DataFrame:
     years = np.arange(start_year, end_year + 1, dtype=int)
-    panel = land.loc[land.index.repeat(len(years))].copy()
-    panel["year"] = np.tile(years, len(land))
+    if freq == "year":
+        panel = land.loc[land.index.repeat(len(years))].copy()
+        panel["year"] = np.tile(years, len(land))
+    elif freq == "quarter":
+        quarters = np.arange(1, 5, dtype=int)
+        periods = pd.MultiIndex.from_product([years, quarters], names=["year", "quarter"]).to_frame(index=False)
+        panel = land.loc[land.index.repeat(len(periods))].copy()
+        panel["year"] = np.tile(periods["year"].to_numpy(), len(land))
+        panel["quarter"] = np.tile(periods["quarter"].to_numpy(), len(land))
+    else:
+        raise ValueError(f"Unsupported freq: {freq}")
     country = panel["country"].fillna("")
     continent = panel["continent"].fillna("")
     panel["drop_rich_region_flag"] = (
         continent.isin(["Europe", "North America"]) | country.isin(["Australia", "New Zealand"])
     ).astype(int)
-    return panel[
+    cols = [
         [
             "cell_id",
             "cell_x",
@@ -99,7 +110,10 @@ def build_zero_panel(land: pd.DataFrame, start_year: int, end_year: int) -> pd.D
             "iso_a3",
             "drop_rich_region_flag",
         ]
-    ]
+    ][0]
+    if freq == "quarter":
+        cols.insert(4, "quarter")
+    return panel[cols]
 
 
 def aggregate_records(
@@ -107,6 +121,7 @@ def aggregate_records(
     land_cell_ids: set[str],
     start_year: int,
     end_year: int,
+    freq: str,
     cell_km: float,
     chunksize: int,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, int]]:
@@ -118,6 +133,7 @@ def aggregate_records(
         "rows_scanned": 0,
         "coordinate_rows": 0,
         "coordinate_rows_in_year_window": 0,
+        "coordinate_rows_with_valid_period": 0,
         "coordinate_rows_in_land_cells": 0,
         "coordinate_rows_outside_land_cells": 0,
     }
@@ -159,6 +175,18 @@ def aggregate_records(
                     "class_name": sub["class_name"].fillna("").to_numpy(),
                 }
             )
+            if freq == "quarter":
+                months = pd.to_numeric(sub["collection_month"], errors="coerce").to_numpy()
+                valid_period = (months >= 1) & (months <= 12)
+                stats["coordinate_rows_with_valid_period"] += int(valid_period.sum())
+                work = work.loc[valid_period].copy()
+                sub = sub.loc[valid_period].copy()
+                months = months[valid_period].astype(int)
+                sub_years = sub_years[valid_period]
+                work["year"] = sub_years
+                work["quarter"] = ((months - 1) // 3 + 1).astype(int)
+            else:
+                stats["coordinate_rows_with_valid_period"] += len(work)
             in_land = work["cell_id"].isin(land_cell_ids)
             stats["coordinate_rows_in_land_cells"] += int(in_land.sum())
             stats["coordinate_rows_outside_land_cells"] += int((~in_land).sum())
@@ -178,17 +206,21 @@ def aggregate_records(
                 work["arthropoda_records"] = (phylum == "Arthropoda").astype(int)
                 work["insecta_records"] = (class_name == "Insecta").astype(int)
                 work["chordata_records"] = (phylum == "Chordata").astype(int)
-                grouped_chunks.append(work.groupby(["cell_id", "year"], as_index=False)[OUTCOME_COLUMNS].sum())
+                group_cols = ["cell_id", "year"] + (["quarter"] if freq == "quarter" else [])
+                grouped_chunks.append(work.groupby(group_cols, as_index=False)[OUTCOME_COLUMNS].sum())
 
                 land_idx = sub.index[in_land.to_numpy()]
                 bin_uri = sub.loc[land_idx, "bin_uri"].fillna("").to_numpy()
                 bin_has = bin_uri != ""
                 if bin_has.any():
-                    bdf = pd.DataFrame({
+                    bdf = {
                         "cell_id": work["cell_id"].to_numpy()[bin_has],
                         "year": work["year"].to_numpy()[bin_has],
                         "bin_uri": bin_uri[bin_has],
-                    })
+                    }
+                    if freq == "quarter":
+                        bdf["quarter"] = work["quarter"].to_numpy()[bin_has]
+                    bdf = pd.DataFrame(bdf)
                     bin_chunks.append(bdf.drop_duplicates())
 
         elapsed = max(time.time() - started, 1)
@@ -200,29 +232,37 @@ def aggregate_records(
         )
 
     if not grouped_chunks:
-        empty = pd.DataFrame(columns=["cell_id", "year"] + OUTCOME_COLUMNS)
-        empty_bins = pd.DataFrame(columns=["cell_id", "year"] + BIN_COLUMNS)
+        key_cols = ["cell_id", "year"] + (["quarter"] if freq == "quarter" else [])
+        empty = pd.DataFrame(columns=key_cols + OUTCOME_COLUMNS)
+        empty_bins = pd.DataFrame(columns=key_cols + BIN_COLUMNS)
         return empty, empty_bins, stats
 
     counts = pd.concat(grouped_chunks, ignore_index=True)
-    counts = counts.groupby(["cell_id", "year"], as_index=False)[OUTCOME_COLUMNS].sum()
+    key_cols = ["cell_id", "year"] + (["quarter"] if freq == "quarter" else [])
+    counts = counts.groupby(key_cols, as_index=False)[OUTCOME_COLUMNS].sum()
 
     if bin_chunks:
         all_bins = pd.concat(bin_chunks, ignore_index=True).drop_duplicates()
-        n_bins = all_bins.groupby(["cell_id", "year"])["bin_uri"].nunique().reset_index(name="n_bins")
-        global_first = all_bins.groupby("bin_uri")["year"].min().rename("first_year")
-        all_bins = all_bins.merge(global_first, on="bin_uri")
-        new_mask = all_bins["year"] == all_bins["first_year"]
+        n_bins = all_bins.groupby(key_cols)["bin_uri"].nunique().reset_index(name="n_bins")
+        if freq == "quarter":
+            all_bins["period_index"] = all_bins["year"] * 4 + all_bins["quarter"]
+            global_first = all_bins.groupby("bin_uri")["period_index"].min().rename("first_period")
+            all_bins = all_bins.merge(global_first, on="bin_uri")
+            new_mask = all_bins["period_index"] == all_bins["first_period"]
+        else:
+            global_first = all_bins.groupby("bin_uri")["year"].min().rename("first_year")
+            all_bins = all_bins.merge(global_first, on="bin_uri")
+            new_mask = all_bins["year"] == all_bins["first_year"]
         n_new_bins = (
             all_bins.loc[new_mask]
-            .groupby(["cell_id", "year"])["bin_uri"]
+            .groupby(key_cols)["bin_uri"]
             .nunique()
             .reset_index(name="n_new_bins")
         )
-        bin_counts = n_bins.merge(n_new_bins, on=["cell_id", "year"], how="left")
+        bin_counts = n_bins.merge(n_new_bins, on=key_cols, how="left")
         bin_counts["n_new_bins"] = bin_counts["n_new_bins"].fillna(0).astype(int)
     else:
-        bin_counts = pd.DataFrame(columns=["cell_id", "year"] + BIN_COLUMNS)
+        bin_counts = pd.DataFrame(columns=key_cols + BIN_COLUMNS)
 
     return counts, bin_counts, stats
 
@@ -240,8 +280,9 @@ def add_outcome_transforms(panel: pd.DataFrame) -> pd.DataFrame:
     return panel
 
 
-def write_summary(path: Path, panel: pd.DataFrame, stats: dict[str, int], start_year: int, end_year: int) -> None:
+def write_summary(path: Path, panel: pd.DataFrame, stats: dict[str, int], start_year: int, end_year: int, freq: str) -> None:
     rows = [
+        ("freq", freq),
         ("start_year", start_year),
         ("end_year", end_year),
         ("land_cells", panel["cell_id"].nunique()),
@@ -257,8 +298,9 @@ def write_summary(path: Path, panel: pd.DataFrame, stats: dict[str, int], start_
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--variant", type=str, default=None)
     parser.add_argument("--input", type=Path, default=MINIMAL_CSV)
-    parser.add_argument("--land-cells", type=Path, default=LAND_CELLS_CSV)
+    parser.add_argument("--land-cells", type=Path, default=None)
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--summary", type=Path, default=None)
     parser.add_argument("--cell-km", type=float, default=100)
@@ -268,32 +310,56 @@ def main() -> int:
     args = parser.parse_args()
 
     ensure_output_dirs()
-    output = args.output or default_output(args.cell_km, args.start_year, args.end_year)
-    summary = args.summary or default_summary(output)
+    variant = get_variant(args.variant) if args.variant else None
+    freq = "year"
+    if variant is not None:
+        args.cell_km = variant.cell_km
+        args.start_year = variant.start_year
+        args.end_year = variant.end_year
+        freq = variant.freq
+
+    land_cells_path = args.land_cells or (variant.land_cells_csv if variant else LAND_CELLS_CSV)
+    output = args.output or (variant.bold_panel_csv if variant else default_output(args.cell_km, args.start_year, args.end_year))
+    summary = args.summary or (variant.bold_panel_summary_csv if variant else default_summary(output))
+    output.parent.mkdir(parents=True, exist_ok=True)
+    summary.parent.mkdir(parents=True, exist_ok=True)
 
     print(f"Panel years: {args.start_year}-{args.end_year}", flush=True)
-    land = load_land_cells(args.land_cells)
+    print(f"Panel frequency: {freq}", flush=True)
+    if variant is not None:
+        print(f"Variant: {variant.name} ({variant.suffix})", flush=True)
+    land = load_land_cells(land_cells_path)
     print(f"Land cells: {len(land):,}", flush=True)
-    panel = build_zero_panel(land, args.start_year, args.end_year)
+    panel = build_zero_panel(land, args.start_year, args.end_year, freq)
     print(f"Zero-filled panel rows: {len(panel):,}", flush=True)
+
+    if freq == "quarter":
+        minimal_head = pd.read_csv(args.input, nrows=5, dtype=str)
+        if "collection_month" not in minimal_head.columns:
+            raise ValueError(
+                f"Quarterly panel requires collection_month in {args.input}. "
+                "Rebuild the minimal file with Scripts/00_build_bold_minimal.py first."
+            )
 
     counts, bin_counts, stats = aggregate_records(
         args.input,
         set(land["cell_id"]),
         args.start_year,
         args.end_year,
+        freq,
         args.cell_km,
         args.chunksize,
     )
     print(f"Nonzero cell-year rows from records: {len(counts):,}", flush=True)
     print(f"Cell-years with BIN data: {len(bin_counts):,}", flush=True)
 
-    panel = panel.merge(counts, on=["cell_id", "year"], how="left")
-    panel = panel.merge(bin_counts, on=["cell_id", "year"], how="left")
+    key_cols = ["cell_id", "year"] + (["quarter"] if freq == "quarter" else [])
+    panel = panel.merge(counts, on=key_cols, how="left")
+    panel = panel.merge(bin_counts, on=key_cols, how="left")
     panel = add_outcome_transforms(panel)
     panel.to_csv(output, index=False)
     print(f"Wrote panel: {output}", flush=True)
-    write_summary(summary, panel, stats, args.start_year, args.end_year)
+    write_summary(summary, panel, stats, args.start_year, args.end_year, freq)
     return 0
 
 

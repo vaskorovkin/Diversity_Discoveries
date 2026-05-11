@@ -2,29 +2,33 @@
 
 ## Regressor Aggregation
 
+- `panel_variants.py`: canonical variant registry for `baseline_100km_year`, `test_50km_year`, and `test_50km_quarter`. New variant-aware scripts should read paths and date ranges from here rather than hard-coding output roots.
+- `build_land_cells.py`: builds the 50 km land-cell universe for the `tests_spatial_time` experiments. Outputs CSV, GeoJSON, and zipped shapefile inputs under `Data/processed/tests_spatial_time/bold/`.
+- `raster_zonal.py`: shared polygon-aware raster aggregation helper. It rasterizes actual cell polygons to each raster grid and aggregates by cell labels; used by TerraClimate, CHIRPS, GLOBIO MSA, and GRIP roads.
 - `aggregate_ucdp_ged_100km.py`: aggregates a downloaded UCDP GED CSV to the BOLD 100 km land-cell x year grid for 2005-2024. See `Scripts/ucdp_ged_README.md`.
 - `download_baseline_geography.py`: downloads the raw RESOLVE ecoregions and CEPF hotspot files used by the static baseline geography overlays. See `Scripts/baseline_geography_README.md`.
-- `aggregate_resolve_ecoregions_100km.py`: assigns RESOLVE 2017 ecoregion, biome, and realm to each BOLD 100 km land cell by centroid overlay.
+- `aggregate_resolve_ecoregions_100km.py`: assigns RESOLVE 2017 ecoregion, biome, and realm to each BOLD land cell by centroid overlay. Supports 50 km variants.
 - `aggregate_cepf_hotspots_100km.py`: assigns CEPF/Conservation International biodiversity hotspot indicators to each BOLD 100 km land cell by centroid overlay.
-- `aggregate_wdpa_protected_share_100km.py`: computes May 2026 WDPA protected-area area/share for each BOLD 100 km land cell from a local WDPA polygon GPKG/SHP. This is a snapshot regressor, not a historical panel.
+- `aggregate_wdpa_protected_share_100km.py`: computes May 2026 WDPA protected-area area/share for each BOLD land cell from a local WDPA polygon FileGDB/GPKG/SHP. Supports `--variant test_50km_year` and `--variant test_50km_quarter` for the 50 km experiments. This is a snapshot regressor, not a historical panel.
 - `aggregate_wdpa_protected_panel_100km.py`: builds time-varying protected-area cell-year panel (2001-2024) using WDPA STATUS_YR designation year. Slow dissolve-based approach; see v2.
-- `aggregate_wdpa_protected_panel_100km_v2.py`: fast sjoin+clip approach to WDPA panel (same output, ~2 min vs hours). Preferred.
+- `aggregate_wdpa_protected_panel_100km_v2.py`: fast sjoin+clip approach to WDPA cell-year panel using `STATUS_YR`. Preferred; supports `--variant test_50km_year` / `test_50km_quarter` and writes the shared 50 km cell-year WDPA panel.
 - `download_terraclimate.py`: downloads TerraClimate NetCDF files (PDSI, tmax, ppt) for 2001-2023.
 - `download_terraclimate_baseline.py`: downloads TerraClimate baseline years (1981-2000) for proper 1981-2010 anomaly calculation.
-- `aggregate_terraclimate_100km.py`: aggregates TerraClimate data to 100 km cells with anomalies relative to 1981-2010 baseline.
+- `aggregate_terraclimate_100km.py`: aggregates TerraClimate data to BOLD cell-year panels, or cell-quarter panels with `--variant test_50km_quarter`, with anomalies relative to 1981-2010 baseline.
 - `download_chirps.py`: downloads CHIRPS annual precipitation GeoTIFFs (1981-2023).
-- `aggregate_chirps_100km.py`: aggregates CHIRPS precipitation to 100 km cells with anomalies relative to 1981-2010 baseline.
+- `download_chirps_monthly.py`: downloads monthly CHIRPS GeoTIFFs for quarterly precipitation panels.
+- `aggregate_chirps_100km.py`: aggregates CHIRPS precipitation to BOLD cell-year panels, or cell-quarter panels with `--variant test_50km_quarter`, with anomalies relative to 1981-2010 baseline.
 - `download_groads.py`: instructions and verification for gROADS v1 manual download from NASA SEDAC.
 - `aggregate_groads_100km.py`: computes road density (km/km²) per 100 km cell from gROADS shapefile.
 - `download_grip_roads.py`: downloads GRIP4 pre-computed road density rasters (~3.5MB, no login).
-- `aggregate_grip_roads_100km.py`: aggregates GRIP4 road density to 100 km cells (fast, uses raster).
+- `aggregate_grip_roads_100km.py`: aggregates GRIP4 road density to BOLD cells using polygon-aware raster zonal means.
 - `download_globio_msa.py`: downloads GLOBIO4 MSA (Mean Species Abundance) rasters for baseline biodiversity intactness.
-- `aggregate_globio_msa_100km.py`: aggregates GLOBIO MSA to 100 km cells.
+- `aggregate_globio_msa_100km.py`: aggregates GLOBIO MSA to BOLD cells using polygon-aware raster zonal means.
 - `download_worldbank_gdp.py`: downloads World Bank GDP per capita (current US$, WDI indicator NY.GDP.PCAP.CD) for all countries, 2001-2024. Uses WB API v2, no key required. Output: `Data/regressors/worldbank/worldbank_gdp_pcap_panel.csv`.
 - `download_ibtracs.py`: downloads NOAA IBTrACS tropical-cyclone track CSVs (default: official `since1980` file, v04r01) to `Data/raw/ibtracs/`.
-- `aggregate_ibtracs_100km.py`: aggregates IBTrACS track points to 100 km cells by year. Outputs point counts, unique-storm counts, 34kt/64kt exposure counts, and max wind.
+- `aggregate_ibtracs_100km.py`: aggregates IBTrACS track points to BOLD cells by year or quarter. Outputs point counts, unique-storm counts, 34kt/64kt exposure counts, and max wind.
 - `download_comcat_earthquakes.py`: downloads global USGS ComCat earthquakes year by year from the official FDSN event service. Defaults: 2005-2025, `eventtype=earthquake`, `minmagnitude=4.5`.
-- `aggregate_comcat_100km.py`: aggregates ComCat earthquakes to 100 km cells by year. Outputs event counts, `M6+`, `M7+`, shallow-event counts, and max/mean magnitude.
+- `aggregate_comcat_100km.py`: aggregates ComCat earthquakes to BOLD cells by year or quarter. Outputs event counts, `M6+`, `M7+`, shallow-event counts, and max/mean magnitude.
 - `request_gbif_plantae_downloads.py`: submits GBIF Darwin Core Archive requests for plants. Supports `--kinds preserved_material` and/or `human_observation`, arbitrary year windows, and can poll/download the finished ZIPs.
 - `14_build_gbif_plantae_minimal.py`: streams `occurrence.txt` from the GBIF preserved/material plant archive into a compact CSV with the fields needed for downstream summaries and panel work.
 - `15_build_gbif_plantae_cell_year_panel.py`: builds the zero-filled 100 km cell-year panel for the GBIF preserved/material plant archive, with total, plant, preserved-specimen, and material-sample counts plus `any_*`/`log1p_*` transforms.
@@ -32,17 +36,104 @@
 - `plant_r_setup.R`: boots an R environment for plant richness and distribution work. Installs/loads BIEN, rWCVP, rWCVPdata, expowo, sf, terra, and basic tidyverse packages; writes a small package/session manifest under `Output/audits/`.
 - `18_bien_range_download_pilot.R`: BIEN range-map bulk downloader keyed to the ranked GBIF plant species universe. It works in rank windows over the canonical species pool; by default batch 1 is ranks 1-5000. Supports later batches via `--batch-id`, `--rank-start`, and `--top-n`, records timing and disk-footprint metrics, and can optionally convert the downloaded shapefiles into BIEN skinny ranges plus a local richness raster if you provide a template raster. The current completed five-batch sweep covers the full canonical pool (`236,166` names) and yielded `64,760` downloaded BIEN range-map species.
 - `19_extract_gbif_plantae_species_universe.py`: streams the two preserved/material GBIF plant occurrence archives, unions species names across them, and writes a ranked species universe CSV/TXT for BIEN targeting.
-- `gee_nightlights_100km.js`: Google Earth Engine script to aggregate Li et al. (2020) harmonized nighttime lights to 100 km cells. Consistent VIIRS-equivalent scale 2005-2023. Cell-level income proxy. See `Scripts/gee_nightlights_README.md`.
-- `merge_nightlights_exports.py`: merges harmonized nightlights GEE export into a cell-year panel with log-radiance.
+- `earth_engine/gee_nightlights_100km.js`: Google Earth Engine script to aggregate Li et al. (2020) harmonized nighttime lights to 100 km cells. Consistent VIIRS-equivalent scale 2005-2023. Cell-level income proxy. See `Scripts/earth_engine/gee_nightlights_README.md`.
+- `merge_nightlights_exports.py`: merges annual harmonized nightlights GEE export into a cell-year panel, or expands annual harmonized values to quarters for `test_50km_quarter`, with log-radiance and source-frequency labeling.
 - `download_acled.py`: downloads ACLED conflict events via API (requires free ACLED account, Bearer token via `--token` or `--token-file`). Year-by-year download, full global coverage 2005-2024. Alternative: manually export CSV from ACLED data export tool.
 - `aggregate_acled_100km.py`: aggregates ACLED events to 100 km cells. Event counts and fatalities by type (battles, explosions, violence against civilians, protests, riots). Plus `acled_any_violent` indicator.
 - `download_species_richness.py`: instructions and verification for IUCN Red List species range map downloads (manual, free account). Covers mammals, amphibians, reptiles.
 - `aggregate_species_richness_100km.py`: computes baseline species richness per 100 km cell from IUCN range map shapefiles (mammals, amphibians, reptiles). Handles multi-part shapefiles. Spatial join with IUCN filters (extant, native, resident/breeding).
 - `aggregate_species_richness_birds_100km.py`: separate bird species richness script for BirdLife BOTW GeoPackage (~9 GB). Run in a separate terminal to avoid RAM exhaustion.
-- `gee_hansen_forest_loss_100km.js`: Google Earth Engine script to aggregate Hansen Global Forest Change to 100 km cells using tree-cover-weighted method. See `Scripts/gee_hansen_forest_loss_README.md`.
-- `merge_hansen_exports.py`: merges Earth Engine CSV exports into a complete cell-year panel with lags.
-- `gee_modis_burned_area_100km.js`: Google Earth Engine script to aggregate MODIS MCD64A1 burned area to 100 km cells.
-- `merge_modis_burned_exports.py`: merges MODIS Earth Engine CSV exports into a complete cell-year panel with lags.
+- `earth_engine/gee_hansen_forest_loss_100km.js`: Google Earth Engine script to aggregate Hansen Global Forest Change to 100 km cells using tree-cover-weighted method. See `Scripts/earth_engine/gee_hansen_forest_loss_README.md`.
+- `merge_hansen_exports.py`: merges Earth Engine CSV exports into a complete cell-year panel with lags. For quarterly variants, annual Hansen loss-year values are expanded to quarters and labeled with `hansen_source_freq = "annual"`.
+- `earth_engine/gee_modis_burned_area_100km.js`: Google Earth Engine script to aggregate MODIS MCD64A1 burned area to 100 km cells.
+- `merge_modis_burned_exports.py`: merges MODIS Earth Engine CSV exports into complete cell-year or cell-quarter panels with lags.
+
+## Panel Variants
+
+The stable production panel is `baseline_100km_year`. Experimental spatial/time
+panels are kept out of the baseline output tree:
+
+| Variant | Grid | Frequency | Main output |
+|---------|------|-----------|-------------|
+| `baseline_100km_year` | 100 km | year | `Data/analysis/BOLD_regressor_panel.dta` |
+| `test_50km_year` | 50 km | year | `Data/analysis/tests_spatial_time/BOLD_regressor_panel_50km_year.dta` |
+| `test_50km_quarter` | 50 km | quarter | `Data/analysis/tests_spatial_time/BOLD_regressor_panel_50km_quarter.dta` |
+
+Use `--variant test_50km_year` or `--variant test_50km_quarter` on
+variant-aware scripts. The script names remain historical, often ending in
+`100km.py`, but output paths and grid/time units are selected from
+`panel_variants.py`.
+
+The quarterly variant is truly quarterly for BOLD, MODIS, UCDP, ComCat,
+IBTrACS, TerraClimate, and CHIRPS. Hansen and harmonized nightlights are annual
+source series expanded within year; WDPA and World Bank GDP are annual and
+merged/repeated within quarters.
+
+### 50 km Yearly Rebuild
+
+After the 50 km Earth Engine exports are downloaded, run:
+
+```bash
+python3 Scripts/00_build_bold_minimal.py
+python3 Scripts/build_land_cells.py --variant test_50km_year
+python3 Scripts/06_build_cell_year_panel.py --variant test_50km_year
+python3 Scripts/merge_hansen_exports.py --variant test_50km_year
+python3 Scripts/merge_modis_burned_exports.py --variant test_50km_year
+python3 Scripts/merge_nightlights_exports.py --variant test_50km_year
+python3 Scripts/aggregate_ucdp_ged_100km.py --variant test_50km_year
+python3 Scripts/aggregate_ibtracs_100km.py --variant test_50km_year
+python3 Scripts/aggregate_comcat_100km.py --variant test_50km_year
+python3 Scripts/aggregate_terraclimate_100km.py --variant test_50km_year
+python3 Scripts/aggregate_chirps_100km.py --variant test_50km_year
+python3 Scripts/aggregate_resolve_ecoregions_100km.py --variant test_50km_year
+python3 Scripts/aggregate_grip_roads_100km.py --variant test_50km_year
+python3 Scripts/aggregate_species_richness_100km.py --variant test_50km_year
+python3 Scripts/aggregate_globio_msa_100km.py --variant test_50km_year
+python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+```
+
+Then run the Stata build:
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/build_tests_spatial_time_panel_50km_year.do"
+```
+
+### 50 km Quarterly Rebuild
+
+The quarterly build reuses the same 50 km grid and static 50 km controls, but
+requires quarter-resolved BOLD and shock/climate panels:
+
+```bash
+python3 Scripts/00_build_bold_minimal.py
+python3 Scripts/build_land_cells.py --variant test_50km_quarter
+python3 Scripts/06_build_cell_year_panel.py --variant test_50km_quarter
+python3 Scripts/merge_modis_burned_exports.py --variant test_50km_quarter
+python3 Scripts/merge_hansen_exports.py --variant test_50km_quarter
+python3 Scripts/merge_nightlights_exports.py --variant test_50km_quarter
+python3 Scripts/aggregate_ucdp_ged_100km.py --variant test_50km_quarter
+python3 Scripts/aggregate_ibtracs_100km.py --variant test_50km_quarter
+python3 Scripts/aggregate_comcat_100km.py --variant test_50km_quarter
+python3 Scripts/aggregate_terraclimate_100km.py --variant test_50km_quarter
+python3 Scripts/download_chirps_monthly.py --skip-existing --end-year 2023
+python3 Scripts/aggregate_chirps_100km.py --variant test_50km_quarter
+```
+
+If the 50 km static controls were not rebuilt after the raster-zonal patch,
+also rerun:
+
+```bash
+python3 Scripts/aggregate_resolve_ecoregions_100km.py --variant test_50km_quarter
+python3 Scripts/aggregate_grip_roads_100km.py --variant test_50km_quarter
+python3 Scripts/aggregate_species_richness_100km.py --variant test_50km_quarter
+python3 Scripts/aggregate_globio_msa_100km.py --variant test_50km_quarter
+python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+```
+
+Then run:
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/build_tests_spatial_time_panel_50km_quarter.do"
+```
 
 ## Downloaders
 
@@ -200,11 +291,15 @@ python3 Scripts/aggregate_resolve_ecoregions_100km.py
 python3 Scripts/aggregate_cepf_hotspots_100km.py
 python3 Scripts/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+python3 Scripts/aggregate_wdpa_protected_share_100km.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 python3 Scripts/download_terraclimate_baseline.py --skip-existing
 python3 Scripts/download_terraclimate.py --skip-existing
 python3 Scripts/aggregate_terraclimate_100km.py
 python3 Scripts/download_chirps.py --skip-existing
 python3 Scripts/aggregate_chirps_100km.py
+python3 Scripts/download_chirps_monthly.py --skip-existing
+python3 Scripts/aggregate_chirps_100km.py --variant test_50km_quarter
 python3 Scripts/download_grip_roads.py
 python3 Scripts/aggregate_grip_roads_100km.py
 python3 Scripts/download_globio_msa.py --types overall

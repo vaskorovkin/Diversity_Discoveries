@@ -17,6 +17,55 @@ Data/analysis/BOLD_regressor_panel.dta
 Logs/merge_all_regressors.log
 ```
 
+## 50 km Yearly Experiment Panel
+
+After the `test_50km_year` Python builders and Earth Engine exports are in
+place, build the 50 km experiment panel with:
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/build_tests_spatial_time_panel_50km_year.do"
+```
+
+This expects the time-varying WDPA protected-area panel at:
+
+```text
+Data/regressors/tests_spatial_time/wdpa/wdpa_protected_panel_50km.csv
+```
+
+Create it with the May 2026 WDPA/WDOECM File Geodatabase:
+
+```bash
+python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+```
+
+## 50 km Quarterly Panel
+
+The quarterly 50 km build is available as an experimental panel:
+
+- BOLD outcomes are quarter-resolved
+- MODIS burned area is quarter-resolved
+- UCDP, ComCat, IBTrACS, TerraClimate, and CHIRPS are quarter-resolved
+- Hansen forest loss is source-limited to annual loss year and is expanded to
+  quarters with `hansen_source_freq = "annual"`
+- harmonized nightlights are source-limited to annual values and are expanded
+  to quarters with `ntl_source_freq = "annual_harmonized"`
+- WDPA protected share is annual and repeated within quarters, using the same
+  `STATUS_YR`-based 50 km panel as the yearly experiment
+- World Bank GDP remains annual and is merged by `iso_a3 x year`
+
+Build it with:
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/build_tests_spatial_time_panel_50km_quarter.do"
+```
+
+This writes:
+
+```text
+Data/analysis/tests_spatial_time/BOLD_regressor_panel_50km_quarter.dta
+Logs/build_tests_spatial_time_panel_50km_quarter.log
+```
+
 ## Regression Specifications
 
 Run the main regression table do-file with:
@@ -25,16 +74,22 @@ Run the main regression table do-file with:
 do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_spec1.do"
 ```
 
-The do-file loads `Data/analysis/BOLD_regressor_panel.dta`, restricts to
-2005-2023, and estimates 4 tables (8 specifications each, 32 total):
+At the top of `reg_spec1.do`, set `local panel_mode` to one of:
+
+- `"100-yearly"`: baseline 100 km x year panel; log `Logs/reg_spec1_100km_year.log`
+- `"50-yearly"`: experimental 50 km x year panel; log `Logs/reg_spec1_50km_year.log`
+- `"50-quarterly"`: experimental 50 km x quarter panel; log `Logs/reg_spec1_50km_quarter.log`
+
+The do-file restricts to 2005-2023 and estimates 5 tables (8 specifications
+each, 40 total):
 
 - **Table 1** (Cell + Year FE): baseline with `log_gdp_pc`, `log_gdp_pc_sq`,
   `protected_share`, and GDP×PA interactions.
 - **Table 2** (Cell + Country×Year FE): GDP main effects absorbed; GDP×PA
   interactions and conflict survive.
-- **Table 3** (Table 2 + Biome×Year FE + Road×Year controls): adds
-  `i.resolve_biome_num#i.year` absorbed and `c.road_density_km_per_km2#i.year`
-  as regressors.
+- **Table 3** (Table 2 + Biome×Time FE + Road×Time controls): adds
+  biome-by-time absorbed effects and road-density-by-time controls, where time
+  is year in yearly modes and quarter in quarterly mode.
 - **Table 4** (Table 3 + Conflict×MSA interaction): adds `c.conflict#c.msa_overall`
   to test whether conflict effects vary with biodiversity intactness.
 - **Table 5** (Table 3 + Conflict×Richness interaction): adds
@@ -44,7 +99,51 @@ Each table has 8 columns: {Any, log(1+N)} × {Contemporaneous, With Lags} ×
 {log(1+events), 1[events>0]} conflict measures. Lag specifications include
 L0-L2 distributed lags for conflict, PDSI, and tmax with `lincom` sum tests.
 
-Standard errors clustered at cell level. Logs saved to `Logs/reg_spec1.log`.
+Standard errors are clustered at cell level. In quarterly mode, the Stata panel
+time variable is `time_id = yq(year, quarter)`, so `L.` and `L2.` are
+one-quarter and two-quarter lags rather than one-year and two-year lags.
+
+### TWFE Spatial-Time Event-Study Diagnostic
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_event_study_twfe_simple.do"
+```
+
+This is a deliberately simpler event-study diagnostic than
+`reg_event_study.do`. It runs only TWFE onset event studies for the three
+panel modes:
+
+- `100-yearly`
+- `50-yearly`
+- `50-quarterly`
+
+Use the clickers at the top to run one mode or all modes, choose simple vs rich
+FE, and choose short vs long event windows. In rich-FE mode it uses the same
+control family as `reg_spec1.do`; in quarterly mode the time variable is
+`time_id = yq(year, quarter)`.
+
+Logs saved to `Logs/reg_event_study_twfe_simple.log`. Figures saved to
+`Output/figures/event_study/`.
+
+### Conflict Signal Decomposition
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_conflict_signal_decomposition.do"
+```
+
+This is not an event-study file. It diagnoses why the main `reg_spec1` TWFE
+tables are stronger than the onset event studies by rerunning distributed-lag
+conflict models across:
+
+- full panel
+- ever-conflict cells only
+- cells excluding conflict-in-2005 left-censored cases
+- clean first-onset cells plus never-conflict controls
+
+It also compares current conflict exposure with lagged cumulative conflict
+stock. Outputs are written to `Exhibits/tables/conflict_signal_decomp_*.tex`
+and `Exhibits/tables/conflict_signal_stock_*.tex`; log saved to
+`Logs/reg_conflict_signal_decomposition.log`.
 
 ### GBIF Plantae Regression Mirror
 

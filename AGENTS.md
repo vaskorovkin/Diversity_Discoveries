@@ -24,12 +24,17 @@ This repository is a research data project. Preserve downloaded data and never r
 - `Scripts/download_bold_cecidomyiidae_except_costa_rica_by_country.py` downloads all positive Cecidomyiidae country/ocean buckets except Costa Rica, because Costa Rica alone is over the BOLD cap.
 - `Scripts/download_bold_cecidomyiidae_costa_rica_capped.py` downloads a capped Costa Rica Cecidomyiidae diagnostic extract; do not treat it as complete.
 - `Scripts/00_build_bold_minimal.py` builds compact BOLD records for exhibits and regressions. It includes the capped Costa Rica Cecidomyiidae file by default, but excludes the redundant global capped Cecidomyiidae and old capped Hemiptera files.
-- `Scripts/06_build_cell_year_panel.py` builds the main 100 km land-cell x collection-year panel for 2005-2025.
-- `Scripts/aggregate_ucdp_ged_100km.py` aggregates a downloaded UCDP GED CSV to the same 100 km land cells for 2005-2024. Logs and lags are intentionally left for Stata.
+- `Scripts/panel_variants.py` centralizes the runnable panel variants: `baseline_100km_year`, `test_50km_year`, and `test_50km_quarter`.
+- `Scripts/build_land_cells.py` builds the 50 km land-cell universe used by the experimental variants.
+- `Scripts/06_build_cell_year_panel.py` builds the main 100 km land-cell x collection-year panel for 2005-2025, or the 50 km yearly/quarterly panels when run with `--variant`.
+- `Scripts/aggregate_ucdp_ged_100km.py` aggregates a downloaded UCDP GED CSV to the BOLD grid for 2005-2024. It supports yearly and quarterly variants. Logs and lags are intentionally left for Stata.
 - `Scripts/download_baseline_geography.py` downloads raw RESOLVE ecoregions and CEPF hotspot inputs for the static baseline geography overlays. See `Scripts/baseline_geography_README.md`.
 - `Scripts/aggregate_resolve_ecoregions_100km.py` assigns RESOLVE 2017 ecoregion, biome, and realm to each 100 km land cell by centroid overlay.
 - `Scripts/aggregate_cepf_hotspots_100km.py` assigns CEPF/Conservation International biodiversity hotspot indicators to each 100 km land cell by centroid overlay.
-- `Scripts/aggregate_wdpa_protected_share_100km.py` computes May 2026 WDPA protected-area share by 100 km cell from the local WDPA/WDOECM polygon geodatabase. This is a snapshot regressor, not a historical panel.
+- `Scripts/earth_engine/` holds all Google Earth Engine scripts and GEE-specific READMEs. Do not put new GEE scripts in the top-level `Scripts/` folder.
+- `Scripts/raster_zonal.py` provides the shared polygon-aware rasterization helper used by TerraClimate, CHIRPS, GRIP roads, and GLOBIO MSA aggregators. These scripts should not go back to lon/lat bounding-box cell windows.
+- `Scripts/aggregate_wdpa_protected_share_100km.py` computes May 2026 WDPA protected-area share by grid cell from the local WDPA/WDOECM File Geodatabase. This is a snapshot regressor, not a historical panel.
+- `Scripts/aggregate_wdpa_protected_panel_100km_v2.py` computes the preferred `STATUS_YR`-based WDPA protected-area panel. The 50 km yearly and quarterly Stata panels use this time-varying WDPA panel.
 - Baseline-geography geospatial dependencies are listed in `requirements_baseline_geography.txt`.
 - `Scripts/download_bold_non_insect_arthropods_and_microbes.py` downloads selected non-insect arthropod groups plus Bacteria and logs zero-record BOLD v5 groups.
 - `Scripts/audit_bold_downloads.py` audits local BOLD TSVs against their summary JSON files.
@@ -57,7 +62,8 @@ As of the latest coverage audit:
 - The current UCDP regressor panel is `Data/regressors/ucdp/ucdp_ged_100km_cell_year_2005_2024.csv`. It has 291,320 rows: 14,566 land cells x 20 years. Merge with BOLD over the common 2005-2024 window.
 - The current static baseline geography file is `Data/regressors/baseline_geography/resolve_ecoregions_100km_cells.csv`. It has 14,566 unique cells, 14,291 RESOLVE matches, 1,243 explicit `Rock and Ice` cells, and 275 unmatched cells.
 - The current hotspot file is `Data/regressors/baseline_geography/cepf_hotspots_100km_cells.csv`. It has 14,566 unique cells, 2,430 cells in any hotspot, and all 36 hotspot names are represented.
-- WDPA protected-area share uses the local May 2026 WDPA/WDOECM geodatabase under `Data/raw/baseline_geography/wdpa/`. Treat its output as a static snapshot unless a separate historical build is created.
+- WDPA protected-area share uses the local May 2026 WDPA/WDOECM geodatabase under `Data/raw/baseline_geography/wdpa/`. The static share output is a snapshot; the Stata analysis panels should use the `STATUS_YR`-based WDPA panel where available.
+- Experimental spatial/time panels live under `Data/processed/tests_spatial_time/`, `Data/regressors/tests_spatial_time/`, and `Data/analysis/tests_spatial_time/`. The current supported variants are 50 km x year and 50 km x quarter.
 
 ## Safe Workflow
 
@@ -70,7 +76,7 @@ git status --short --ignored
 Before committing:
 
 ```bash
-python3 -m py_compile Scripts/0*.py Scripts/pipeline_utils.py Scripts/export_grid100_land_cells_geojson.py
+python3 -m py_compile Scripts/0*.py Scripts/pipeline_utils.py Scripts/panel_variants.py Scripts/raster_zonal.py
 python3 Scripts/audit_bold_taxon_coverage.py
 git status --short
 ```

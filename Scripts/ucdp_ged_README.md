@@ -1,6 +1,7 @@
-# UCDP GED 100 km Conflict Regressor
+# UCDP GED Conflict Regressor
 
-This builds a cell-year conflict regressor from UCDP GED event data.
+This builds cell-year or cell-quarter conflict regressors from UCDP GED event
+data. The default remains the baseline 100 km yearly panel.
 
 ## Download
 
@@ -32,14 +33,24 @@ or explicitly:
 python3 Scripts/aggregate_ucdp_ged_100km.py --input Data/raw/ucdp/YOUR_UCDP_GED_FILE.csv
 ```
 
+For the experimental spatial/time panels:
+
+```bash
+python3 Scripts/aggregate_ucdp_ged_100km.py --variant test_50km_year
+python3 Scripts/aggregate_ucdp_ged_100km.py --variant test_50km_quarter
+```
+
 ## Output
 
 ```text
 Data/regressors/ucdp/ucdp_ged_100km_cell_year_2005_2024.csv
 Data/regressors/ucdp/ucdp_ged_100km_cell_year_2005_2024_summary.csv
+Data/regressors/tests_spatial_time/ucdp/ucdp_ged_50km_cell_year_2005_2024.csv
+Data/regressors/tests_spatial_time/ucdp/ucdp_ged_50km_cell_quarter_2005_2024.csv
 ```
 
-The output is zero-filled for all BOLD 100 km land cells x years 2005-2024.
+The outputs are zero-filled for the selected BOLD land-cell universe and
+periodicity. Quarterly aggregation uses the UCDP event start date quarter.
 
 Core variables:
 

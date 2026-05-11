@@ -83,6 +83,13 @@ def parse_years_vec(dates: pd.Series) -> pd.Series:
     return numeric.where(valid).astype("Int64").astype(str).where(valid, "")
 
 
+def parse_months_vec(dates: pd.Series) -> pd.Series:
+    s = dates.fillna("")
+    numeric = pd.to_numeric(s.str[5:7], errors="coerce")
+    valid = numeric.between(1, 12)
+    return numeric.where(valid).astype("Int64").astype(str).where(valid, "")
+
+
 def first_present_vec(df: pd.DataFrame, cols: list[str]) -> pd.Series:
     result = pd.Series("", index=df.index)
     for col in reversed(cols):
@@ -144,6 +151,7 @@ def stream_source(
             "longitude": lon.values,
             "has_coord": has_coord.values,
             "collection_year": parse_years_vec(chunk.get("collection_date_start", pd.Series("", index=chunk.index))).values,
+            "collection_month": parse_months_vec(chunk.get("collection_date_start", pd.Series("", index=chunk.index))).values,
             "sequence_upload_year": parse_years_vec(chunk.get("sequence_upload_date", pd.Series("", index=chunk.index))).values,
             "bin_uri": chunk.get("bin_uri", pd.Series("", index=chunk.index)).fillna("").str.strip().values,
             "bin_created_date": chunk.get("bin_created_date", pd.Series("", index=chunk.index)).fillna("").str.strip().values,

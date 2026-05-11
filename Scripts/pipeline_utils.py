@@ -43,6 +43,7 @@ MINIMAL_FIELDS = [
     "longitude",
     "has_coord",
     "collection_year",
+    "collection_month",
     "sequence_upload_year",
     "bin_uri",
     "bin_created_date",
@@ -87,6 +88,15 @@ def parse_year(value: str) -> str:
         year = int(value[:4])
         if 1800 <= year <= 2100:
             return str(year)
+    return ""
+
+
+def parse_month(value: str) -> str:
+    value = clean(value)
+    if len(value) >= 7 and value[5:7].isdigit():
+        month = int(value[5:7])
+        if 1 <= month <= 12:
+            return str(month)
     return ""
 
 

@@ -1,11 +1,11 @@
 # AI Handover
 
-Date: 2026-05-05
+Date: 2026-05-11
 
 ## Ground Rules
 
 - Work from `/Users/vasilykorovkin/Documents/Diversity_Discoveries`.
-- The user commits and pushes. Do not run `git commit` or `git push`.
+- Default: the user commits and pushes. Only run `git commit` if the user explicitly asks for it in the current thread.
 - Use `python3`, not `python`.
 - Do not delete or overwrite data in `Data/`, `Output/`, or `Literature/`.
 - Large BOLD jobs can trigger HTTP 403/503 throttling. Prefer one large BOLD download at a time. If repeated 403s occur, stop and wait.
@@ -84,6 +84,49 @@ year, credited to every cell that collected the BIN in its first year. It is
 a strict land-cell panel; coastal/island/marine-adjacent records outside the
 land-cell universe are excluded for now.
 
+## Spatial-Time Experiment Pipeline
+
+The canonical 100 km yearly pipeline remains the baseline. Experimental
+variants are centralized in `Scripts/panel_variants.py`:
+
+```text
+baseline_100km_year
+test_50km_year
+test_50km_quarter
+```
+
+The 50 km variants write under:
+
+```text
+Data/processed/tests_spatial_time/
+Data/regressors/tests_spatial_time/
+Data/analysis/tests_spatial_time/
+```
+
+The quarterly path is truly quarterly for BOLD, MODIS, UCDP, ComCat, IBTrACS,
+TerraClimate, and CHIRPS. Hansen is annual loss-year data expanded to quarters.
+Harmonized nightlights are annual and expanded to quarters to preserve
+2005-2023 coverage. WDPA and World Bank GDP are annual and repeated/merged
+within quarters.
+
+Earth Engine scripts have moved to:
+
+```text
+Scripts/earth_engine/
+```
+
+The 50 km GEE workflow is documented in:
+
+```text
+Scripts/earth_engine/tests_spatial_time_README.md
+```
+
+The affected raster aggregators now use `Scripts/raster_zonal.py`, which
+rasterizes actual cell polygons onto the raster grid and aggregates by cell
+labels. Do not reintroduce lon/lat bounding-box window means in
+`aggregate_terraclimate_100km.py`, `aggregate_chirps_100km.py`,
+`aggregate_grip_roads_100km.py`, or `aggregate_globio_msa_100km.py`.
+
 UCDP GED conflict has been aggregated to the same 100 km land cells:
 
 ```text
@@ -158,8 +201,8 @@ unique_hotspot_names_hit: 36
 cells_matching_multiple_hotspots: 0
 ```
 
-WDPA/Protected Planet protected-area share is currently running or ready to run
-from the local May 2026 WDPA/WDOECM polygon geodatabase. The script is:
+WDPA/Protected Planet protected-area share is built from the local May 2026
+WDPA/WDOECM File Geodatabase. The script is:
 
 ```text
 Scripts/aggregate_wdpa_protected_share_100km.py
@@ -168,22 +211,36 @@ Scripts/aggregate_wdpa_protected_share_100km.py
 Current local input:
 
 ```bash
+Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+```
+
+For the baseline 100 km panel:
+
+```bash
 python3 Scripts/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 ```
 
-The WDPA output is a May 2026 snapshot by cell, not a historical
-protected-area panel. Treat it as baseline geography/control/heterogeneity.
-
-For a time-varying protected-area panel using STATUS_YR:
+For the 50 km experiment:
 
 ```bash
-python3 Scripts/aggregate_wdpa_protected_panel_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+python3 Scripts/aggregate_wdpa_protected_share_100km.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 ```
 
-Output:
+The static WDPA share output is a May 2026 snapshot by cell. Treat it as
+baseline geography/control/heterogeneity only.
+
+For the preferred time-varying protected-area panel using `STATUS_YR`, use v2:
+
+```bash
+python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+```
+
+Outputs:
 
 ```text
 Data/regressors/wdpa/wdpa_protected_panel_100km.csv
+Data/regressors/tests_spatial_time/wdpa/wdpa_protected_panel_50km.csv
 ```
 
 Variables: `protected_area_km2`, `protected_share`, `any_protected`,
@@ -415,8 +472,8 @@ is broken and ecoregion IDs need a crosswalk to RESOLVE 2017.
 Hansen Global Forest Change is being aggregated via Google Earth Engine:
 
 ```text
-Scripts/gee_hansen_forest_loss_100km.js       # Earth Engine script
-Scripts/gee_hansen_forest_loss_README.md      # Setup and workflow instructions
+Scripts/earth_engine/gee_hansen_forest_loss_100km.js       # Earth Engine script
+Scripts/earth_engine/gee_hansen_forest_loss_README.md      # Setup and workflow instructions
 Scripts/merge_hansen_exports.py               # Merge GEE exports with cell panel
 ```
 
@@ -448,7 +505,7 @@ Hansen covers 2001-2023 (tree-cover-weighted method). Variables include
 MODIS MCD64A1 burned area is also aggregated via Earth Engine:
 
 ```text
-Scripts/gee_modis_burned_area_100km.js
+Scripts/earth_engine/gee_modis_burned_area_100km.js
 Scripts/merge_modis_burned_exports.py
 ```
 
@@ -532,11 +589,27 @@ Main specification file:
 do "DoFiles/reg_spec1.do"
 ```
 
-Log: `Logs/reg_spec1.log`
+At the top of the file, choose:
+
+```stata
+local panel_mode "100-yearly"
+// local panel_mode "50-yearly"
+// local panel_mode "50-quarterly"
+```
+
+Logs are panel-specific:
+
+```text
+Logs/reg_spec1_100km_year.log
+Logs/reg_spec1_50km_year.log
+Logs/reg_spec1_50km_quarter.log
+```
 
 The do-file estimates 5 tables (8 columns each, 40 specifications total).
 Sample: 2005-2023. Dependent variables: `any_total` (extensive margin) and
-`log1p_total` (intensive margin). SE clustered at cell level.
+`log1p_total` (intensive margin). SE clustered at cell level. In quarterly
+mode, `time_id = yq(year, quarter)` is used, so `L.` and `L2.` are
+one-quarter and two-quarter lags.
 
 **Table 1** — Cell + Year FE:
 - Conflict (log(1+events) or 1[events>0]), forest loss, burned area, PDSI/tmax
@@ -550,9 +623,9 @@ Sample: 2005-2023. Dependent variables: `any_total` (extensive margin) and
 - Burned area flips to significant negative (country-year FE removes
   confounding seasonal/policy variation).
 
-**Table 3** — Table 2 + Biome×Year FE + Road×Year controls:
-- `i.resolve_biome_num#i.year` absorbed, `c.road_density_km_per_km2#i.year`
-  as regressors (suppressed from output).
+**Table 3** — Table 2 + Biome×Time FE + Road×Time controls:
+- Biome-by-time FE absorbed and road-density-by-time controls included, where
+  time is year in annual panels and quarter in the quarterly panel.
 - Conflict robust; climate effects largely unchanged.
 
 **Table 4** — Table 3 + Conflict×MSA interaction:
@@ -564,6 +637,27 @@ Sample: 2005-2023. Dependent variables: `any_total` (extensive margin) and
 **Table 5** — Table 3 + Conflict×Richness (IUCN) interaction:
 - `c.conflict#c.richness_std`: negative coefficient — conflict reduces sampling
   more in species-rich cells (richness_std is standardized IUCN total richness).
+
+### TWFE Simple Event-Study Diagnostic (`reg_event_study_twfe_simple.do`)
+
+Log: `Logs/reg_event_study_twfe_simple.log`
+
+Runs only TWFE onset event-study graphs for `100-yearly`, `50-yearly`, and
+`50-quarterly`. This file is intentionally less ambitious than
+`reg_event_study.do`; it is for comparing whether spatial/time resolution makes
+plain onset graphs cleaner. Rich-FE mode adds the same shock and
+economic/environmental controls used in `reg_spec1.do`.
+
+### Conflict Signal Decomposition (`reg_conflict_signal_decomposition.do`)
+
+Log: `Logs/reg_conflict_signal_decomposition.log`
+
+This diagnostic replaces the retired clean-onset-bin file. It asks whether the
+main TWFE signal comes from current/lagged conflict exposure, cumulative
+conflict stock, left-censored conflict cells, ever-conflict-cell comparisons,
+or clean first-onset cells. Outputs are written to
+`Exhibits/tables/conflict_signal_decomp_*.tex` and
+`Exhibits/tables/conflict_signal_stock_*.tex`.
 
 ### BIN Outcome Regressions (`reg_spec_bin.do`)
 

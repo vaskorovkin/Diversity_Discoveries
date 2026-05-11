@@ -14,6 +14,8 @@ import numpy as np
 import pandas as pd
 from pyproj import Transformer
 
+from panel_variants import get_variant
+
 
 PROJECT_ROOT = Path("/Users/vasilykorovkin/Documents/Diversity_Discoveries")
 RAW_DIR = PROJECT_ROOT / "Data" / "raw" / "ucdp"
@@ -33,6 +35,7 @@ TYPE_LABELS = {
 
 REQUIRED_COLUMNS = [
     "year",
+    "date_start",
     "type_of_violence",
     "where_prec",
     "latitude",
@@ -72,14 +75,16 @@ def load_land_cells(path: Path) -> pd.DataFrame:
     return land
 
 
-def build_skeleton(land: pd.DataFrame, start_year: int, end_year: int) -> pd.DataFrame:
+def build_skeleton(land: pd.DataFrame, start_year: int, end_year: int, freq: str) -> pd.DataFrame:
     years = pd.DataFrame({"year": list(range(start_year, end_year + 1)), "key": 1})
     cells = land[["cell_id", "cell_x", "cell_y"]].drop_duplicates().assign(key=1)
-    skeleton = cells.merge(years, on="key").drop(columns="key")
-    return skeleton
+    if freq == "year":
+        return cells.merge(years, on="key").drop(columns="key")
+    quarters = pd.DataFrame({"quarter": [1, 2, 3, 4], "key2": 1})
+    return cells.merge(years, on="key").drop(columns="key").assign(key2=1).merge(quarters, on="key2").drop(columns="key2")
 
 
-def clean_events(ged: pd.DataFrame, start_year: int, end_year: int, cell_km: float, land_ids: set[str]) -> tuple[pd.DataFrame, dict[str, int]]:
+def clean_events(ged: pd.DataFrame, start_year: int, end_year: int, freq: str, cell_km: float, land_ids: set[str]) -> tuple[pd.DataFrame, dict[str, int]]:
     work = ged.copy()
     stats = {"raw_events": len(work)}
 
@@ -88,6 +93,11 @@ def clean_events(ged: pd.DataFrame, start_year: int, end_year: int, cell_km: flo
 
     work = work[work["year"].between(start_year, end_year)].copy()
     stats["events_in_year_window"] = len(work)
+    if freq == "quarter":
+        work["date_start"] = pd.to_datetime(work["date_start"], errors="coerce")
+        work = work.dropna(subset=["date_start"]).copy()
+        work["quarter"] = work["date_start"].dt.quarter.astype(int)
+        stats["events_with_valid_quarter"] = len(work)
 
     valid_coord = work["latitude"].between(-90, 90) & work["longitude"].between(-180, 180)
     work = work[valid_coord].copy()
@@ -115,8 +125,8 @@ def clean_events(ged: pd.DataFrame, start_year: int, end_year: int, cell_km: flo
     return work, stats
 
 
-def aggregate(events: pd.DataFrame) -> pd.DataFrame:
-    keys = ["cell_id", "year"]
+def aggregate(events: pd.DataFrame, freq: str) -> pd.DataFrame:
+    keys = ["cell_id", "year"] + (["quarter"] if freq == "quarter" else [])
     out = events.groupby(keys).size().rename("ucdp_events_all").reset_index()
     sums = events.groupby(keys)[["best", "low", "high", "deaths_civilians"]].sum().reset_index()
     sums = sums.rename(
@@ -158,8 +168,9 @@ def merge_subset(base: pd.DataFrame, sub: pd.DataFrame, keys: list[str], suffix:
     return base.merge(counts, on=keys, how="outer").merge(sums, on=keys, how="outer")
 
 
-def finalize(skeleton: pd.DataFrame, counts: pd.DataFrame) -> pd.DataFrame:
-    panel = skeleton.merge(counts, on=["cell_id", "year"], how="left")
+def finalize(skeleton: pd.DataFrame, counts: pd.DataFrame, freq: str) -> pd.DataFrame:
+    keys = ["cell_id", "year"] + (["quarter"] if freq == "quarter" else [])
+    panel = skeleton.merge(counts, on=keys, how="left")
     ensure_output_columns(panel)
     value_cols = [c for c in panel.columns if c.startswith("ucdp_")]
     panel[value_cols] = panel[value_cols].fillna(0)
@@ -190,6 +201,7 @@ def write_summary(path: Path, ged: pd.DataFrame, events: pd.DataFrame, panel: pd
             ("output_rows", len(panel)),
             ("output_cells", panel["cell_id"].nunique()),
             ("output_years", panel["year"].nunique()),
+            ("output_quarters", panel["quarter"].nunique() if "quarter" in panel.columns else ""),
             ("cell_years_with_ucdp_events_all", int((panel["ucdp_events_all"] > 0).sum())),
             ("ucdp_events_all", int(panel["ucdp_events_all"].sum())),
             ("ucdp_best_all", int(panel["ucdp_best_all"].sum())),
@@ -212,14 +224,34 @@ def write_summary(path: Path, ged: pd.DataFrame, events: pd.DataFrame, panel: pd
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--variant", type=str, default=None)
     parser.add_argument("--input", type=Path, default=None, help="Path to downloaded UCDP GED CSV.")
-    parser.add_argument("--land-cells", type=Path, default=LAND_CELLS)
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--land-cells", type=Path, default=None)
+    parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--summary", type=Path, default=None)
     parser.add_argument("--start-year", type=int, default=DEFAULT_START_YEAR)
     parser.add_argument("--end-year", type=int, default=DEFAULT_END_YEAR)
     parser.add_argument("--cell-km", type=float, default=100)
     args = parser.parse_args()
+
+    variant = get_variant(args.variant) if args.variant else None
+    freq = "year"
+    if variant is not None:
+        freq = variant.freq
+        args.cell_km = variant.cell_km
+        args.start_year = variant.start_year
+        args.end_year = min(variant.end_year, DEFAULT_END_YEAR)
+
+    land_cells_path = args.land_cells or (variant.land_cells_csv if variant else LAND_CELLS)
+    if variant is not None:
+        outdir = variant.regressors_root / "ucdp"
+        period = "cell_quarter" if freq == "quarter" else "cell_year"
+        output_path = args.output or outdir / (
+            f"ucdp_ged_{int(args.cell_km)}km_{period}_{args.start_year}_{args.end_year}.csv"
+        )
+    else:
+        outdir = OUTDIR
+        output_path = args.output or DEFAULT_OUTPUT
 
     input_path = args.input or find_default_input()
     if input_path is None:
@@ -227,19 +259,21 @@ def main() -> int:
         print("UCDP downloads: https://ucdp.uu.se/downloads/")
         return 1
 
-    OUTDIR.mkdir(parents=True, exist_ok=True)
+    outdir.mkdir(parents=True, exist_ok=True)
     RAW_DIR.mkdir(parents=True, exist_ok=True)
-    summary_path = args.summary or args.output.with_name(args.output.stem + "_summary.csv")
+    summary_path = args.summary or output_path.with_name(output_path.stem + "_summary.csv")
 
     ged = load_ged(input_path)
-    land = load_land_cells(args.land_cells)
-    skeleton = build_skeleton(land, args.start_year, args.end_year)
-    events, stats = clean_events(ged, args.start_year, args.end_year, args.cell_km, set(land["cell_id"]))
+    if variant is not None:
+        print(f"Variant: {variant.name} ({variant.suffix})", flush=True)
+    land = load_land_cells(land_cells_path)
+    skeleton = build_skeleton(land, args.start_year, args.end_year, freq)
+    events, stats = clean_events(ged, args.start_year, args.end_year, freq, args.cell_km, set(land["cell_id"]))
     print(f"Events in land cells, {args.start_year}-{args.end_year}: {len(events):,}", flush=True)
-    counts = aggregate(events)
-    panel = finalize(skeleton, counts)
-    panel.to_csv(args.output, index=False)
-    print(f"Wrote UCDP cell-year panel: {args.output}", flush=True)
+    counts = aggregate(events, freq)
+    panel = finalize(skeleton, counts, freq)
+    panel.to_csv(output_path, index=False)
+    print(f"Wrote UCDP panel: {output_path}", flush=True)
     write_summary(summary_path, ged, events, panel, stats)
     return 0
 

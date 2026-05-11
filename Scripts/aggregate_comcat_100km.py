@@ -10,6 +10,8 @@ import numpy as np
 import pandas as pd
 from pyproj import Transformer
 
+from panel_variants import get_variant
+
 
 PROJECT_ROOT = Path("/Users/vasilykorovkin/Documents/Diversity_Discoveries")
 RAW_DIR = PROJECT_ROOT / "Data" / "raw" / "comcat"
@@ -55,10 +57,13 @@ def load_land_cells(path: Path) -> pd.DataFrame:
     return land
 
 
-def build_skeleton(land: pd.DataFrame, start_year: int, end_year: int) -> pd.DataFrame:
+def build_skeleton(land: pd.DataFrame, start_year: int, end_year: int, freq: str) -> pd.DataFrame:
     years = pd.DataFrame({"year": list(range(start_year, end_year + 1)), "key": 1})
     cells = land[["cell_id", "cell_x", "cell_y"]].drop_duplicates().assign(key=1)
-    return cells.merge(years, on="key").drop(columns="key")
+    if freq == "year":
+        return cells.merge(years, on="key").drop(columns="key")
+    quarters = pd.DataFrame({"quarter": [1, 2, 3, 4], "key2": 1})
+    return cells.merge(years, on="key").drop(columns="key").assign(key2=1).merge(quarters, on="key2").drop(columns="key2")
 
 
 def clean_events(
@@ -68,6 +73,7 @@ def clean_events(
     min_magnitude: float,
     land_ids: set[str],
     reviewed_only: bool,
+    cell_km: float,
 ) -> tuple[pd.DataFrame, dict[str, int]]:
     work = df.copy()
     stats = {"raw_rows": len(work)}
@@ -75,6 +81,7 @@ def clean_events(
     work["time"] = pd.to_datetime(work["time"], errors="coerce", utc=True)
     work = work.dropna(subset=["time"]).copy()
     work["year"] = work["time"].dt.year.astype(int)
+    work["quarter"] = work["time"].dt.quarter.astype(int)
     work = work[work["year"].between(start_year, end_year)].copy()
     stats["rows_in_year_window"] = len(work)
 
@@ -97,8 +104,9 @@ def clean_events(
 
     transformer = Transformer.from_crs("EPSG:4326", EQUAL_AREA_CRS, always_xy=True)
     x, y = transformer.transform(work["longitude"].to_numpy(), work["latitude"].to_numpy())
-    cell_x = np.floor(x / 100_000).astype(int)
-    cell_y = np.floor(y / 100_000).astype(int)
+    cell_m = cell_km * 1000
+    cell_x = np.floor(x / cell_m).astype(int)
+    cell_y = np.floor(y / cell_m).astype(int)
     work["cell_x"] = cell_x
     work["cell_y"] = cell_y
     work["cell_id"] = np.char.add(np.char.add(cell_x.astype(str), "_"), cell_y.astype(str))
@@ -114,9 +122,10 @@ def clean_events(
     return work, stats
 
 
-def aggregate(events: pd.DataFrame) -> pd.DataFrame:
+def aggregate(events: pd.DataFrame, freq: str) -> pd.DataFrame:
+    keys = ["cell_id", "year"] + (["quarter"] if freq == "quarter" else [])
     return (
-        events.groupby(["cell_id", "year"])
+        events.groupby(keys)
         .agg(
             comcat_events_all=("id", "size"),
             comcat_events_m6=("mag_ge_6", "sum"),
@@ -130,8 +139,9 @@ def aggregate(events: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def finalize(skeleton: pd.DataFrame, counts: pd.DataFrame) -> pd.DataFrame:
-    panel = skeleton.merge(counts, on=["cell_id", "year"], how="left")
+def finalize(skeleton: pd.DataFrame, counts: pd.DataFrame, freq: str) -> pd.DataFrame:
+    keys = ["cell_id", "year"] + (["quarter"] if freq == "quarter" else [])
+    panel = skeleton.merge(counts, on=keys, how="left")
     count_cols = [
         "comcat_events_all",
         "comcat_events_m6",
@@ -152,6 +162,7 @@ def write_summary(path: Path, panel: pd.DataFrame, stats: dict[str, int]) -> Non
             ("output_rows", len(panel)),
             ("output_cells", panel["cell_id"].nunique()),
             ("output_years", panel["year"].nunique()),
+            ("output_quarters", panel["quarter"].nunique() if "quarter" in panel.columns else ""),
             ("cell_years_with_quakes", int((panel["comcat_any_all"] > 0).sum())),
             ("events_all", int(panel["comcat_events_all"].sum())),
             ("events_m6", int(panel["comcat_events_m6"].sum())),
@@ -164,19 +175,36 @@ def write_summary(path: Path, panel: pd.DataFrame, stats: dict[str, int]) -> Non
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--variant", type=str, default=None)
     parser.add_argument("--input", type=Path, default=None)
-    parser.add_argument("--land-cells", type=Path, default=LAND_CELLS)
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=OUTDIR / f"comcat_100km_cell_year_{DEFAULT_START_YEAR}_{DEFAULT_END_YEAR}.csv",
-    )
+    parser.add_argument("--land-cells", type=Path, default=None)
+    parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--summary", type=Path, default=None)
     parser.add_argument("--start-year", type=int, default=DEFAULT_START_YEAR)
     parser.add_argument("--end-year", type=int, default=DEFAULT_END_YEAR)
     parser.add_argument("--min-magnitude", type=float, default=4.5)
     parser.add_argument("--reviewed-only", action="store_true")
+    parser.add_argument("--cell-km", type=float, default=100)
     args = parser.parse_args()
+
+    variant = get_variant(args.variant) if args.variant else None
+    freq = "year"
+    if variant is not None:
+        freq = variant.freq
+        args.cell_km = variant.cell_km
+        args.start_year = variant.start_year
+        args.end_year = min(variant.end_year, DEFAULT_END_YEAR)
+
+    land_cells_path = args.land_cells or (variant.land_cells_csv if variant else LAND_CELLS)
+    if variant is not None:
+        outdir = variant.regressors_root / "comcat"
+        period = "cell_quarter" if freq == "quarter" else "cell_year"
+        output_path = args.output or outdir / (
+            f"comcat_{int(args.cell_km)}km_{period}_{args.start_year}_{args.end_year}.csv"
+        )
+    else:
+        outdir = OUTDIR
+        output_path = args.output or OUTDIR / f"comcat_100km_cell_year_{DEFAULT_START_YEAR}_{DEFAULT_END_YEAR}.csv"
 
     input_path = args.input or find_default_input()
     if input_path is None:
@@ -184,12 +212,14 @@ def main() -> int:
         print("Run: python3 Scripts/download_comcat_earthquakes.py")
         return 1
 
-    OUTDIR.mkdir(parents=True, exist_ok=True)
-    summary_path = args.summary or args.output.with_name(args.output.stem + "_summary.csv")
+    outdir.mkdir(parents=True, exist_ok=True)
+    summary_path = args.summary or output_path.with_name(output_path.stem + "_summary.csv")
 
     events = load_comcat(input_path)
-    land = load_land_cells(args.land_cells)
-    skeleton = build_skeleton(land, args.start_year, args.end_year)
+    if variant is not None:
+        print(f"Variant: {variant.name} ({variant.suffix})", flush=True)
+    land = load_land_cells(land_cells_path)
+    skeleton = build_skeleton(land, args.start_year, args.end_year, freq)
     events, stats = clean_events(
         events,
         start_year=args.start_year,
@@ -197,13 +227,14 @@ def main() -> int:
         min_magnitude=args.min_magnitude,
         land_ids=set(land["cell_id"]),
         reviewed_only=args.reviewed_only,
+        cell_km=args.cell_km,
     )
     print(f"Events in land cells, {args.start_year}-{args.end_year}: {len(events):,}", flush=True)
 
-    counts = aggregate(events)
-    panel = finalize(skeleton, counts)
-    panel.to_csv(args.output, index=False)
-    print(f"Wrote ComCat cell-year panel: {args.output}", flush=True)
+    counts = aggregate(events, freq)
+    panel = finalize(skeleton, counts, freq)
+    panel.to_csv(output_path, index=False)
+    print(f"Wrote ComCat panel: {output_path}", flush=True)
     write_summary(summary_path, panel, stats)
     return 0
 

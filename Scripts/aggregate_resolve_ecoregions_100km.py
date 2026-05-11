@@ -13,6 +13,8 @@ from pathlib import Path
 import geopandas as gpd
 import pandas as pd
 
+from panel_variants import get_variant
+
 
 PROJECT_ROOT = Path("/Users/vasilykorovkin/Documents/Diversity_Discoveries")
 LAND_CELLS = PROJECT_ROOT / "Exhibits" / "data" / "bold_grid100_land_cells.csv"
@@ -23,19 +25,29 @@ DEFAULT_OUTPUT = OUTDIR / "resolve_ecoregions_100km_cells.csv"
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--land-cells", type=Path, default=LAND_CELLS)
+    parser.add_argument("--variant", type=str, default=None)
+    parser.add_argument("--land-cells", type=Path, default=None)
     parser.add_argument("--ecoregions", type=Path, default=DEFAULT_ECOREGIONS)
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--output", type=Path, default=None)
     args = parser.parse_args()
 
-    if not args.land_cells.exists():
-        raise FileNotFoundError(f"Missing land-cell file: {args.land_cells}")
+    variant = get_variant(args.variant) if args.variant else None
+    land_cells_path = args.land_cells or (variant.land_cells_csv if variant else LAND_CELLS)
+    if variant is not None:
+        outdir = variant.regressors_root / "baseline_geography"
+        output_path = args.output or outdir / f"resolve_ecoregions_{int(variant.cell_km)}km_cells.csv"
+        print(f"Variant: {variant.name} ({variant.suffix})", flush=True)
+    else:
+        output_path = args.output or DEFAULT_OUTPUT
+
+    if not land_cells_path.exists():
+        raise FileNotFoundError(f"Missing land-cell file: {land_cells_path}")
     if not args.ecoregions.exists():
         raise FileNotFoundError(f"Missing RESOLVE shapefile: {args.ecoregions}")
-    args.output.parent.mkdir(parents=True, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    print(f"Reading land cells: {args.land_cells}", flush=True)
-    cells = pd.read_csv(args.land_cells, dtype={"cell_id": str, "iso_a3": str})
+    print(f"Reading land cells: {land_cells_path}", flush=True)
+    cells = pd.read_csv(land_cells_path, dtype={"cell_id": str, "iso_a3": str})
     points = gpd.GeoDataFrame(
         cells,
         geometry=gpd.points_from_xy(cells["centroid_lon"], cells["centroid_lat"]),
@@ -100,10 +112,10 @@ def main() -> int:
         normalized = out[col].astype(str).str.strip()
         missing = out[col].isna() | normalized.eq("") | normalized.eq("N/A")
         out.loc[rock_ice & missing, col] = "Rock and Ice"
-    out.to_csv(args.output, index=False)
+    out.to_csv(output_path, index=False)
 
     matched = out["resolve_eco_id"].notna().sum()
-    print(f"Wrote: {args.output}", flush=True)
+    print(f"Wrote: {output_path}", flush=True)
     print(f"Cells: {len(out):,}; matched to ecoregion: {matched:,}; unmatched: {len(out) - matched:,}", flush=True)
     print(f"Unique ecoregions in cells: {out['resolve_eco_id'].nunique(dropna=True):,}", flush=True)
     print(f"Unique biomes in cells: {out['resolve_biome_name'].nunique(dropna=True):,}", flush=True)
