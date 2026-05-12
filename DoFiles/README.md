@@ -103,6 +103,59 @@ Standard errors are clustered at cell level. In quarterly mode, the Stata panel
 time variable is `time_id = yq(year, quarter)`, so `L.` and `L2.` are
 one-quarter and two-quarter lags rather than one-year and two-year lags.
 
+`reg_spec1.do` also has a quarterly-only switch:
+
+```stata
+// local quarterly_cell_season_fe "on"
+local quarterly_cell_season_fe "off"
+```
+
+When switched on for `50-quarterly`, it adds cell-by-quarter-of-year fixed
+effects (`cell_id x quarter`) and writes a `_cellseason.log` file.
+
+### Africa-Only Regression Mirror
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_spec1_africa.do" all
+```
+
+`reg_spec1_africa.do` is the same 5-table / 8-column specification as
+`reg_spec1.do`, but restricts the estimation sample to `continent == "Africa"`
+after the 2005-2023 time restriction. It accepts the same panel modes:
+
+- `"100-yearly"`: log `Logs/reg_spec1_100km_year_africa.log`
+- `"50-yearly"`: log `Logs/reg_spec1_50km_year_africa.log`
+- `"50-quarterly"`: log `Logs/reg_spec1_50km_quarter_africa.log`
+- `"all"`: runs the three modes sequentially
+
+Recent Africa runs indicate that average conflict effects are generally weaker
+at 100 km, but 50 km yearly and 50 km quarterly effects remain negative and
+large relative to Africa's lower dependent-variable means. The strongest and
+most stable Africa signal is the `Conflict x Species Richness` gradient in
+Table 5.
+
+### Lead-Placebo Regression Mirror
+
+```stata
+do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_spec1_leads.do" all
+```
+
+`reg_spec1_leads.do` mirrors `reg_spec1.do` but adds two future conflict terms,
+`F1_conflict` and `F2_conflict`, as placebo checks. It keeps 2024 in memory only
+to construct future conflict, while setting the main outcomes missing after
+2023. In the reported tables, lead placebo terms are included only in the same
+four lag-specification columns that include `L1_conflict` and `L2_conflict`, so
+`Sum conflict F1-F2` is directly comparable to `Sum conflict L0-L2`.
+
+Logs:
+
+- `Logs/reg_spec1_100km_year_leads.log`
+- `Logs/reg_spec1_50km_year_leads.log`
+- `Logs/reg_spec1_50km_quarter_leads.log`
+
+Use these logs to assess whether the main distributed-lag estimates are
+preceded by significant future-conflict placebo effects.
+
 ### TWFE Spatial-Time Event-Study Diagnostic
 
 ```stata

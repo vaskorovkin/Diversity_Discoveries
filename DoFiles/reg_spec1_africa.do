@@ -1,5 +1,5 @@
-* reg_spec1.do
-* Shocks → BOLD sampling activity
+* reg_spec1_africa.do
+* Shocks -> BOLD sampling activity, African cells only
 * Table 1: Cell + Year FE (main)
 * Table 2: Cell + Country×Year FE (robustness)
 
@@ -23,9 +23,23 @@ local hdfe_cmd "reghdfe"
 *   "100-yearly"   = baseline 100 km x year panel
 *   "50-yearly"    = experimental 50 km x year panel
 *   "50-quarterly" = experimental 50 km x quarter panel
+*   "all"          = run the three panel modes sequentially
 * -------------------------------------------------------------------
 
 local panel_mode "100-yearly"
+if "`1'" != "" {
+    local panel_mode "`1'"
+}
+
+if "`panel_mode'" == "all" {
+    foreach m in "100-yearly" "50-yearly" "50-quarterly" {
+        di _n as text "============================================================"
+        di as text "Running reg_spec1_africa.do for panel_mode = `m'"
+        di as text "============================================================"
+        do "`proj'/DoFiles/reg_spec1_africa.do" "`m'"
+    }
+    exit
+}
 
 * Optional seasonal control for quarterly panels only.
 * "on" absorbs cell-specific quarter-of-year seasonality: cell_id x quarter.
@@ -34,22 +48,22 @@ local quarterly_cell_season_fe "off"
 
 if "`panel_mode'" == "100-yearly" {
     local panel_path "`proj'/Data/analysis/BOLD_regressor_panel.dta"
-    local log_path   "`proj'/Logs/reg_spec1_100km_year.log"
+    local log_path   "`proj'/Logs/reg_spec1_100km_year_africa.log"
     local panel_freq "year"
 }
 else if "`panel_mode'" == "50-yearly" {
     local panel_path "`proj'/Data/analysis/tests_spatial_time/BOLD_regressor_panel_50km_year.dta"
-    local log_path   "`proj'/Logs/reg_spec1_50km_year.log"
+    local log_path   "`proj'/Logs/reg_spec1_50km_year_africa.log"
     local panel_freq "year"
 }
 else if "`panel_mode'" == "50-quarterly" {
     local panel_path "`proj'/Data/analysis/tests_spatial_time/BOLD_regressor_panel_50km_quarter.dta"
-    local log_path   "`proj'/Logs/reg_spec1_50km_quarter.log"
+    local log_path   "`proj'/Logs/reg_spec1_50km_quarter_africa.log"
     local panel_freq "quarter"
 }
 else {
     di as error "Unknown panel_mode: `panel_mode'"
-    di as error `"{p}Valid options are "100-yearly", "50-yearly", and "50-quarterly".{p_end}"'
+    di as error `"{p}Valid options are "100-yearly", "50-yearly", "50-quarterly", and "all".{p_end}"'
     error 198
 }
 
@@ -87,6 +101,19 @@ use "`panel_path'", clear
 * -------------------------------------------------------------------
 
 keep if year >= 2005 & year <= 2023
+
+capture confirm variable continent
+if _rc {
+    di as error "Africa-only run requires continent variable."
+    error 111
+}
+keep if continent == "Africa"
+count
+if r(N) == 0 {
+    di as error "Africa-only sample is empty after restrictions."
+    error 2000
+}
+di as text "Sample restriction: African cells only"
 
 gen very_rich = ((continent == "Europe" & country!="Russia") | ///
 country == "Canada" | ///

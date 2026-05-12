@@ -1,5 +1,5 @@
-* reg_spec1.do
-* Shocks → BOLD sampling activity
+* reg_spec1_leads.do
+* Shocks → BOLD sampling activity, with two conflict leads
 * Table 1: Cell + Year FE (main)
 * Table 2: Cell + Country×Year FE (robustness)
 
@@ -23,9 +23,23 @@ local hdfe_cmd "reghdfe"
 *   "100-yearly"   = baseline 100 km x year panel
 *   "50-yearly"    = experimental 50 km x year panel
 *   "50-quarterly" = experimental 50 km x quarter panel
+*   "all"          = run the three panel modes sequentially
 * -------------------------------------------------------------------
 
 local panel_mode "100-yearly"
+if "`1'" != "" {
+    local panel_mode "`1'"
+}
+
+if "`panel_mode'" == "all" {
+    foreach m in "100-yearly" "50-yearly" "50-quarterly" {
+        di _n as text "============================================================"
+        di as text "Running reg_spec1_leads.do for panel_mode = `m'"
+        di as text "============================================================"
+        do "`proj'/DoFiles/reg_spec1_leads.do" "`m'"
+    }
+    exit
+}
 
 * Optional seasonal control for quarterly panels only.
 * "on" absorbs cell-specific quarter-of-year seasonality: cell_id x quarter.
@@ -34,22 +48,22 @@ local quarterly_cell_season_fe "off"
 
 if "`panel_mode'" == "100-yearly" {
     local panel_path "`proj'/Data/analysis/BOLD_regressor_panel.dta"
-    local log_path   "`proj'/Logs/reg_spec1_100km_year.log"
+    local log_path   "`proj'/Logs/reg_spec1_100km_year_leads.log"
     local panel_freq "year"
 }
 else if "`panel_mode'" == "50-yearly" {
     local panel_path "`proj'/Data/analysis/tests_spatial_time/BOLD_regressor_panel_50km_year.dta"
-    local log_path   "`proj'/Logs/reg_spec1_50km_year.log"
+    local log_path   "`proj'/Logs/reg_spec1_50km_year_leads.log"
     local panel_freq "year"
 }
 else if "`panel_mode'" == "50-quarterly" {
     local panel_path "`proj'/Data/analysis/tests_spatial_time/BOLD_regressor_panel_50km_quarter.dta"
-    local log_path   "`proj'/Logs/reg_spec1_50km_quarter.log"
+    local log_path   "`proj'/Logs/reg_spec1_50km_quarter_leads.log"
     local panel_freq "quarter"
 }
 else {
     di as error "Unknown panel_mode: `panel_mode'"
-    di as error `"{p}Valid options are "100-yearly", "50-yearly", and "50-quarterly".{p_end}"'
+    di as error `"{p}Valid options are "100-yearly", "50-yearly", "50-quarterly", and "all".{p_end}"'
     error 198
 }
 
@@ -86,7 +100,12 @@ use "`panel_path'", clear
 * 1. Sample restriction
 * -------------------------------------------------------------------
 
-keep if year >= 2005 & year <= 2023
+* Keep 2024 only so future conflict can be used for F1/F2 placebo leads.
+* Main outcome regressions still use 2005-2023.
+keep if year >= 2005 & year <= 2024
+gen byte analysis_sample = (year <= 2023)
+replace any_total = . if analysis_sample == 0
+replace log1p_total = . if analysis_sample == 0
 
 gen very_rich = ((continent == "Europe" & country!="Russia") | ///
 country == "Canada" | ///
@@ -172,7 +191,7 @@ gen L2_tmax_anomaly = L2.tmax_anomaly
 
 summarize any_total log1p_total ucdp_events_all ucdp_any_all ///
           forest_loss_share burned_share cyclone earthquake pdsi_anomaly tmax_anomaly log1p_ntl ///
-          protected_share gdp_pcap_current_usd log_gdp_pc
+          protected_share gdp_pcap_current_usd log_gdp_pc if analysis_sample == 1
 
 * -------------------------------------------------------------------
 * add_sum_rows: compute sum of L0+L1+L2 via lincom, store as estadd
@@ -200,6 +219,23 @@ program define add_sum_rows
     qui estadd local `name'_se_txt "(`setxt')"
 end
 
+* add_joint_p: store joint p-value for placebo conflict leads
+capture program drop add_joint_p
+program define add_joint_p
+    syntax , NAME(name) VARS(string asis)
+    capture test `vars'
+    if _rc {
+        qui estadd local `name'_txt "."
+    }
+    else {
+        qui estadd scalar `name' = r(p)
+        local p = r(p)
+        local ptxt : display %9.4f `p'
+        local ptxt = strtrim("`ptxt'")
+        qui estadd local `name'_txt "`ptxt'"
+    }
+end
+
 * ===================================================================
 * TABLE 1: Cell + Year FE (main specification)
 * ===================================================================
@@ -211,6 +247,8 @@ est clear
 * -------------------------------------------------------------------
 
 gen conflict = log(1 + ucdp_events_all)
+gen F1_conflict = F.conflict
+gen F2_conflict = F2.conflict
 gen L1_conflict = L.conflict
 gen L2_conflict = L2.conflict
 
@@ -240,7 +278,7 @@ estadd local conflict_measure "log(1+events)"
 
 qui {
 * (3) Extensive margin — with lags
-eststo t1_3: `hdfe_cmd' any_total conflict L1_conflict L2_conflict ///
+eststo t1_3: `hdfe_cmd' any_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
         tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
@@ -250,6 +288,8 @@ estadd ysumm, mean sd
 estadd local fe_cell "\checkmark"
 estadd local fe_year "\checkmark"
 estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
 add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
@@ -257,7 +297,7 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 
 qui {
 * (4) Intensive margin — with lags
-eststo t1_4: `hdfe_cmd' log1p_total conflict L1_conflict L2_conflict ///
+eststo t1_4: `hdfe_cmd' log1p_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
         tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
@@ -267,6 +307,8 @@ estadd ysumm, mean sd
 estadd local fe_cell "\checkmark"
 estadd local fe_year "\checkmark"
 estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
 add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
@@ -276,8 +318,10 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 * Panel B: conflict = 1[any events]
 * -------------------------------------------------------------------
 
-drop conflict L1_conflict L2_conflict
+capture drop conflict F1_conflict F2_conflict L1_conflict L2_conflict
 gen conflict = ucdp_any_all
+gen F1_conflict = F.ucdp_any_all
+gen F2_conflict = F2.ucdp_any_all
 gen L1_conflict = L.ucdp_any_all
 gen L2_conflict = L2.ucdp_any_all
 
@@ -307,7 +351,7 @@ estadd local conflict_measure "1[events>0]"
 
 qui {
 * (7) Extensive margin — with lags
-eststo t1_7: `hdfe_cmd' any_total conflict L1_conflict L2_conflict ///
+eststo t1_7: `hdfe_cmd' any_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
         tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
@@ -317,6 +361,8 @@ estadd ysumm, mean sd
 estadd local fe_cell "\checkmark"
 estadd local fe_year "\checkmark"
 estadd local conflict_measure "1[events>0]"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
 add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
@@ -324,7 +370,7 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 
 qui {
 * (8) Intensive margin — with lags
-eststo t1_8: `hdfe_cmd' log1p_total conflict L1_conflict L2_conflict ///
+eststo t1_8: `hdfe_cmd' log1p_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
         tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
@@ -334,6 +380,8 @@ estadd ysumm, mean sd
 estadd local fe_cell "\checkmark"
 estadd local fe_year "\checkmark"
 estadd local conflict_measure "1[events>0]"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
 add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
@@ -343,18 +391,20 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 * Display Table 1
 * -------------------------------------------------------------------
 
-esttab t1_*, keep(conflict forest_loss_share burned_share cyclone earthquake ///
+esttab t1_*, keep(conflict F1_conflict F2_conflict forest_loss_share burned_share cyclone earthquake ///
              pdsi_anomaly tmax_anomaly log1p_ntl ///
              log_gdp_pc log_gdp_pc_sq ///
              protected_share log_gdp_pc_x_protected_share ///
              log_gdp_pc_sq_x_protected_share) ///
-    order(conflict forest_loss_share burned_share cyclone earthquake ///
+    order(conflict F1_conflict F2_conflict forest_loss_share burned_share cyclone earthquake ///
           pdsi_anomaly tmax_anomaly log1p_ntl ///
           log_gdp_pc log_gdp_pc_sq ///
           protected_share log_gdp_pc_x_protected_share ///
           log_gdp_pc_sq_x_protected_share) ///
     se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
     varlabels(conflict "Conflict" ///
+              F1_conflict "Conflict t+1" ///
+              F2_conflict "Conflict t+2" ///
               forest_loss_share "Forest loss" ///
               burned_share "Burned area" ///
               cyclone "Cyclone (64kt+)" ///
@@ -368,18 +418,20 @@ esttab t1_*, keep(conflict forest_loss_share burned_share cyclone earthquake ///
               log_gdp_pc_x_protected_share "ln(GDP pc) x Prot." ///
               log_gdp_pc_sq_x_protected_share "ln(GDP pc)^2 x Prot.") ///
     stats(conflict_sum_txt conflict_sum_se_txt ///
+          conflict_leads_sum_txt conflict_leads_sum_se_txt ///
           pdsi_sum_txt pdsi_sum_se_txt ///
           tmax_sum_txt tmax_sum_se_txt ///
-          conflict_measure ymean ysd N r2 ///
+          conflict_leads_p_txt conflict_measure ymean ysd N r2 ///
           fe_cell fe_year, ///
           labels("Sum conflict L0-L2" " " ///
+                 "Sum conflict F1-F2" " " ///
                  "Sum PDSI L0-L2" " " ///
                  "Sum tmax L0-L2" " " ///
-                 "Conflict measure" "Dep. var. mean" "Dep. var. SD" ///
+                 "Lead F1/F2 p" "Conflict measure" "Dep. var. mean" "Dep. var. SD" ///
                  "Obs." "R-sq." "Cell FE" "Year FE") ///
-          fmt(%s %s %s %s %s %s ///
-              %s %9.4f %9.4f %9.0fc %9.4f %s %s)) ///
-    title("Table 1: Shocks and BOLD Sampling — Cell + Year FE") ///
+          fmt(%s %s %s %s %s %s %s %s %s %s ///
+              %9.4f %9.4f %9.0f %9.4f %s %s)) ///
+    title("Table 1: Shocks and BOLD Sampling — Cell + Year FE, with F1-F2 conflict leads") ///
     mtitles("Any" "log(1+N)" "Any" "log(1+N)" "Any" "log(1+N)" "Any" "log(1+N)") ///
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
@@ -391,13 +443,15 @@ esttab t1_*, keep(conflict forest_loss_share burned_share cyclone earthquake ///
 
 est clear
 
-drop conflict L1_conflict L2_conflict
+capture drop conflict F1_conflict F2_conflict L1_conflict L2_conflict
 
 * -------------------------------------------------------------------
 * Panel A: conflict = log(1 + events)
 * -------------------------------------------------------------------
 
 gen conflict = log(1 + ucdp_events_all)
+gen F1_conflict = F.conflict
+gen F2_conflict = F2.conflict
 gen L1_conflict = L.conflict
 gen L2_conflict = L2.conflict
 
@@ -429,7 +483,7 @@ estadd local conflict_measure "log(1+events)"
 
 qui {
 * (3) Extensive margin — with lags
-eststo t2_3: `hdfe_cmd' any_total conflict L1_conflict L2_conflict ///
+eststo t2_3: `hdfe_cmd' any_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
         tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
@@ -440,6 +494,8 @@ estadd ysumm, mean sd
 estadd local fe_cell "\checkmark"
 estadd local fe_cy "\checkmark"
 estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
 add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
@@ -447,7 +503,7 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 
 qui {
 * (4) Intensive margin — with lags
-eststo t2_4: `hdfe_cmd' log1p_total conflict L1_conflict L2_conflict ///
+eststo t2_4: `hdfe_cmd' log1p_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
         tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
@@ -458,6 +514,8 @@ estadd ysumm, mean sd
 estadd local fe_cell "\checkmark"
 estadd local fe_cy "\checkmark"
 estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
 add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
@@ -467,8 +525,10 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 * Panel B: conflict = 1[any events]
 * -------------------------------------------------------------------
 
-drop conflict L1_conflict L2_conflict
+capture drop conflict F1_conflict F2_conflict L1_conflict L2_conflict
 gen conflict = ucdp_any_all
+gen F1_conflict = F.ucdp_any_all
+gen F2_conflict = F2.ucdp_any_all
 gen L1_conflict = L.ucdp_any_all
 gen L2_conflict = L2.ucdp_any_all
 
@@ -500,7 +560,7 @@ estadd local conflict_measure "1[events>0]"
 
 qui {
 * (7) Extensive margin — with lags
-eststo t2_7: `hdfe_cmd' any_total conflict L1_conflict L2_conflict ///
+eststo t2_7: `hdfe_cmd' any_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
         tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
@@ -511,6 +571,8 @@ estadd ysumm, mean sd
 estadd local fe_cell "\checkmark"
 estadd local fe_cy "\checkmark"
 estadd local conflict_measure "1[events>0]"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
 add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
@@ -518,7 +580,7 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 
 qui {
 * (8) Intensive margin — with lags
-eststo t2_8: `hdfe_cmd' log1p_total conflict L1_conflict L2_conflict ///
+eststo t2_8: `hdfe_cmd' log1p_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
         tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
@@ -529,6 +591,8 @@ estadd ysumm, mean sd
 estadd local fe_cell "\checkmark"
 estadd local fe_cy "\checkmark"
 estadd local conflict_measure "1[events>0]"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
 add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
@@ -538,16 +602,18 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 * Display Table 2
 * -------------------------------------------------------------------
 
-esttab t2_*, keep(conflict forest_loss_share burned_share cyclone earthquake ///
+esttab t2_*, keep(conflict F1_conflict F2_conflict forest_loss_share burned_share cyclone earthquake ///
              pdsi_anomaly tmax_anomaly log1p_ntl ///
              protected_share log_gdp_pc_x_protected_share ///
              log_gdp_pc_sq_x_protected_share) ///
-    order(conflict forest_loss_share burned_share cyclone earthquake ///
+    order(conflict F1_conflict F2_conflict forest_loss_share burned_share cyclone earthquake ///
           pdsi_anomaly tmax_anomaly log1p_ntl ///
           protected_share log_gdp_pc_x_protected_share ///
           log_gdp_pc_sq_x_protected_share) ///
     se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
     varlabels(conflict "Conflict" ///
+              F1_conflict "Conflict t+1" ///
+              F2_conflict "Conflict t+2" ///
               forest_loss_share "Forest loss" ///
               burned_share "Burned area" ///
               cyclone "Cyclone (64kt+)" ///
@@ -559,18 +625,20 @@ esttab t2_*, keep(conflict forest_loss_share burned_share cyclone earthquake ///
               log_gdp_pc_x_protected_share "ln(GDP pc) x Prot." ///
               log_gdp_pc_sq_x_protected_share "ln(GDP pc)^2 x Prot.") ///
     stats(conflict_sum_txt conflict_sum_se_txt ///
+          conflict_leads_sum_txt conflict_leads_sum_se_txt ///
           pdsi_sum_txt pdsi_sum_se_txt ///
           tmax_sum_txt tmax_sum_se_txt ///
-          conflict_measure ymean ysd N r2 ///
+          conflict_leads_p_txt conflict_measure ymean ysd N r2 ///
           fe_cell fe_cy, ///
           labels("Sum conflict L0-L2" " " ///
+                 "Sum conflict F1-F2" " " ///
                  "Sum PDSI L0-L2" " " ///
                  "Sum tmax L0-L2" " " ///
-                 "Conflict measure" "Dep. var. mean" "Dep. var. SD" ///
+                 "Lead F1/F2 p" "Conflict measure" "Dep. var. mean" "Dep. var. SD" ///
                  "Obs." "R-sq." "Cell FE" "Country x Year FE") ///
-          fmt(%s %s %s %s %s %s ///
-              %s %9.4f %9.4f %9.0fc %9.4f %s %s)) ///
-    title("Table 2: Shocks and BOLD Sampling — Cell + Country x Year FE") ///
+          fmt(%s %s %s %s %s %s %s %s %s %s ///
+              %9.4f %9.4f %9.0f %9.4f %s %s)) ///
+    title("Table 2: Shocks and BOLD Sampling — Cell + Country x Year FE, with F1-F2 conflict leads") ///
     mtitles("Any" "log(1+N)" "Any" "log(1+N)" "Any" "log(1+N)" "Any" "log(1+N)") ///
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
@@ -582,13 +650,15 @@ esttab t2_*, keep(conflict forest_loss_share burned_share cyclone earthquake ///
 
 est clear
 
-drop conflict L1_conflict L2_conflict
+capture drop conflict F1_conflict F2_conflict L1_conflict L2_conflict
 
 * -------------------------------------------------------------------
 * Panel A: conflict = log(1 + events)
 * -------------------------------------------------------------------
 
 gen conflict = log(1 + ucdp_events_all)
+gen F1_conflict = F.conflict
+gen F2_conflict = F2.conflict
 gen L1_conflict = L.conflict
 gen L2_conflict = L2.conflict
 
@@ -628,7 +698,7 @@ estadd local conflict_measure "log(1+events)"
 
 qui {
 * (3) Extensive margin — with lags
-eststo t3_3: `hdfe_cmd' any_total conflict L1_conflict L2_conflict ///
+eststo t3_3: `hdfe_cmd' any_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
         tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
@@ -643,6 +713,8 @@ estadd local fe_cy "\checkmark"
 estadd local fe_biome_yr "\checkmark"
 estadd local road_yr "\checkmark"
 estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
 add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
@@ -650,7 +722,7 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 
 qui {
 * (4) Intensive margin — with lags
-eststo t3_4: `hdfe_cmd' log1p_total conflict L1_conflict L2_conflict ///
+eststo t3_4: `hdfe_cmd' log1p_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
         tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
@@ -665,6 +737,8 @@ estadd local fe_cy "\checkmark"
 estadd local fe_biome_yr "\checkmark"
 estadd local road_yr "\checkmark"
 estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
 add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
@@ -674,8 +748,10 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 * Panel B: conflict = 1[any events]
 * -------------------------------------------------------------------
 
-drop conflict L1_conflict L2_conflict
+capture drop conflict F1_conflict F2_conflict L1_conflict L2_conflict
 gen conflict = ucdp_any_all
+gen F1_conflict = F.ucdp_any_all
+gen F2_conflict = F2.ucdp_any_all
 gen L1_conflict = L.ucdp_any_all
 gen L2_conflict = L2.ucdp_any_all
 
@@ -715,7 +791,7 @@ estadd local conflict_measure "1[events>0]"
 
 qui {
 * (7) Extensive margin — with lags
-eststo t3_7: `hdfe_cmd' any_total conflict L1_conflict L2_conflict ///
+eststo t3_7: `hdfe_cmd' any_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
         tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
@@ -730,6 +806,8 @@ estadd local fe_cy "\checkmark"
 estadd local fe_biome_yr "\checkmark"
 estadd local road_yr "\checkmark"
 estadd local conflict_measure "1[events>0]"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
 add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
@@ -737,7 +815,7 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 
 qui {
 * (8) Intensive margin — with lags
-eststo t3_8: `hdfe_cmd' log1p_total conflict L1_conflict L2_conflict ///
+eststo t3_8: `hdfe_cmd' log1p_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
         tmax_anomaly L1_tmax_anomaly L2_tmax_anomaly log1p_ntl ///
@@ -752,6 +830,8 @@ estadd local fe_cy "\checkmark"
 estadd local fe_biome_yr "\checkmark"
 estadd local road_yr "\checkmark"
 estadd local conflict_measure "1[events>0]"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
 add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anomaly)
@@ -761,16 +841,18 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 * Display Table 3
 * -------------------------------------------------------------------
 
-esttab t3_*, keep(conflict forest_loss_share burned_share cyclone earthquake ///
+esttab t3_*, keep(conflict F1_conflict F2_conflict forest_loss_share burned_share cyclone earthquake ///
              pdsi_anomaly tmax_anomaly log1p_ntl ///
              protected_share log_gdp_pc_x_protected_share ///
              log_gdp_pc_sq_x_protected_share) ///
-    order(conflict forest_loss_share burned_share cyclone earthquake ///
+    order(conflict F1_conflict F2_conflict forest_loss_share burned_share cyclone earthquake ///
           pdsi_anomaly tmax_anomaly log1p_ntl ///
           protected_share log_gdp_pc_x_protected_share ///
           log_gdp_pc_sq_x_protected_share) ///
     se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
     varlabels(conflict "Conflict" ///
+              F1_conflict "Conflict t+1" ///
+              F2_conflict "Conflict t+2" ///
               forest_loss_share "Forest loss" ///
               burned_share "Burned area" ///
               cyclone "Cyclone (64kt+)" ///
@@ -782,19 +864,21 @@ esttab t3_*, keep(conflict forest_loss_share burned_share cyclone earthquake ///
               log_gdp_pc_x_protected_share "ln(GDP pc) x Prot." ///
               log_gdp_pc_sq_x_protected_share "ln(GDP pc)^2 x Prot.") ///
     stats(conflict_sum_txt conflict_sum_se_txt ///
+          conflict_leads_sum_txt conflict_leads_sum_se_txt ///
           pdsi_sum_txt pdsi_sum_se_txt ///
           tmax_sum_txt tmax_sum_se_txt ///
-          conflict_measure ymean ysd N r2 ///
+          conflict_leads_p_txt conflict_measure ymean ysd N r2 ///
           fe_cell fe_cy fe_biome_yr road_yr, ///
           labels("Sum conflict L0-L2" " " ///
+                 "Sum conflict F1-F2" " " ///
                  "Sum PDSI L0-L2" " " ///
                  "Sum tmax L0-L2" " " ///
-                 "Conflict measure" "Dep. var. mean" "Dep. var. SD" ///
+                 "Lead F1/F2 p" "Conflict measure" "Dep. var. mean" "Dep. var. SD" ///
                  "Obs." "R-sq." "Cell FE" "Country x Year FE" ///
                  "Biome x Year FE" "Road dens. x Year") ///
-          fmt(%s %s %s %s %s %s ///
-              %s %9.4f %9.4f %9.0fc %9.4f %s %s %s %s)) ///
-    title("Table 3: Shocks and BOLD Sampling — Country x Year + Biome x Year FE") ///
+          fmt(%s %s %s %s %s %s %s %s %s %s ///
+              %9.4f %9.4f %9.0f %9.4f %s %s %s %s)) ///
+    title("Table 3: Shocks and BOLD Sampling — Country x Year + Biome x Year FE, with F1-F2 conflict leads") ///
     mtitles("Any" "log(1+N)" "Any" "log(1+N)" "Any" "log(1+N)" "Any" "log(1+N)") ///
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
@@ -806,13 +890,15 @@ esttab t3_*, keep(conflict forest_loss_share burned_share cyclone earthquake ///
 
 est clear
 
-drop conflict L1_conflict L2_conflict
+capture drop conflict F1_conflict F2_conflict L1_conflict L2_conflict
 
 * -------------------------------------------------------------------
 * Panel A: conflict = log(1 + events)
 * -------------------------------------------------------------------
 
 gen conflict = log(1 + ucdp_events_all)
+gen F1_conflict = F.conflict
+gen F2_conflict = F2.conflict
 gen L1_conflict = L.conflict
 gen L2_conflict = L2.conflict
 
@@ -852,7 +938,7 @@ estadd local conflict_measure "log(1+events)"
 
 qui {
 * (3) Extensive margin — with lags
-eststo t4_3: `hdfe_cmd' any_total conflict L1_conflict L2_conflict ///
+eststo t4_3: `hdfe_cmd' any_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         c.conflict#c.msa_overall c.L1_conflict#c.msa_overall c.L2_conflict#c.msa_overall ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
@@ -868,6 +954,8 @@ estadd local fe_cy "\checkmark"
 estadd local fe_biome_yr "\checkmark"
 estadd local road_yr "\checkmark"
 estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(conflict_msa_sum) expr(c.conflict#c.msa_overall + c.L1_conflict#c.msa_overall + c.L2_conflict#c.msa_overall)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
@@ -876,7 +964,7 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 
 qui {
 * (4) Intensive margin — with lags
-eststo t4_4: `hdfe_cmd' log1p_total conflict L1_conflict L2_conflict ///
+eststo t4_4: `hdfe_cmd' log1p_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         c.conflict#c.msa_overall c.L1_conflict#c.msa_overall c.L2_conflict#c.msa_overall ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
@@ -892,6 +980,8 @@ estadd local fe_cy "\checkmark"
 estadd local fe_biome_yr "\checkmark"
 estadd local road_yr "\checkmark"
 estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(conflict_msa_sum) expr(c.conflict#c.msa_overall + c.L1_conflict#c.msa_overall + c.L2_conflict#c.msa_overall)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
@@ -902,8 +992,10 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 * Panel B: conflict = 1[any events]
 * -------------------------------------------------------------------
 
-drop conflict L1_conflict L2_conflict
+capture drop conflict F1_conflict F2_conflict L1_conflict L2_conflict
 gen conflict = ucdp_any_all
+gen F1_conflict = F.ucdp_any_all
+gen F2_conflict = F2.ucdp_any_all
 gen L1_conflict = L.ucdp_any_all
 gen L2_conflict = L2.ucdp_any_all
 
@@ -943,7 +1035,7 @@ estadd local conflict_measure "1[events>0]"
 
 qui {
 * (7) Extensive margin — with lags
-eststo t4_7: `hdfe_cmd' any_total conflict L1_conflict L2_conflict ///
+eststo t4_7: `hdfe_cmd' any_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         c.conflict#c.msa_overall c.L1_conflict#c.msa_overall c.L2_conflict#c.msa_overall ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
@@ -959,6 +1051,8 @@ estadd local fe_cy "\checkmark"
 estadd local fe_biome_yr "\checkmark"
 estadd local road_yr "\checkmark"
 estadd local conflict_measure "1[events>0]"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(conflict_msa_sum) expr(c.conflict#c.msa_overall + c.L1_conflict#c.msa_overall + c.L2_conflict#c.msa_overall)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
@@ -967,7 +1061,7 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 
 qui {
 * (8) Intensive margin — with lags
-eststo t4_8: `hdfe_cmd' log1p_total conflict L1_conflict L2_conflict ///
+eststo t4_8: `hdfe_cmd' log1p_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         c.conflict#c.msa_overall c.L1_conflict#c.msa_overall c.L2_conflict#c.msa_overall ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
@@ -983,6 +1077,8 @@ estadd local fe_cy "\checkmark"
 estadd local fe_biome_yr "\checkmark"
 estadd local road_yr "\checkmark"
 estadd local conflict_measure "1[events>0]"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(conflict_msa_sum) expr(c.conflict#c.msa_overall + c.L1_conflict#c.msa_overall + c.L2_conflict#c.msa_overall)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
@@ -993,18 +1089,20 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 * Display Table 4
 * -------------------------------------------------------------------
 
-esttab t4_*, keep(conflict c.conflict#c.msa_overall ///
+esttab t4_*, keep(conflict F1_conflict F2_conflict c.conflict#c.msa_overall ///
              forest_loss_share burned_share cyclone earthquake ///
              pdsi_anomaly tmax_anomaly log1p_ntl ///
              protected_share log_gdp_pc_x_protected_share ///
              log_gdp_pc_sq_x_protected_share) ///
-    order(conflict c.conflict#c.msa_overall ///
+    order(conflict F1_conflict F2_conflict c.conflict#c.msa_overall ///
           forest_loss_share burned_share cyclone earthquake ///
           pdsi_anomaly tmax_anomaly log1p_ntl ///
           protected_share log_gdp_pc_x_protected_share ///
           log_gdp_pc_sq_x_protected_share) ///
     se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
     varlabels(conflict "Conflict" ///
+              F1_conflict "Conflict t+1" ///
+              F2_conflict "Conflict t+2" ///
               c.conflict#c.msa_overall "Conflict x MSA" ///
               forest_loss_share "Forest loss" ///
               burned_share "Burned area" ///
@@ -1017,21 +1115,23 @@ esttab t4_*, keep(conflict c.conflict#c.msa_overall ///
               log_gdp_pc_x_protected_share "ln(GDP pc) x Prot." ///
               log_gdp_pc_sq_x_protected_share "ln(GDP pc)^2 x Prot.") ///
     stats(conflict_sum_txt conflict_sum_se_txt ///
+          conflict_leads_sum_txt conflict_leads_sum_se_txt ///
           conflict_msa_sum_txt conflict_msa_sum_se_txt ///
           pdsi_sum_txt pdsi_sum_se_txt ///
           tmax_sum_txt tmax_sum_se_txt ///
-          conflict_measure ymean ysd N r2 ///
+          conflict_leads_p_txt conflict_measure ymean ysd N r2 ///
           fe_cell fe_cy fe_biome_yr road_yr, ///
           labels("Sum conflict L0-L2" " " ///
+                 "Sum conflict F1-F2" " " ///
                  "Sum conflict x MSA L0-L2" " " ///
                  "Sum PDSI L0-L2" " " ///
                  "Sum tmax L0-L2" " " ///
-                 "Conflict measure" "Dep. var. mean" "Dep. var. SD" ///
+                 "Lead F1/F2 p" "Conflict measure" "Dep. var. mean" "Dep. var. SD" ///
                  "Obs." "R-sq." "Cell FE" "Country x Year FE" ///
                  "Biome x Year FE" "Road dens. x Year") ///
-          fmt(%s %s %s %s %s %s %s %s ///
-              %s %9.4f %9.4f %9.0fc %9.4f %s %s %s %s)) ///
-    title("Table 4: Conflict x Biodiversity Intactness (MSA)") ///
+          fmt(%s %s %s %s %s %s %s %s %s %s ///
+              %s %s %9.4f %9.4f %9.0f %9.4f %s %s %s %s)) ///
+    title("Table 4: Conflict x Biodiversity Intactness (MSA), with F1-F2 conflict leads") ///
     mtitles("Any" "log(1+N)" "Any" "log(1+N)" "Any" "log(1+N)" "Any" "log(1+N)") ///
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
@@ -1043,13 +1143,15 @@ esttab t4_*, keep(conflict c.conflict#c.msa_overall ///
 
 est clear
 
-drop conflict L1_conflict L2_conflict
+capture drop conflict F1_conflict F2_conflict L1_conflict L2_conflict
 
 * -------------------------------------------------------------------
 * Panel A: conflict = log(1 + events)
 * -------------------------------------------------------------------
 
 gen conflict = log(1 + ucdp_events_all)
+gen F1_conflict = F.conflict
+gen F2_conflict = F2.conflict
 gen L1_conflict = L.conflict
 gen L2_conflict = L2.conflict
 
@@ -1089,7 +1191,7 @@ estadd local conflict_measure "log(1+events)"
 
 qui {
 * (3) Extensive margin — with lags
-eststo t5_3: `hdfe_cmd' any_total conflict L1_conflict L2_conflict ///
+eststo t5_3: `hdfe_cmd' any_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         c.conflict#c.richness_std c.L1_conflict#c.richness_std c.L2_conflict#c.richness_std ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
@@ -1105,6 +1207,8 @@ estadd local fe_cy "\checkmark"
 estadd local fe_biome_yr "\checkmark"
 estadd local road_yr "\checkmark"
 estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(conflict_rich_sum) expr(c.conflict#c.richness_std + c.L1_conflict#c.richness_std + c.L2_conflict#c.richness_std)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
@@ -1113,7 +1217,7 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 
 qui {
 * (4) Intensive margin — with lags
-eststo t5_4: `hdfe_cmd' log1p_total conflict L1_conflict L2_conflict ///
+eststo t5_4: `hdfe_cmd' log1p_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         c.conflict#c.richness_std c.L1_conflict#c.richness_std c.L2_conflict#c.richness_std ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
@@ -1129,6 +1233,8 @@ estadd local fe_cy "\checkmark"
 estadd local fe_biome_yr "\checkmark"
 estadd local road_yr "\checkmark"
 estadd local conflict_measure "log(1+events)"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(conflict_rich_sum) expr(c.conflict#c.richness_std + c.L1_conflict#c.richness_std + c.L2_conflict#c.richness_std)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
@@ -1139,8 +1245,10 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 * Panel B: conflict = 1[any events]
 * -------------------------------------------------------------------
 
-drop conflict L1_conflict L2_conflict
+capture drop conflict F1_conflict F2_conflict L1_conflict L2_conflict
 gen conflict = ucdp_any_all
+gen F1_conflict = F.ucdp_any_all
+gen F2_conflict = F2.ucdp_any_all
 gen L1_conflict = L.ucdp_any_all
 gen L2_conflict = L2.ucdp_any_all
 
@@ -1180,7 +1288,7 @@ estadd local conflict_measure "1[events>0]"
 
 qui {
 * (7) Extensive margin — with lags
-eststo t5_7: `hdfe_cmd' any_total conflict L1_conflict L2_conflict ///
+eststo t5_7: `hdfe_cmd' any_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         c.conflict#c.richness_std c.L1_conflict#c.richness_std c.L2_conflict#c.richness_std ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
@@ -1196,6 +1304,8 @@ estadd local fe_cy "\checkmark"
 estadd local fe_biome_yr "\checkmark"
 estadd local road_yr "\checkmark"
 estadd local conflict_measure "1[events>0]"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(conflict_rich_sum) expr(c.conflict#c.richness_std + c.L1_conflict#c.richness_std + c.L2_conflict#c.richness_std)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
@@ -1204,7 +1314,7 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 
 qui {
 * (8) Intensive margin — with lags
-eststo t5_8: `hdfe_cmd' log1p_total conflict L1_conflict L2_conflict ///
+eststo t5_8: `hdfe_cmd' log1p_total conflict F1_conflict F2_conflict L1_conflict L2_conflict ///
         c.conflict#c.richness_std c.L1_conflict#c.richness_std c.L2_conflict#c.richness_std ///
         forest_loss_share burned_share cyclone earthquake ///
         pdsi_anomaly L1_pdsi_anomaly L2_pdsi_anomaly ///
@@ -1220,6 +1330,8 @@ estadd local fe_cy "\checkmark"
 estadd local fe_biome_yr "\checkmark"
 estadd local road_yr "\checkmark"
 estadd local conflict_measure "1[events>0]"
+add_sum_rows, name(conflict_leads_sum) expr(F1_conflict + F2_conflict)
+add_joint_p, name(conflict_leads_p) vars(F1_conflict F2_conflict)
 add_sum_rows, name(conflict_sum) expr(conflict + L1_conflict + L2_conflict)
 add_sum_rows, name(conflict_rich_sum) expr(c.conflict#c.richness_std + c.L1_conflict#c.richness_std + c.L2_conflict#c.richness_std)
 add_sum_rows, name(pdsi_sum) expr(pdsi_anomaly + L1_pdsi_anomaly + L2_pdsi_anomaly)
@@ -1230,18 +1342,20 @@ add_sum_rows, name(tmax_sum) expr(tmax_anomaly + L1_tmax_anomaly + L2_tmax_anoma
 * Display Table 5
 * -------------------------------------------------------------------
 
-esttab t5_*, keep(conflict c.conflict#c.richness_std ///
+esttab t5_*, keep(conflict F1_conflict F2_conflict c.conflict#c.richness_std ///
              forest_loss_share burned_share cyclone earthquake ///
              pdsi_anomaly tmax_anomaly log1p_ntl ///
              protected_share log_gdp_pc_x_protected_share ///
              log_gdp_pc_sq_x_protected_share) ///
-    order(conflict c.conflict#c.richness_std ///
+    order(conflict F1_conflict F2_conflict c.conflict#c.richness_std ///
           forest_loss_share burned_share cyclone earthquake ///
           pdsi_anomaly tmax_anomaly log1p_ntl ///
           protected_share log_gdp_pc_x_protected_share ///
           log_gdp_pc_sq_x_protected_share) ///
     se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
     varlabels(conflict "Conflict" ///
+              F1_conflict "Conflict t+1" ///
+              F2_conflict "Conflict t+2" ///
               c.conflict#c.richness_std "Conflict x Richness (SD)" ///
               forest_loss_share "Forest loss" ///
               burned_share "Burned area" ///
@@ -1254,21 +1368,23 @@ esttab t5_*, keep(conflict c.conflict#c.richness_std ///
               log_gdp_pc_x_protected_share "ln(GDP pc) x Prot." ///
               log_gdp_pc_sq_x_protected_share "ln(GDP pc)^2 x Prot.") ///
     stats(conflict_sum_txt conflict_sum_se_txt ///
+          conflict_leads_sum_txt conflict_leads_sum_se_txt ///
           conflict_rich_sum_txt conflict_rich_sum_se_txt ///
           pdsi_sum_txt pdsi_sum_se_txt ///
           tmax_sum_txt tmax_sum_se_txt ///
-          conflict_measure ymean ysd N r2 ///
+          conflict_leads_p_txt conflict_measure ymean ysd N r2 ///
           fe_cell fe_cy fe_biome_yr road_yr, ///
           labels("Sum conflict L0-L2" " " ///
+                 "Sum conflict F1-F2" " " ///
                  "Sum conflict x Rich. L0-L2" " " ///
                  "Sum PDSI L0-L2" " " ///
                  "Sum tmax L0-L2" " " ///
-                 "Conflict measure" "Dep. var. mean" "Dep. var. SD" ///
+                 "Lead F1/F2 p" "Conflict measure" "Dep. var. mean" "Dep. var. SD" ///
                  "Obs." "R-sq." "Cell FE" "Country x Year FE" ///
                  "Biome x Year FE" "Road dens. x Year") ///
-          fmt(%s %s %s %s %s %s %s %s ///
-              %s %9.4f %9.4f %9.0fc %9.4f %s %s %s %s)) ///
-    title("Table 5: Conflict x Species Richness (IUCN)") ///
+          fmt(%s %s %s %s %s %s %s %s %s %s ///
+              %s %s %9.4f %9.4f %9.0f %9.4f %s %s %s %s)) ///
+    title("Table 5: Conflict x Species Richness (IUCN), with F1-F2 conflict leads") ///
     mtitles("Any" "log(1+N)" "Any" "log(1+N)" "Any" "log(1+N)" "Any" "log(1+N)") ///
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
