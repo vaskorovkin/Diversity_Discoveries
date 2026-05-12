@@ -26,7 +26,7 @@ local hdfe_cmd "reghdfe"
 *   "all"          = run the three panel modes sequentially
 * -------------------------------------------------------------------
 
-local panel_mode "100-yearly"
+local panel_mode "50-quarterly"
 if "`1'" != "" {
     local panel_mode "`1'"
 }

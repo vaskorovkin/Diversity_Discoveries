@@ -19,6 +19,7 @@ Output/
 # Local literature and logs
 Literature/
 Logs/
+/reg_spec1_leads.log
 /Logs/merge_all_regressors.log
 
 # LaTeX build products
