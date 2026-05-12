@@ -26,12 +26,12 @@ Use separate scripts so each Roman-letter block can be rerun independently,
 while sharing compact prepared data:
 
 ```text
-Scripts/00_build_bold_minimal.py
-Scripts/01_tables_counts.py
-Scripts/02_timeseries.py
-Scripts/03_maps_grid.py
-Scripts/04_maps_admin1.py
-Scripts/05_cell_correlations.py
+Scripts/pipeline/00_build_bold_minimal.py
+Scripts/pipeline/01_tables_counts.py
+Scripts/pipeline/02_timeseries.py
+Scripts/pipeline/03_maps_grid.py
+Scripts/pipeline/04_maps_admin1.py
+Scripts/pipeline/05_cell_correlations.py
 ```
 
 The expensive step is `00_build_bold_minimal.py`, which streams raw BOLD TSVs

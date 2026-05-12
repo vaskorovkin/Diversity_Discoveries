@@ -35,7 +35,7 @@ Data/regressors/tests_spatial_time/wdpa/wdpa_protected_panel_50km.csv
 Create it with the May 2026 WDPA/WDOECM File Geodatabase:
 
 ```bash
-python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+python3 Scripts/aggregate/aggregate_wdpa_protected_panel_100km_v2.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 ```
 
 ## 50 km Quarterly Panel

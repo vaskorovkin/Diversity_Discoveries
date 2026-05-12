@@ -85,7 +85,7 @@ pipeline returns signal.
 
 **Subtask A1: BOLD → GenBank → PubMed (animals + fungi mainly)**
 - [x] Re-extract `insdc_acs` from raw BOLD TSVs (modify
-      `Scripts/pipeline_utils.py`, add field to `MINIMAL_FIELDS`)
+      `Scripts/_shared/pipeline_utils.py`, add field to `MINIMAL_FIELDS`)
 - [x] Re-run `00_build_bold_minimal.py` to refresh
       `Data/processed/bold/bold_minimal_records.csv`
       (20,160,076 rows; 5,428,354 with `insdc_acs` = 26.93% pooled)
@@ -98,7 +98,7 @@ pipeline returns signal.
       Cecidomyiidae capped file is a near-empty diagnostic (0.0014%) —
       exclude from elink.
 - [x] Build NCBI publication-linkage pipeline in batched/resumable mode
-      (`Scripts/20_link_bold_to_pubmed.py`). The original Entrez
+      (`Scripts/pipeline/20_link_bold_to_pubmed.py`). The original Entrez
       `epost`/`elink` path was tested but proved unreliable for
       per-accession attribution because NCBI often returns collapsed
       batch-level linksets. The production path therefore uses GenBank
@@ -121,7 +121,7 @@ pipeline returns signal.
       `dataset_key` values (99.999861%), and 100% non-empty `gbif_id`.
 - [x] Write pipeline: occurrence dataset_key → GBIF Literature API
       (`api.gbif.org/v1/literature/search?gbifDatasetKey=...`) → citing publications
-      (`Scripts/21_link_gbif_datasets_to_publications.py`). This is
+      (`Scripts/pipeline/21_link_gbif_datasets_to_publications.py`). This is
       dataset-level attribution: every occurrence in a linked dataset
       inherits dataset-citing publication links. Interpret as dataset
       publication exposure, not direct specimen citation.
@@ -131,7 +131,7 @@ pipeline returns signal.
       malformed non-UUID `dataset_key` values excluded after GBIF returned
       `Invalid UUID string`).
 - [x] Write corrected-timing GBIF cohort exposure builder →
-      `Scripts/30_build_gbif_publication_exposure_panel.py`. Unit is GBIF
+      `Scripts/pipeline/30_build_gbif_publication_exposure_panel.py`. Unit is GBIF
       occurrence collection cell-year; outcomes count dataset-linked GBIF
       Literature records within 0–3, 0–5, and 0–10 years after collection.
       This fixes the timing problem but remains dataset-level exposure, not
@@ -147,13 +147,13 @@ pipeline returns signal.
 **Subtask A3: Unified panel and regressions**
 - [x] Fetch PubMed metadata for BOLD-linked PMIDs →
       `Data/processed/discovery/publications/pubmed_id_to_metadata.csv`
-      (`Scripts/20b_fetch_pubmed_metadata.py`). This is required because
+      (`Scripts/pipeline/20b_fetch_pubmed_metadata.py`). This is required because
       `bold_accession_to_pubmed.csv` contains PMID links but not publication
       years. Output has 24,093 unique PMIDs; 49 lack usable NCBI year/title
       metadata and will be excluded from year-based panel construction.
 - [x] Build cell × year publication-count panel →
       `Data/processed/discovery/publications/pubs_cell_year_panel.csv`
-      (`Scripts/28_build_publication_cell_year_panel.py`; legacy exposure panel;
+      (`Scripts/pipeline/28_build_publication_cell_year_panel.py`; legacy exposure panel;
       source breakdowns `bold|gbif|all`; kingdom breakdowns Animalia,
       Plantae, Fungi, Bacteria, other/blank, all). Script number `28` avoids
       conflict with Option B script `25_resolve_species_names.py`. Final
@@ -166,7 +166,7 @@ pipeline returns signal.
       causal downstream-publication outcome.
 - [x] Build corrected BOLD specimen-cohort publication-yield panel →
       `Data/processed/discovery/publications/bold_pub_yield_cell_year_panel.csv`
-      (`Scripts/29_build_bold_publication_yield_panel.py`). Unit is BOLD
+      (`Scripts/pipeline/29_build_bold_publication_yield_panel.py`). Unit is BOLD
       collection cell-year; outcomes count linked PubMed publications within
       0–3, 0–5, and 0–10 years after specimen collection. This incorporates
       publication delay and avoids GBIF dataset-level attribution.
@@ -197,10 +197,10 @@ pipeline returns signal.
 ### Option B — Natural products
 - [x] Download LOTUS dump (Wikidata-linked) →
       `Data/raw/natural_products/lotus/` (Zenodo v11, 260413_frozen.csv.gz
-      + 260413_frozen_metadata.csv.gz; Scripts/22_download_lotus.py)
+      + 260413_frozen_metadata.csv.gz; Scripts/download/22_download_lotus.py)
 - [x] Download COCONUT dump (largest aggregated NP collection) →
       `Data/raw/natural_products/coconut/` (COCONUT 2.0,
-      coconut_csv-05-2026.zip 208 MB; Scripts/22b_download_coconut.py)
+      coconut_csv-05-2026.zip 208 MB; Scripts/download/22b_download_coconut.py)
 - [ ] Add KNApSAcK as supplementary (especially for plant secondary
       metabolites and animal-derived compounds: venoms, marine invertebrate
       metabolites, insect alkaloids — sparse but real)
@@ -216,7 +216,7 @@ pipeline returns signal.
       189,768 compounds in both. Median 7 compounds per species;
       max 6,168. Script 23 writes initial pairs/summary;
       Script 25 rewrites both with backfilled kingdoms.
-      Scripts/23_build_species_to_compounds.py
+      Scripts/pipeline/23_build_species_to_compounds.py
 - [x] Build the **shared species universe** (BOLD ∪ GBIF, the samplable
       set; species in NP-DBs but not BOLD/GBIF excluded since they can't
       enter cell-year regressions):
@@ -231,12 +231,12 @@ pipeline returns signal.
         (414K BINs with `consensus_species, kingdom, genus, concordance,
         is_strict`; 371K strict at ≥80%; persisted by 26 so B7 doesn't
         re-stream BOLD)
-      - Scripts/26_build_shared_species_universe.py;
-        Scripts/audit_bin_species_consensus.py for source-group BIN audit
+      - Scripts/pipeline/26_build_shared_species_universe.py;
+        Scripts/preliminary/audit_bin_species_consensus.py for source-group BIN audit
 - [x] Download GBIF Backbone Taxonomy →
       `Data/raw/gbif/backbone/backbone.zip` (926 MB, Taxon.tsv 2.1 GB
       uncompressed, 7.7M taxa with synonym→accepted mappings;
-      Scripts/24_download_gbif_backbone.py)
+      Scripts/download/24_download_gbif_backbone.py)
 - [x] Taxonomic name harmonization via GBIF backbone (single authority
       incorporating WCVP, Index Fungorum, Catalogue of Life):
       - Step 1: gbifid_lookup (31,176 LOTUS species via organism_taxonomy_gbifid)
@@ -246,9 +246,9 @@ pipeline returns signal.
       - NP→universe linkage: 56.3% → 71.3% (+8,767 NP species; +6,796 Plantae,
         +1,217 Fungi, +490 Animalia)
       - Output: `Data/processed/discovery/shared/species_name_resolution.csv`
-      - Scripts/25_resolve_species_names.py
+      - Scripts/pipeline/25_resolve_species_names.py
 - [x] Build cell × year × source_group "chemical potential" panel
-      (Scripts/27_build_chemical_potential_panel.py; streams BOLD 20M +
+      (Scripts/pipeline/27_build_chemical_potential_panel.py; streams BOLD 20M +
       GBIF 15M with on-the-fly EPSG:6933 / 100km gridding matching 26):
       - Schema: n_records, n_species_sampled, n_species_with_compounds,
         n_compounds_total, n_unique_compounds (InChIKey-deduped from
@@ -313,7 +313,7 @@ pipeline returns signal.
 - **Examined alternatives — compound-discovery-rate panel rejected.**
   Considered building a per-cell-year LOTUS-compound-discovery panel
   (LHS = newly published compounds attributed to species sampled in the
-  cell-year). Rejected after `Scripts/audit_lotus_geography.py`:
+  cell-year). Rejected after `Scripts/preliminary/audit_lotus_geography.py`:
   (1) LOTUS has zero geography (no country, locality, or coordinates
   in either `260413_frozen_metadata.csv.gz` or `260413_frozen.csv.gz`),
   so spatial attribution would have to come from BOLD/GBIF — which is
@@ -368,8 +368,8 @@ manually in a separate terminal and pastes results back. Read-only checks
   richness controls; natural template for Option B's plant slice
 - `DoFiles/reg_foreign_collecting.do` — FC3, FC5 templates if foreign-vs-
   domestic dimension matters
-- `Scripts/00_build_bold_minimal.py` + `Scripts/pipeline_utils.py` — minimal
+- `Scripts/pipeline/00_build_bold_minimal.py` + `Scripts/_shared/pipeline_utils.py` — minimal
   build pipeline
-- `Scripts/19_extract_gbif_plantae_species_universe.py` — species universe
+- `Scripts/preliminary/19_extract_gbif_plantae_species_universe.py` — species universe
   extraction template
-- `Scripts/06_build_cell_year_panel.py` — cell × year aggregation template
+- `Scripts/pipeline/06_build_cell_year_panel.py` — cell × year aggregation template

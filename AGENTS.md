@@ -14,40 +14,40 @@ This repository is a research data project. Preserve downloaded data and never r
 
 ## Project Structure
 
-- `Scripts/download_bold_fungi.py` is the generic BOLD downloader despite its historical name. It accepts `--query`, `--stem`, `--summary-only`, `--force`, and `--ignore-cap`.
-- `Scripts/download_bold_plants.py`, `download_bold_mollusca.py`, and `download_bold_chordata.py` are thin wrappers around the generic downloader.
-- `Scripts/download_bold_animals_except_acm.py` downloads non-Arthropoda, non-Chordata, non-Mollusca animal phyla one phylum at a time.
-- `Scripts/download_bold_insect_orders_small.py` downloads selected smaller insect orders one order at a time.
-- `Scripts/download_bold_coleoptera_by_family.py`, `download_bold_hemiptera_by_family.py`, `download_bold_hymenoptera_by_family.py`, and `download_bold_lepidoptera_by_family.py` download large insect orders one family at a time.
-- `Scripts/download_bold_diptera_from_ceratopogonidae.py` downloads manageable Diptera families while intentionally skipping the four over-cap families: Cecidomyiidae, Chironomidae, Phoridae, and Sciaridae.
-- `Scripts/download_bold_chironomidae_by_country.py`, `download_bold_phoridae_by_country.py`, and `download_bold_sciaridae_by_country.py` download over-cap Diptera families one country/ocean value at a time.
-- `Scripts/download_bold_cecidomyiidae_except_costa_rica_by_country.py` downloads all positive Cecidomyiidae country/ocean buckets except Costa Rica, because Costa Rica alone is over the BOLD cap.
-- `Scripts/download_bold_cecidomyiidae_costa_rica_capped.py` downloads a capped Costa Rica Cecidomyiidae diagnostic extract; do not treat it as complete.
-- `Scripts/00_build_bold_minimal.py` builds compact BOLD records for exhibits and regressions. It includes the capped Costa Rica Cecidomyiidae file by default, but excludes the redundant global capped Cecidomyiidae and old capped Hemiptera files.
-- `Scripts/panel_variants.py` centralizes the runnable panel variants: `baseline_100km_year`, `test_50km_year`, and `test_50km_quarter`.
-- `Scripts/build_land_cells.py` builds the 50 km land-cell universe used by the experimental variants.
-- `Scripts/06_build_cell_year_panel.py` builds the main 100 km land-cell x collection-year panel for 2005-2025, or the 50 km yearly/quarterly panels when run with `--variant`.
-- `Scripts/aggregate_ucdp_ged_100km.py` aggregates a downloaded UCDP GED CSV to the BOLD grid for 2005-2024. It supports yearly and quarterly variants. Logs and lags are intentionally left for Stata.
-- `Scripts/download_baseline_geography.py` downloads raw RESOLVE ecoregions and CEPF hotspot inputs for the static baseline geography overlays. See `Scripts/baseline_geography_README.md`.
-- `Scripts/aggregate_resolve_ecoregions_100km.py` assigns RESOLVE 2017 ecoregion, biome, and realm to each 100 km land cell by centroid overlay.
-- `Scripts/aggregate_cepf_hotspots_100km.py` assigns CEPF/Conservation International biodiversity hotspot indicators to each 100 km land cell by centroid overlay.
-- `Scripts/earth_engine/` holds all Google Earth Engine scripts and GEE-specific READMEs. Do not put new GEE scripts in the top-level `Scripts/` folder.
-- `Scripts/raster_zonal.py` provides the shared polygon-aware rasterization helper used by TerraClimate, CHIRPS, GRIP roads, and GLOBIO MSA aggregators. These scripts should not go back to lon/lat bounding-box cell windows.
-- `Scripts/aggregate_wdpa_protected_share_100km.py` computes May 2026 WDPA protected-area share by grid cell from the local WDPA/WDOECM File Geodatabase. This is a snapshot regressor, not a historical panel.
-- `Scripts/aggregate_wdpa_protected_panel_100km_v2.py` computes the preferred `STATUS_YR`-based WDPA protected-area panel. The 50 km yearly and quarterly Stata panels use this time-varying WDPA panel.
+- `Scripts/download/download_bold_fungi.py` is the generic BOLD downloader despite its historical name. It accepts `--query`, `--stem`, `--summary-only`, `--force`, and `--ignore-cap`.
+- `Scripts/download/download_bold_plants.py`, `download_bold_mollusca.py`, and `download_bold_chordata.py` are thin wrappers around the generic downloader.
+- `Scripts/download/download_bold_animals_except_acm.py` downloads non-Arthropoda, non-Chordata, non-Mollusca animal phyla one phylum at a time.
+- `Scripts/download/download_bold_insect_orders_small.py` downloads selected smaller insect orders one order at a time.
+- `Scripts/download/download_bold_coleoptera_by_family.py`, `download_bold_hemiptera_by_family.py`, `download_bold_hymenoptera_by_family.py`, and `download_bold_lepidoptera_by_family.py` download large insect orders one family at a time.
+- `Scripts/download/download_bold_diptera_from_ceratopogonidae.py` downloads manageable Diptera families while intentionally skipping the four over-cap families: Cecidomyiidae, Chironomidae, Phoridae, and Sciaridae.
+- `Scripts/download/download_bold_chironomidae_by_country.py`, `download_bold_phoridae_by_country.py`, and `download_bold_sciaridae_by_country.py` download over-cap Diptera families one country/ocean value at a time.
+- `Scripts/download/download_bold_cecidomyiidae_except_costa_rica_by_country.py` downloads all positive Cecidomyiidae country/ocean buckets except Costa Rica, because Costa Rica alone is over the BOLD cap.
+- `Scripts/download/download_bold_cecidomyiidae_costa_rica_capped.py` downloads a capped Costa Rica Cecidomyiidae diagnostic extract; do not treat it as complete.
+- `Scripts/pipeline/00_build_bold_minimal.py` builds compact BOLD records for exhibits and regressions. It includes the capped Costa Rica Cecidomyiidae file by default, but excludes the redundant global capped Cecidomyiidae and old capped Hemiptera files.
+- `Scripts/_shared/panel_variants.py` centralizes the runnable panel variants: `baseline_100km_year`, `test_50km_year`, and `test_50km_quarter`.
+- `Scripts/aggregate/build_land_cells.py` builds the 50 km land-cell universe used by the experimental variants.
+- `Scripts/pipeline/06_build_cell_year_panel.py` builds the main 100 km land-cell x collection-year panel for 2005-2025, or the 50 km yearly/quarterly panels when run with `--variant`.
+- `Scripts/aggregate/aggregate_ucdp_ged_100km.py` aggregates a downloaded UCDP GED CSV to the BOLD grid for 2005-2024. It supports yearly and quarterly variants. Logs and lags are intentionally left for Stata.
+- `Scripts/download/download_baseline_geography.py` downloads raw RESOLVE ecoregions and CEPF hotspot inputs for the static baseline geography overlays. See `Scripts/readmes/baseline_geography_README.md`.
+- `Scripts/aggregate/aggregate_resolve_ecoregions_100km.py` assigns RESOLVE 2017 ecoregion, biome, and realm to each 100 km land cell by centroid overlay.
+- `Scripts/aggregate/aggregate_cepf_hotspots_100km.py` assigns CEPF/Conservation International biodiversity hotspot indicators to each 100 km land cell by centroid overlay.
+- `Scripts/earth_engine/` holds Google Earth Engine JavaScript files. GEE-specific READMEs live in `Scripts/readmes/earth_engine/`. Do not put new GEE scripts in the top-level `Scripts/` folder.
+- `Scripts/_shared/raster_zonal.py` provides the shared polygon-aware rasterization helper used by TerraClimate, CHIRPS, GRIP roads, and GLOBIO MSA aggregators. These scripts should not go back to lon/lat bounding-box cell windows.
+- `Scripts/aggregate/aggregate_wdpa_protected_share_100km.py` computes May 2026 WDPA protected-area share by grid cell from the local WDPA/WDOECM File Geodatabase. This is a snapshot regressor, not a historical panel.
+- `Scripts/aggregate/aggregate_wdpa_protected_panel_100km_v2.py` computes the preferred `STATUS_YR`-based WDPA protected-area panel. The 50 km yearly and quarterly Stata panels use this time-varying WDPA panel.
 - Baseline-geography geospatial dependencies are listed in `requirements_baseline_geography.txt`.
-- `Scripts/download_bold_non_insect_arthropods_and_microbes.py` downloads selected non-insect arthropod groups plus Bacteria and logs zero-record BOLD v5 groups.
-- `Scripts/audit_bold_downloads.py` audits local BOLD TSVs against their summary JSON files.
-- `Scripts/audit_bold_taxon_coverage.py` audits the intended taxon coverage plan against local manifests and files without hitting BOLD.
-- `Scripts/make_bold_fungi_minimal.py` creates the current Stata-friendly Fungi TSV.
-- `Scripts/map_bold_fungi_grid.py` maps geocoded Fungi records on equal-area cells.
+- `Scripts/download/download_bold_non_insect_arthropods_and_microbes.py` downloads selected non-insect arthropod groups plus Bacteria and logs zero-record BOLD v5 groups.
+- `Scripts/preliminary/audit_bold_downloads.py` audits local BOLD TSVs against their summary JSON files.
+- `Scripts/preliminary/audit_bold_taxon_coverage.py` audits the intended taxon coverage plan against local manifests and files without hitting BOLD.
+- `Scripts/preliminary/make_bold_fungi_minimal.py` creates the current Stata-friendly Fungi TSV.
+- `Scripts/preliminary/map_bold_fungi_grid.py` maps geocoded Fungi records on equal-area cells.
 
 ## Known Data State
 
 Run this for the current local audit:
 
 ```bash
-python3 Scripts/audit_bold_downloads.py
+python3 Scripts/preliminary/audit_bold_downloads.py
 ```
 
 As of the latest coverage audit:
@@ -76,8 +76,8 @@ git status --short --ignored
 Before committing:
 
 ```bash
-python3 -m py_compile Scripts/0*.py Scripts/pipeline_utils.py Scripts/panel_variants.py Scripts/raster_zonal.py
-python3 Scripts/audit_bold_taxon_coverage.py
+python3 -m py_compile Scripts/_shared/*.py Scripts/download/*.py Scripts/preliminary/*.py Scripts/aggregate/*.py Scripts/pipeline/*.py
+python3 Scripts/preliminary/audit_bold_taxon_coverage.py
 git status --short
 ```
 
@@ -88,40 +88,40 @@ Commit only code/docs. Avoid adding ignored data by force unless the user explic
 Download a BOLD taxon:
 
 ```bash
-python3 Scripts/download_bold_fungi.py --query "tax:order:Hemiptera" --stem bold_global_hemiptera --summary-only
+python3 Scripts/download/download_bold_fungi.py --query "tax:order:Hemiptera" --stem bold_global_hemiptera --summary-only
 ```
 
 Run remaining animal phyla in small paste-safe batches:
 
 ```bash
-python3 Scripts/download_bold_animals_except_acm.py --phyla Chaetognatha Ctenophora Entoprocta --retries 2 --retry-sleep 300
+python3 Scripts/download/download_bold_animals_except_acm.py --phyla Chaetognatha Ctenophora Entoprocta --retries 2 --retry-sleep 300
 ```
 
 Download Chironomidae, Phoridae, or Sciaridae by country/ocean:
 
 ```bash
-python3 Scripts/download_bold_cecidomyiidae_except_costa_rica_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
-python3 Scripts/download_bold_cecidomyiidae_costa_rica_capped.py
-python3 Scripts/download_bold_chironomidae_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
-python3 Scripts/download_bold_phoridae_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
-python3 Scripts/download_bold_sciaridae_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
+python3 Scripts/download/download_bold_cecidomyiidae_except_costa_rica_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
+python3 Scripts/download/download_bold_cecidomyiidae_costa_rica_capped.py
+python3 Scripts/download/download_bold_chironomidae_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
+python3 Scripts/download/download_bold_phoridae_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
+python3 Scripts/download/download_bold_sciaridae_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
 ```
 
 Map Fungi sampling at 50, 100, or 200 km:
 
 ```bash
-python3 Scripts/map_bold_fungi_grid.py --cell-km 100
+python3 Scripts/preliminary/map_bold_fungi_grid.py --cell-km 100
 ```
 
 Build the main Stata-ready BOLD cell-year panel:
 
 ```bash
-python3 Scripts/06_build_cell_year_panel.py
+python3 Scripts/pipeline/06_build_cell_year_panel.py
 ```
 
 Aggregate UCDP GED conflict to the BOLD grid after placing the GED CSV in
 `Data/raw/ucdp/`:
 
 ```bash
-python3 Scripts/aggregate_ucdp_ged_100km.py
+python3 Scripts/aggregate/aggregate_ucdp_ged_100km.py
 ```

@@ -143,7 +143,7 @@ The useful empirical tests are comparative:
    - fatalities
    - any conflict
 
-   Current status: implemented in `Scripts/aggregate_ucdp_ged_100km.py` and
+   Current status: implemented in `Scripts/aggregate/aggregate_ucdp_ged_100km.py` and
    run on `Data/raw/ucdp/GEDEvent_v25_1.csv`. Output:
 
    ```text
@@ -173,8 +173,8 @@ The useful empirical tests are comparative:
    - heat anomaly
 
    Current status: TerraClimate implemented in
-   `Scripts/download_terraclimate.py`, `Scripts/download_terraclimate_baseline.py`,
-   and `Scripts/aggregate_terraclimate_100km.py`. Output:
+   `Scripts/download/download_terraclimate.py`, `Scripts/download/download_terraclimate_baseline.py`,
+   and `Scripts/aggregate/aggregate_terraclimate_100km.py`. Output:
 
    ```text
    Data/regressors/terraclimate/terraclimate_100km_panel.csv
@@ -184,8 +184,8 @@ The useful empirical tests are comparative:
    `ppt_mean`, `ppt_anomaly`. Anomalies relative to 1981-2010 baseline.
    Covers 2001-2023.
 
-   CHIRPS implemented in `Scripts/download_chirps.py` and
-   `Scripts/aggregate_chirps_100km.py`. Output:
+   CHIRPS implemented in `Scripts/download/download_chirps.py` and
+   `Scripts/aggregate/aggregate_chirps_100km.py`. Output:
 
    ```text
    Data/regressors/chirps/chirps_100km_panel.csv
@@ -202,9 +202,9 @@ The useful empirical tests are comparative:
    - modeled richness/intactness when available
 
    Current status for ecoregion/biome/realm: implemented locally with RESOLVE
-   2017 centroid overlay in `Scripts/aggregate_resolve_ecoregions_100km.py`.
-   Raw input download is reproducible via `Scripts/download_baseline_geography.py`
-   and documented in `Scripts/baseline_geography_README.md`. Geospatial package
+   2017 centroid overlay in `Scripts/aggregate/aggregate_resolve_ecoregions_100km.py`.
+   Raw input download is reproducible via `Scripts/download/download_baseline_geography.py`
+   and documented in `Scripts/readmes/baseline_geography_README.md`. Geospatial package
    dependencies are listed in `requirements_baseline_geography.txt`.
    Output:
 
@@ -217,7 +217,7 @@ The useful empirical tests are comparative:
 
    Current status for hotspot indicator: implemented locally with CEPF/
    Conservation International hotspot polygons in
-   `Scripts/aggregate_cepf_hotspots_100km.py`. Output:
+   `Scripts/aggregate/aggregate_cepf_hotspots_100km.py`. Output:
 
    ```text
    Data/regressors/baseline_geography/cepf_hotspots_100km_cells.csv
@@ -230,7 +230,7 @@ The useful empirical tests are comparative:
    WDPA/WDOECM File Geodatabase is present. Script:
 
    ```text
-   Scripts/aggregate_wdpa_protected_share_100km.py
+   Scripts/aggregate/aggregate_wdpa_protected_share_100km.py
    ```
 
    Expected output:
@@ -244,7 +244,7 @@ The useful empirical tests are comparative:
    it as baseline geography/control/heterogeneity.
 
    Current status for time-varying WDPA panel: implemented in
-   `Scripts/aggregate_wdpa_protected_panel_100km_v2.py` (fast sjoin+clip). Output:
+   `Scripts/aggregate/aggregate_wdpa_protected_panel_100km_v2.py` (fast sjoin+clip). Output:
 
    ```text
    Data/regressors/wdpa/wdpa_protected_panel_100km.csv
@@ -257,7 +257,7 @@ The useful empirical tests are comparative:
    snapshot share.
 
    Current status for GLOBIO MSA: implemented in
-   `Scripts/download_globio_msa.py` and `Scripts/aggregate_globio_msa_100km.py`.
+   `Scripts/download/download_globio_msa.py` and `Scripts/aggregate/aggregate_globio_msa_100km.py`.
    Output:
 
    ```text
@@ -267,7 +267,7 @@ The useful empirical tests are comparative:
    Variable: `msa_overall` (0-1, 2015 baseline). Mean 0.58.
 
    Current status for road density: implemented in
-   `Scripts/download_grip_roads.py` and `Scripts/aggregate_grip_roads_100km.py`.
+   `Scripts/download/download_grip_roads.py` and `Scripts/aggregate/aggregate_grip_roads_100km.py`.
    Output:
 
    ```text

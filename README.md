@@ -4,7 +4,7 @@ This project builds micro data for studying how biodiversity enters scientific s
 
 ## Repository Contents
 
-- `Scripts/`: Python scripts for BOLD downloads, cleaning, audits, and maps.
+- `Scripts/`: organized Python/R/JS scripts. Downloads are in `Scripts/download/`, aggregation/merge jobs in `Scripts/aggregate/`, main panel builders in `Scripts/pipeline/`, audits and preliminary data work in `Scripts/preliminary/`, Earth Engine JavaScript in `Scripts/earth_engine/`, and source-specific notes in `Scripts/readmes/`.
 - `DoFiles/`: Stata 16 import and summary scripts.
 - `Notes/`: LaTeX research notes.
 - `bold_taxon_size_notes.txt`: BOLD taxon size and coverage notes.
@@ -32,25 +32,25 @@ Current caveat: four Diptera families exceed the 1,000,000-record BOLD query cap
 Audit all BOLD downloads:
 
 ```bash
-python3 Scripts/audit_bold_downloads.py
+python3 Scripts/preliminary/audit_bold_downloads.py
 ```
 
 Audit intended taxon coverage against local manifests:
 
 ```bash
-python3 Scripts/audit_bold_taxon_coverage.py
+python3 Scripts/preliminary/audit_bold_taxon_coverage.py
 ```
 
 Create a minimal Fungi TSV:
 
 ```bash
-python3 Scripts/make_bold_fungi_minimal.py
+python3 Scripts/preliminary/make_bold_fungi_minimal.py
 ```
 
 Map BOLD Fungi on a 100 km equal-area grid:
 
 ```bash
-python3 Scripts/map_bold_fungi_grid.py --cell-km 100
+python3 Scripts/preliminary/map_bold_fungi_grid.py --cell-km 100
 ```
 
 ## Exhibit Pipeline
@@ -59,13 +59,13 @@ The current Stata-ready BOLD panel is generated from compact exhibit files, not
 from raw TSVs directly. Run order:
 
 ```bash
-python3 Scripts/00_build_bold_minimal.py
-python3 Scripts/01_tables_counts.py
-python3 Scripts/02_timeseries.py
-python3 Scripts/03_maps_grid.py
-python3 Scripts/04_maps_admin1.py
-python3 Scripts/05_cell_correlations.py
-python3 Scripts/06_build_cell_year_panel.py
+python3 Scripts/pipeline/00_build_bold_minimal.py
+python3 Scripts/pipeline/01_tables_counts.py
+python3 Scripts/pipeline/02_timeseries.py
+python3 Scripts/pipeline/03_maps_grid.py
+python3 Scripts/pipeline/04_maps_admin1.py
+python3 Scripts/pipeline/05_cell_correlations.py
+python3 Scripts/pipeline/06_build_cell_year_panel.py
 ```
 
 Main panel output:
@@ -94,7 +94,7 @@ in the current regression panel.
 ## Spatial-Time Experiment Panels
 
 The canonical pipeline remains `100 km x year`. Experimental alternatives are
-centralized in `Scripts/panel_variants.py`:
+centralized in `Scripts/_shared/panel_variants.py`:
 
 ```text
 baseline_100km_year
@@ -115,11 +115,11 @@ Earth Engine scripts now live in `Scripts/earth_engine/`. The 50 km Earth
 Engine instructions are in:
 
 ```text
-Scripts/earth_engine/tests_spatial_time_README.md
+Scripts/readmes/earth_engine/tests_spatial_time_README.md
 ```
 
 The raster aggregators for TerraClimate, CHIRPS, GRIP roads, and GLOBIO MSA
-use `Scripts/raster_zonal.py`, which rasterizes actual cell polygons and
+use `Scripts/_shared/raster_zonal.py`, which rasterizes actual cell polygons and
 aggregates by rasterized cell labels. This replaced the older lon/lat
 bounding-box windows.
 
@@ -146,8 +146,8 @@ This file has one row per BOLD land cell with ecoregion, biome, realm, and
 match flags. It is a centroid overlay, so it is best used as a baseline stratum,
 heterogeneity variable, or interaction term rather than a time-varying shock.
 The raw RESOLVE and CEPF inputs are reproducibly downloaded by
-`Scripts/download_baseline_geography.py`; see
-`Scripts/baseline_geography_README.md`. The geospatial Python requirements for
+`Scripts/download/download_baseline_geography.py`; see
+`Scripts/readmes/baseline_geography_README.md`. The geospatial Python requirements for
 these overlays are listed in `requirements_baseline_geography.txt`.
 
 CEPF/Conservation International biodiversity hotspots have also been assigned
@@ -164,7 +164,7 @@ A WDPA/Protected Planet protected-area share script is prepared for the local
 May 2026 WDPA/WDOECM polygon File Geodatabase:
 
 ```text
-Scripts/aggregate_wdpa_protected_share_100km.py
+Scripts/aggregate/aggregate_wdpa_protected_share_100km.py
 Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 ```
 
@@ -178,8 +178,8 @@ They are appropriate as baseline controls or heterogeneity variables.
 The preferred analysis panels use the `STATUS_YR`-based WDPA panel built by:
 
 ```bash
-python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
-python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+python3 Scripts/aggregate/aggregate_wdpa_protected_panel_100km_v2.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+python3 Scripts/aggregate/aggregate_wdpa_protected_panel_100km_v2.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 ```
 
 Hansen Global Forest Change (tree-cover-weighted forest loss) is aggregated via
@@ -189,7 +189,7 @@ Google Earth Engine:
 Data/regressors/hansen/hansen_forest_loss_100km_panel.csv
 ```
 
-See `Scripts/earth_engine/gee_hansen_forest_loss_README.md` for the Earth Engine workflow.
+See `Scripts/readmes/earth_engine/gee_hansen_forest_loss_README.md` for the Earth Engine workflow.
 Hansen covers 2001-2023; variables include `baseline_forest_km2`,
 `forest_loss_km2`, `forest_loss_share`, `cumulative_loss_km2`, and lags.
 
@@ -263,14 +263,14 @@ Rows in BOLD TSV downloads are marker/sequence records, not necessarily unique s
 BOLD is not sufficient as the main plant layer. For plants, the project should use herbarium/specimen and botanical-name infrastructure alongside barcode data:
 
 - Plant sampling: GBIF preserved specimens/herbarium records as the main global layer, with iDigBio as a US-heavy complement and BIEN as a cleaned botanical occurrence/trait/range complement.
-- GBIF preserved/material plant workflow: `Scripts/request_gbif_plantae_downloads.py` requests the archive and can target either or both of `preserved_material` and `human_observation`; `Scripts/14_build_gbif_plantae_minimal.py` streams the preserved/material `occurrence.txt` into a compact CSV; `Scripts/15_build_gbif_plantae_cell_year_panel.py` builds the 100 km cell-year panel with total and basis-of-record breakdowns; `Scripts/17_build_gbif_plantae_preperiod_richness.py` builds a static 1999-2004 plant-richness baseline from the pre-period archive; and `DoFiles/reg_spec1_gbif_plantae.do` now includes both the original GBIF plant mirror and a Table 6 plant-richness interaction using the pre-period GBIF richness measure.
+- GBIF preserved/material plant workflow: `Scripts/download/request_gbif_plantae_downloads.py` requests the archive and can target either or both of `preserved_material` and `human_observation`; `Scripts/pipeline/14_build_gbif_plantae_minimal.py` streams the preserved/material `occurrence.txt` into a compact CSV; `Scripts/pipeline/15_build_gbif_plantae_cell_year_panel.py` builds the 100 km cell-year panel with total and basis-of-record breakdowns; `Scripts/pipeline/17_build_gbif_plantae_preperiod_richness.py` builds a static 1999-2004 plant-richness baseline from the pre-period archive; and `DoFiles/reg_spec1_gbif_plantae.do` now includes both the original GBIF plant mirror and a Table 6 plant-richness interaction using the pre-period GBIF richness measure.
 - Main GBIF plant outputs now live under `Data/processed/gbif/plantae/`; the preserved/material archive is the main plant regression source, while the human-observation archive is a separate comparator.
 - Static GBIF plant richness controls now live under `Data/regressors/plants/`, with both raw and transformed pre-period species/genus richness variables merged into the Stata analysis panel under short aliases.
-- R setup for botanical richness/distribution work: `Scripts/plant_r_setup.R` installs and loads BIEN, rWCVP, rWCVPdata, expowo, sf, terra, and basic tidyverse packages, then writes a package/session manifest to `Output/audits/`.
-- BIEN should not be queried cell by cell for the full 100 km grid. `Scripts/19_extract_gbif_plantae_species_universe.py` first builds the observed GBIF preserved/material plant species universe, and `Scripts/18_bien_range_download_pilot.R` then works through the canonical species-like pool in rank-window batches, checking BIEN range availability, downloading BIEN range shapefiles locally in bulk, recording timing/disk-footprint metrics, and optionally converting them to BIEN skinny ranges plus a local richness raster. The current completed run covers the full canonical pool of `236,166` names in five batches and yielded `64,760` downloaded BIEN range-map species.
+- R setup for botanical richness/distribution work: `Scripts/download/plant_r_setup.R` installs and loads BIEN, rWCVP, rWCVPdata, expowo, sf, terra, and basic tidyverse packages, then writes a package/session manifest to `Output/audits/`.
+- BIEN should not be queried cell by cell for the full 100 km grid. `Scripts/preliminary/19_extract_gbif_plantae_species_universe.py` first builds the observed GBIF preserved/material plant species universe, and `Scripts/download/18_bien_range_download_pilot.R` then works through the canonical species-like pool in rank-window batches, checking BIEN range availability, downloading BIEN range shapefiles locally in bulk, recording timing/disk-footprint metrics, and optionally converting them to BIEN skinny ranges plus a local richness raster. The current completed run covers the full canonical pool of `236,166` names in five batches and yielded `64,760` downloaded BIEN range-map species.
 - Plant name cleaning: WCVP/POWO/IPNI/World Flora Online for accepted names and synonyms; Kew MPNS for medicinal, herbal drug, common-name, and pharmacological-name disambiguation.
 - Plant chemistry and discovery outcomes: COCONUT, LOTUS, KNApSAcK, and where accessible NAPRALERT for plant natural products and plant-metabolite links; PubChem and ChEMBL for compound bioactivity and assay outcomes.
-- Publication linkage: Option A outputs live under `Data/processed/discovery/publications/`. `Scripts/20_link_bold_to_pubmed.py` builds the BOLD accession-to-PubMed linkage: `5,230,497` GenBank/INSDC accessions covered, with `1,983,992` accessions linked to at least one PMID. The production linkage parses GenBank `efetch` flat-file `PUBMED` references because Entrez `elink` returned collapsed batch-level linksets that were not safe for per-accession attribution. Persistent unresolved NCBI `400` failures are documented in `bold_pubmed_efetch_failures_remaining.csv` (`5,435` accessions, ~0.104%). `Scripts/20b_fetch_pubmed_metadata.py` fetches PubMed year/DOI/title metadata for 24,093 BOLD-linked PMIDs. `Scripts/21_link_gbif_datasets_to_publications.py` links GBIF Plantae preserved-material `dataset_key` values to GBIF Literature records (`842,961` logical dataset-publication rows); this is dataset-level publication exposure, not direct specimen citation. `Scripts/28_build_publication_cell_year_panel.py` builds the legacy publication-year exposure panel (`305,886` land-cell-year rows, `498,448` long audit rows, `38,396` BOLD-linked publication counts, `46,947,009` GBIF dataset-publication exposure counts). Because the pooled total is dominated by GBIF dataset-level exposure, the corrected main downstream-publication outcome is `Scripts/29_build_bold_publication_yield_panel.py`: a BOLD-only collection-cohort panel counting linked PubMed publications within 0–3, 0–5, and 0–10 years after specimen collection. `Scripts/30_build_gbif_publication_exposure_panel.py` applies the same collection-cohort timing to GBIF dataset literature links for a separate diagnostic exposure panel (`305,886` land-cell-year rows); it fixes timing but remains dataset-level exposure rather than specimen-specific citation.
+- Publication linkage: Option A outputs live under `Data/processed/discovery/publications/`. `Scripts/pipeline/20_link_bold_to_pubmed.py` builds the BOLD accession-to-PubMed linkage: `5,230,497` GenBank/INSDC accessions covered, with `1,983,992` accessions linked to at least one PMID. The production linkage parses GenBank `efetch` flat-file `PUBMED` references because Entrez `elink` returned collapsed batch-level linksets that were not safe for per-accession attribution. Persistent unresolved NCBI `400` failures are documented in `bold_pubmed_efetch_failures_remaining.csv` (`5,435` accessions, ~0.104%). `Scripts/pipeline/20b_fetch_pubmed_metadata.py` fetches PubMed year/DOI/title metadata for 24,093 BOLD-linked PMIDs. `Scripts/pipeline/21_link_gbif_datasets_to_publications.py` links GBIF Plantae preserved-material `dataset_key` values to GBIF Literature records (`842,961` logical dataset-publication rows); this is dataset-level publication exposure, not direct specimen citation. `Scripts/pipeline/28_build_publication_cell_year_panel.py` builds the legacy publication-year exposure panel (`305,886` land-cell-year rows, `498,448` long audit rows, `38,396` BOLD-linked publication counts, `46,947,009` GBIF dataset-publication exposure counts). Because the pooled total is dominated by GBIF dataset-level exposure, the corrected main downstream-publication outcome is `Scripts/pipeline/29_build_bold_publication_yield_panel.py`: a BOLD-only collection-cohort panel counting linked PubMed publications within 0–3, 0–5, and 0–10 years after specimen collection. `Scripts/pipeline/30_build_gbif_publication_exposure_panel.py` applies the same collection-cohort timing to GBIF dataset literature links for a separate diagnostic exposure panel (`305,886` land-cell-year rows); it fixes timing but remains dataset-level exposure rather than specimen-specific citation.
 
 ## Next Steps
 

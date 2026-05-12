@@ -72,7 +72,7 @@ if _rc == 0 {
 }
 else {
     di as text "Corrected GBIF cohort-timed panel not found in merged data."
-    di as text "Run Scripts/30_build_gbif_publication_exposure_panel.py and merge_all_regressors.do first."
+    di as text "Run Scripts/pipeline/30_build_gbif_publication_exposure_panel.py and merge_all_regressors.do first."
 }
 
 * -------------------------------------------------------------------

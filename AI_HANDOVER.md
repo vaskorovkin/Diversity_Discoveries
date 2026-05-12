@@ -27,9 +27,9 @@ Diptera status:
 - Phoridae country split is complete: 91 manifest rows, 91 TSV files, no failures, no `.part`.
 - Chironomidae country split is complete: 126 manifest rows, 126 TSV files, no failures, no `.part`.
 - Cecidomyiidae is the remaining problem:
-  - Non-Costa-Rica country split script exists: `Scripts/download_bold_cecidomyiidae_except_costa_rica_by_country.py`.
+  - Non-Costa-Rica country split script exists: `Scripts/download/download_bold_cecidomyiidae_except_costa_rica_by_country.py`.
   - Costa Rica exceeds the BOLD 1M cap by itself.
-  - `Scripts/download_bold_cecidomyiidae_costa_rica_capped.py` exists for a capped Costa Rica diagnostic extract.
+  - `Scripts/download/download_bold_cecidomyiidae_costa_rica_capped.py` exists for a capped Costa Rica diagnostic extract.
   - Do not treat Cecidomyiidae as complete until the split/cap issue is explicitly audited.
 
 Recent Diptera audit excluding Cecidomyiidae:
@@ -54,13 +54,13 @@ Chironomidae: country sum 1,643,776 vs family summary 1,647,619
 Run the exhibit pipeline:
 
 ```bash
-python3 Scripts/00_build_bold_minimal.py
-python3 Scripts/01_tables_counts.py
-python3 Scripts/02_timeseries.py
-python3 Scripts/03_maps_grid.py
-python3 Scripts/04_maps_admin1.py
-python3 Scripts/05_cell_correlations.py
-python3 Scripts/06_build_cell_year_panel.py
+python3 Scripts/pipeline/00_build_bold_minimal.py
+python3 Scripts/pipeline/01_tables_counts.py
+python3 Scripts/pipeline/02_timeseries.py
+python3 Scripts/pipeline/03_maps_grid.py
+python3 Scripts/pipeline/04_maps_admin1.py
+python3 Scripts/pipeline/05_cell_correlations.py
+python3 Scripts/pipeline/06_build_cell_year_panel.py
 ```
 
 Main panel output:
@@ -87,7 +87,7 @@ land-cell universe are excluded for now.
 ## Spatial-Time Experiment Pipeline
 
 The canonical 100 km yearly pipeline remains the baseline. Experimental
-variants are centralized in `Scripts/panel_variants.py`:
+variants are centralized in `Scripts/_shared/panel_variants.py`:
 
 ```text
 baseline_100km_year
@@ -118,10 +118,10 @@ Scripts/earth_engine/
 The 50 km GEE workflow is documented in:
 
 ```text
-Scripts/earth_engine/tests_spatial_time_README.md
+Scripts/readmes/earth_engine/tests_spatial_time_README.md
 ```
 
-The affected raster aggregators now use `Scripts/raster_zonal.py`, which
+The affected raster aggregators now use `Scripts/_shared/raster_zonal.py`, which
 rasterizes actual cell polygons onto the raster grid and aggregates by cell
 labels. Do not reintroduce lon/lat bounding-box window means in
 `aggregate_terraclimate_100km.py`, `aggregate_chirps_100km.py`,
@@ -159,9 +159,9 @@ lags in Stata, not in the raw UCDP regressor file.
 RESOLVE 2017 ecoregions have been assigned to the 100 km land cells:
 
 ```text
-Scripts/download_baseline_geography.py
-Scripts/baseline_geography_README.md
-Scripts/aggregate_resolve_ecoregions_100km.py
+Scripts/download/download_baseline_geography.py
+Scripts/readmes/baseline_geography_README.md
+Scripts/aggregate/aggregate_resolve_ecoregions_100km.py
 Data/regressors/baseline_geography/resolve_ecoregions_100km_cells.csv
 ```
 
@@ -186,7 +186,7 @@ CEPF/Conservation International biodiversity hotspots have also been assigned
 to the 100 km land cells:
 
 ```text
-Scripts/aggregate_cepf_hotspots_100km.py
+Scripts/aggregate/aggregate_cepf_hotspots_100km.py
 Data/regressors/baseline_geography/cepf_hotspots_100km_cells.csv
 ```
 
@@ -205,7 +205,7 @@ WDPA/Protected Planet protected-area share is built from the local May 2026
 WDPA/WDOECM File Geodatabase. The script is:
 
 ```text
-Scripts/aggregate_wdpa_protected_share_100km.py
+Scripts/aggregate/aggregate_wdpa_protected_share_100km.py
 ```
 
 Current local input:
@@ -217,13 +217,13 @@ Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e3716
 For the baseline 100 km panel:
 
 ```bash
-python3 Scripts/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+python3 Scripts/aggregate/aggregate_wdpa_protected_share_100km.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 ```
 
 For the 50 km experiment:
 
 ```bash
-python3 Scripts/aggregate_wdpa_protected_share_100km.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+python3 Scripts/aggregate/aggregate_wdpa_protected_share_100km.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 ```
 
 The static WDPA share output is a May 2026 snapshot by cell. Treat it as
@@ -232,8 +232,8 @@ baseline geography/control/heterogeneity only.
 For the preferred time-varying protected-area panel using `STATUS_YR`, use v2:
 
 ```bash
-python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
-python3 Scripts/aggregate_wdpa_protected_panel_100km_v2.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+python3 Scripts/aggregate/aggregate_wdpa_protected_panel_100km_v2.py --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
+python3 Scripts/aggregate/aggregate_wdpa_protected_panel_100km_v2.py --variant test_50km_year --wdpa Data/raw/baseline_geography/wdpa/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7/WDPA_WDOECM_May2026_Public_a0228029fd20816e371672dc358b399cf7dedb126f0bbcf3737106d7952c82a7.gdb
 ```
 
 Outputs:
@@ -275,16 +275,16 @@ Data/regressors/plants/gbif_plantae_preperiod_richness_1999_2004.csv
 Build commands:
 
 ```bash
-python3 Scripts/14_build_gbif_plantae_minimal.py
-python3 Scripts/15_build_gbif_plantae_cell_year_panel.py
-python3 Scripts/17_build_gbif_plantae_preperiod_richness.py
+python3 Scripts/pipeline/14_build_gbif_plantae_minimal.py
+python3 Scripts/pipeline/15_build_gbif_plantae_cell_year_panel.py
+python3 Scripts/pipeline/17_build_gbif_plantae_preperiod_richness.py
 do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/merge_all_regressors.do"
 do "/Users/vasilykorovkin/Documents/Diversity_Discoveries/DoFiles/reg_spec1_gbif_plantae.do"
 ```
 
 The GBIF plant panel is a mirror of `reg_spec1.do`: same RHS, same FE structure, same 2005-2023 sample restriction, but with GBIF preserved/material Plantae outcomes. The merged Stata panel also now carries static pre-period plant-richness aliases (`gbif_p_rich_base`, `gbif_p_rich_log`, `gbif_p_rich_z`, `gbif_p_genrich_base`, `gbif_p_genrich_log`, `gbif_p_genrich_z`, `gbif_p_rich_log_std`). `reg_spec1_gbif_plantae.do` now includes Table 6: conflict interacted with GBIF pre-period plant richness, using `log1p` then standardization to match the updated Table 5 richness scaling.
 
-BIEN remains a secondary plant-richness route. Direct `BIEN_list_sf()` cell-by-cell queries over the 100 km grid were too brittle and slow. The current exploratory path is to first build the observed GBIF species universe with `Scripts/19_extract_gbif_plantae_species_universe.py`, then run `Scripts/18_bien_range_download_pilot.R` in rank windows over the canonical species pool. The current completed BIEN sweep covers the full canonical pool of `236,166` species-like names in five batches:
+BIEN remains a secondary plant-richness route. Direct `BIEN_list_sf()` cell-by-cell queries over the 100 km grid were too brittle and slow. The current exploratory path is to first build the observed GBIF species universe with `Scripts/preliminary/19_extract_gbif_plantae_species_universe.py`, then run `Scripts/download/18_bien_range_download_pilot.R` in rank windows over the canonical species pool. The current completed BIEN sweep covers the full canonical pool of `236,166` species-like names in five batches:
 
 - batch 1: ranks `1-5000` → `Data/raw/bien/batches/batch_001_ranks_000001_005000/` → `3,736` downloaded species
 - batch 2: ranks `5001-30000` → `Data/raw/bien/batches/batch_002_ranks_005001_030000/` → `12,852` downloaded species
@@ -297,8 +297,8 @@ Total downloaded BIEN range-map species: `64,760`. The script records timing and
 TerraClimate climate anomalies (drought, heat, precipitation):
 
 ```bash
-python3 Scripts/download_terraclimate.py --skip-existing
-python3 Scripts/aggregate_terraclimate_100km.py
+python3 Scripts/download/download_terraclimate.py --skip-existing
+python3 Scripts/aggregate/aggregate_terraclimate_100km.py
 ```
 
 Download: `Data/raw/terraclimate/` (PDSI, tmax, ppt NetCDFs, ~4km, 1981-2023)
@@ -306,7 +306,7 @@ Download: `Data/raw/terraclimate/` (PDSI, tmax, ppt NetCDFs, ~4km, 1981-2023)
 Baseline years (1981-2000) are downloaded separately:
 
 ```bash
-python3 Scripts/download_terraclimate_baseline.py --skip-existing
+python3 Scripts/download/download_terraclimate_baseline.py --skip-existing
 ```
 
 Output: `Data/regressors/terraclimate/terraclimate_100km_panel.csv`
@@ -318,8 +318,8 @@ Variables: `pdsi_mean`, `pdsi_anomaly` (drought), `tmax_mean`, `tmax_anomaly`
 CHIRPS precipitation anomalies (tropical/subtropical focus):
 
 ```bash
-python3 Scripts/download_chirps.py --skip-existing
-python3 Scripts/aggregate_chirps_100km.py
+python3 Scripts/download/download_chirps.py --skip-existing
+python3 Scripts/aggregate/aggregate_chirps_100km.py
 ```
 
 Download: `Data/raw/chirps/` (annual GeoTIFFs, ~5km, 1981-2023 for baseline)
@@ -331,11 +331,11 @@ only (polar cells will have NaN). Anomalies relative to 1981-2010 baseline.
 IBTrACS cyclones and ComCat earthquakes (new natural-disaster layers):
 
 ```bash
-python3 Scripts/download_ibtracs.py
-python3 Scripts/aggregate_ibtracs_100km.py
+python3 Scripts/download/download_ibtracs.py
+python3 Scripts/aggregate/aggregate_ibtracs_100km.py
 
-python3 Scripts/download_comcat_earthquakes.py --min-magnitude 4.5
-python3 Scripts/aggregate_comcat_100km.py --min-magnitude 4.5
+python3 Scripts/download/download_comcat_earthquakes.py --min-magnitude 4.5
+python3 Scripts/aggregate/aggregate_comcat_100km.py --min-magnitude 4.5
 ```
 
 Raw downloads:
@@ -377,8 +377,8 @@ the common 2005-2024 window to stay aligned with UCDP.
 GRIP4 road density (baseline accessibility, pre-computed raster):
 
 ```bash
-python3 Scripts/download_grip_roads.py
-python3 Scripts/aggregate_grip_roads_100km.py
+python3 Scripts/download/download_grip_roads.py
+python3 Scripts/aggregate/aggregate_grip_roads_100km.py
 ```
 
 Download: `Data/raw/grip/` (~3.5MB, no login required)
@@ -394,8 +394,8 @@ Alternative: gROADS v1 scripts exist (`download_groads.py`,
 GLOBIO4 MSA (Mean Species Abundance) biodiversity intactness:
 
 ```bash
-python3 Scripts/download_globio_msa.py --types overall
-python3 Scripts/aggregate_globio_msa_100km.py
+python3 Scripts/download/download_globio_msa.py --types overall
+python3 Scripts/aggregate/aggregate_globio_msa_100km.py
 ```
 
 Download: `Data/raw/globio/` (~6GB for overall MSA)
@@ -407,7 +407,7 @@ GLOBIO4/PBL (Schipper et al. 2020). Mean MSA across cells: 0.58.
 World Bank GDP per capita (country-year panel):
 
 ```bash
-python3 Scripts/download_worldbank_gdp.py
+python3 Scripts/download/download_worldbank_gdp.py
 ```
 
 Download: uses WB API v2 (no key), batches 50 countries per request.
@@ -421,7 +421,7 @@ Harmonized nighttime lights (cell-level income proxy):
 
 ```bash
 # Run GEE script, download export, then:
-python3 Scripts/merge_nightlights_exports.py
+python3 Scripts/aggregate/merge_nightlights_exports.py
 ```
 
 Uses Li, Zhou et al. (2020) harmonized NTL dataset — DMSP calibrated to
@@ -436,10 +436,10 @@ ACLED conflict events (alternative to UCDP):
 
 ```bash
 # Option 1: API download with Bearer token
-python3 Scripts/download_acled.py --token-file Data/raw/acled/acled_token.json
+python3 Scripts/download/download_acled.py --token-file Data/raw/acled/acled_token.json
 # Option 2: manual CSV export from https://acleddata.com/data-export-tool/
 # Then:
-python3 Scripts/aggregate_acled_100km.py --acled "Data/raw/acled/ACLED Data_2026-05-02.csv"
+python3 Scripts/aggregate/aggregate_acled_100km.py --acled "Data/raw/acled/ACLED Data_2026-05-02.csv"
 ```
 
 Output: `Data/regressors/acled/acled_100km_cell_year_2005_2024.csv`
@@ -452,9 +452,9 @@ Species richness baseline (IUCN/BirdLife range maps):
 
 ```bash
 # Mammals, amphibians, reptiles (run together):
-python3 Scripts/aggregate_species_richness_100km.py
+python3 Scripts/aggregate/aggregate_species_richness_100km.py
 # Birds (separate terminal — BOTW is 9 GB):
-python3 Scripts/aggregate_species_richness_birds_100km.py
+python3 Scripts/aggregate/aggregate_species_richness_birds_100km.py
 ```
 
 Input: IUCN range map shapefiles in `Data/raw/iucn_ranges/{MAMMALS,AMPHIBIANS,REPTILES}/`
@@ -473,8 +473,8 @@ Hansen Global Forest Change is being aggregated via Google Earth Engine:
 
 ```text
 Scripts/earth_engine/gee_hansen_forest_loss_100km.js       # Earth Engine script
-Scripts/earth_engine/gee_hansen_forest_loss_README.md      # Setup and workflow instructions
-Scripts/merge_hansen_exports.py               # Merge GEE exports with cell panel
+Scripts/readmes/earth_engine/gee_hansen_forest_loss_README.md      # Setup and workflow instructions
+Scripts/aggregate/merge_hansen_exports.py               # Merge GEE exports with cell panel
 ```
 
 Earth Engine asset:
@@ -486,7 +486,7 @@ projects/symmetric-lock-495018-e0/assets/bold_grid100_land_cells
 After exporting from Earth Engine and downloading to `Data/regressors/hansen/`:
 
 ```bash
-python3 Scripts/merge_hansen_exports.py
+python3 Scripts/aggregate/merge_hansen_exports.py
 ```
 
 Hansen output files:
@@ -506,13 +506,13 @@ MODIS MCD64A1 burned area is also aggregated via Earth Engine:
 
 ```text
 Scripts/earth_engine/gee_modis_burned_area_100km.js
-Scripts/merge_modis_burned_exports.py
+Scripts/aggregate/merge_modis_burned_exports.py
 ```
 
 After exporting from Earth Engine and downloading to `Data/regressors/modis/`:
 
 ```bash
-python3 Scripts/merge_modis_burned_exports.py
+python3 Scripts/aggregate/merge_modis_burned_exports.py
 ```
 
 MODIS output:
@@ -554,13 +554,13 @@ variables are missing outside their source's range. For analysis, restrict to
 Local coverage audit:
 
 ```bash
-python3 Scripts/audit_bold_taxon_coverage.py
+python3 Scripts/preliminary/audit_bold_taxon_coverage.py
 ```
 
 Aggregate UCDP GED after downloading the global CSV to `Data/raw/ucdp/`:
 
 ```bash
-python3 Scripts/aggregate_ucdp_ged_100km.py
+python3 Scripts/aggregate/aggregate_ucdp_ged_100km.py
 ```
 
 Check a country-split folder for missing files, replacing folder/prefix/family as needed:
@@ -572,13 +572,13 @@ python3 -c 'import csv,re;from pathlib import Path;d=Path("Data/raw/bold/diptera
 Run remaining Cecidomyiidae except Costa Rica if needed:
 
 ```bash
-python3 Scripts/download_bold_cecidomyiidae_except_costa_rica_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
+python3 Scripts/download/download_bold_cecidomyiidae_except_costa_rica_by_country.py --retries 2 --retry-sleep 61 --between-country-sleep 11
 ```
 
 Run capped Costa Rica Cecidomyiidae diagnostic if needed:
 
 ```bash
-python3 Scripts/download_bold_cecidomyiidae_costa_rica_capped.py
+python3 Scripts/download/download_bold_cecidomyiidae_costa_rica_capped.py
 ```
 
 ## Regression Analysis
@@ -735,16 +735,16 @@ collecting at the cell-year level. "Foreign" is further split into regional
 ### Run order
 
 ```bash
-python3 Scripts/09_institution_country_mapping.py --top-n 10000
-python3 Scripts/11_build_collector_individuals.py --top-n 10000
+python3 Scripts/preliminary/09_institution_country_mapping.py --top-n 10000
+python3 Scripts/preliminary/11_build_collector_individuals.py --top-n 10000
 # --- Original 633 (one-time LLM classification) ---
-python3 Scripts/11_merge_collector_affiliations.py
-python3 Scripts/12_fill_missing_countries.py
+python3 Scripts/preliminary/11_merge_collector_affiliations.py
+python3 Scripts/preliminary/12_fill_missing_countries.py
 # --- Expansion to ~10K (one-time LLM classification, batches 1-5) ---
 # Review files: bold_disagree_for_review_with_judgements.csv,
 #               bold_org_for_review_merged_pass1_pass2.csv
-python3 Scripts/13a_merge_all_classifications.py
-python3 Scripts/13_build_foreign_collecting_panel.py
+python3 Scripts/preliminary/13a_merge_all_classifications.py
+python3 Scripts/preliminary/13_build_foreign_collecting_panel.py
 # --- Stata ---
 stata -b do DoFiles/merge_all_regressors.do
 stata -b do DoFiles/desc_foreign_collecting.do
@@ -882,13 +882,13 @@ sampling shocks disproportionately affect chemically valuable species.
 ### Build order
 
 ```bash
-python3 Scripts/22_download_lotus.py
-python3 Scripts/22b_download_coconut.py
-python3 Scripts/23_build_species_to_compounds.py
-python3 Scripts/24_download_gbif_backbone.py
-python3 Scripts/25_resolve_species_names.py        # ~40 min (includes GBIF API calls)
-python3 Scripts/26_build_shared_species_universe.py # ~10 min
-python3 Scripts/27_build_chemical_potential_panel.py # ~25 min
+python3 Scripts/download/22_download_lotus.py
+python3 Scripts/download/22b_download_coconut.py
+python3 Scripts/pipeline/23_build_species_to_compounds.py
+python3 Scripts/download/24_download_gbif_backbone.py
+python3 Scripts/pipeline/25_resolve_species_names.py        # ~40 min (includes GBIF API calls)
+python3 Scripts/pipeline/26_build_shared_species_universe.py # ~10 min
+python3 Scripts/pipeline/27_build_chemical_potential_panel.py # ~25 min
 stata -b do DoFiles/merge_all_regressors.do
 stata -b do DoFiles/reg_natural_products.do
 ```
@@ -1027,7 +1027,7 @@ comparisons.
 ## Option A Publication Linkage Status
 
 The BOLD-to-PubMed branch is implemented in
-`Scripts/20_link_bold_to_pubmed.py`. It reads
+`Scripts/pipeline/20_link_bold_to_pubmed.py`. It reads
 `Data/processed/bold/bold_minimal_records.csv`, extracts unique `insdc_acs`
 tokens, writes resumable chunks under
 `Data/processed/discovery/publications/chunks/`, and concatenates
@@ -1060,15 +1060,15 @@ failures. If another repair attempt is needed, target only
 remaining 0.104% unresolved accessions and proceed.
 
 Completed Option A publication outputs:
-- `Scripts/21_link_gbif_datasets_to_publications.py` produced
+- `Scripts/pipeline/21_link_gbif_datasets_to_publications.py` produced
   `gbif_dataset_to_pubs.csv` with 842,961 logical dataset-publication rows.
   This is dataset-level attribution: every occurrence in a linked dataset
   inherits dataset-citing publication links.
-- `Scripts/20b_fetch_pubmed_metadata.py` produced
+- `Scripts/pipeline/20b_fetch_pubmed_metadata.py` produced
   `pubmed_id_to_metadata.csv` for 24,093 BOLD-linked PMIDs; 49 PMIDs lack
   usable NCBI year/title metadata and are excluded from year-based panel
   construction.
-- `Scripts/28_build_publication_cell_year_panel.py` produced
+- `Scripts/pipeline/28_build_publication_cell_year_panel.py` produced
   `pubs_cell_year_panel_long.csv` and `pubs_cell_year_panel.csv`. This is now
   classified as a legacy publication-year exposure panel. The wide panel has
   305,886 land-cell-year rows; the long audit panel has 498,448 rows; totals
@@ -1076,12 +1076,12 @@ Completed Option A publication outputs:
   dataset-publication exposure counts. Because pooled totals are dominated by
   GBIF dataset-level exposure, they should not be used as the headline causal
   downstream-publication outcome.
-- `Scripts/29_build_bold_publication_yield_panel.py` is the corrected main
+- `Scripts/pipeline/29_build_bold_publication_yield_panel.py` is the corrected main
   Option A panel builder. It creates a BOLD-only collection-cohort panel:
   specimens collected in cell-year `t` are linked to PubMed publications within
   0–3, 0–5, and 0–10 years after collection. Output:
   `Data/processed/discovery/publications/bold_pub_yield_cell_year_panel.csv`.
-- `Scripts/30_build_gbif_publication_exposure_panel.py` is the corrected-timing
+- `Scripts/pipeline/30_build_gbif_publication_exposure_panel.py` is the corrected-timing
   GBIF companion. It creates a GBIF occurrence collection-cohort panel:
   cell-year `t` is linked to dataset-level GBIF Literature records within
   0–3, 0–5, and 0–10 years after collection. This fixes timing, but it remains

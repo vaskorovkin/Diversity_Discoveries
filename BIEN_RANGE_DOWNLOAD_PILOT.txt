@@ -17,7 +17,7 @@ Total downloaded BIEN range-map species: `64,760`
 Generic pattern for a new batch:
 
 1) Availability-only
-Rscript Scripts/18_bien_range_download_pilot.R \
+Rscript Scripts/download/18_bien_range_download_pilot.R \
   --batch-id <N> \
   --rank-start <START_RANK> \
   --top-n <BATCH_SIZE> \
@@ -25,7 +25,7 @@ Rscript Scripts/18_bien_range_download_pilot.R \
   --availability-only
 
 2) Download
-Rscript Scripts/18_bien_range_download_pilot.R \
+Rscript Scripts/download/18_bien_range_download_pilot.R \
   --batch-id <N> \
   --rank-start <START_RANK> \
   --top-n <BATCH_SIZE> \
@@ -33,7 +33,7 @@ Rscript Scripts/18_bien_range_download_pilot.R \
   --overwrite
 
 3) Optional: build skinny ranges and a local richness raster for a batch
-Rscript Scripts/18_bien_range_download_pilot.R \
+Rscript Scripts/download/18_bien_range_download_pilot.R \
   --batch-id 1 \
   --rank-start 1 \
   --top-n 5000 \
