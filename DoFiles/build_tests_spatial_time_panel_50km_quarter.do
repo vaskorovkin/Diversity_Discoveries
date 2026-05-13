@@ -6,6 +6,7 @@
 *   - UCDP GED
 *   - ComCat earthquakes
 *   - IBTrACS cyclones
+*   - ACLED political violence/events
 *   - TerraClimate
 *   - CHIRPS
 * Source-limited annual inputs:
@@ -97,6 +98,15 @@ if _rc {
 import delimited "`root_regress'/nightlights/nightlights_50km_quarter_panel.csv", clear
 tempfile ntl
 save `ntl'
+
+capture confirm file "`root_regress'/acled/acled_50km_cell_quarter_2005_2024.csv"
+if _rc {
+    di as error "Missing ACLED 50km quarterly panel."
+    error 601
+}
+import delimited "`root_regress'/acled/acled_50km_cell_quarter_2005_2024.csv", clear
+tempfile acled
+save `acled'
 
 capture confirm file "`root_regress'/ibtracs/ibtracs_50km_cell_quarter_2005_2025.csv"
 if _rc {
@@ -205,6 +215,9 @@ rename _merge _merge_wdpa_panel
 merge 1:1 cell_id year quarter using `ntl', keep(1 3)
 rename _merge _merge_ntl
 
+merge 1:1 cell_id year quarter using `acled', keep(1 3)
+rename _merge _merge_acled
+
 merge 1:1 cell_id year quarter using `ibtracs', keep(1 3)
 rename _merge _merge_ibtracs
 
@@ -245,6 +258,7 @@ tab _merge_terraclimate
 tab _merge_chirps
 tab _merge_wdpa_panel
 tab _merge_ntl
+tab _merge_acled
 tab _merge_ibtracs
 tab _merge_comcat
 tab _merge_resolve
