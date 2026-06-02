@@ -6,6 +6,7 @@ from __future__ import annotations
 import csv
 import math
 import re
+import shutil
 from pathlib import Path
 
 
@@ -16,6 +17,17 @@ EXHIBITS = PROJECT_ROOT / "Exhibits"
 EXHIBIT_TABLES = EXHIBITS / "tables"
 EXHIBIT_FIGURES = EXHIBITS / "figures"
 EXHIBIT_MAPS = EXHIBITS / "maps"
+# Beamer assets are written to a canonical LOCAL copy (EXHIBIT_*) and published
+# into the MERGED deck's own folders on Dropbox (what the deck reads).
+# The old codex_beamer / claude_beamer decks are ARCHIVED -- nothing writes there.
+MERGED_BEAMER = Path("/Users/vasilykorovkin/Dropbox/diversity_discoveries/merged_beamer")
+MERGED_FIGURES = MERGED_BEAMER / "Figures"
+MERGED_TABLES = MERGED_BEAMER / "TablesFigures"
+# Compatibility aliases: existing scripts reference CODEX_*; they now resolve to
+# the merged deck so mirror_to_codex_figures()/CODEX_TABLES land in the right place.
+CODEX_BEAMER = MERGED_BEAMER
+CODEX_FIGURES = MERGED_FIGURES
+CODEX_TABLES = MERGED_TABLES
 MINIMAL_CSV = PROCESSED_BOLD / "bold_minimal_records.csv"
 GRID_COUNTS_CSV = PROCESSED_BOLD / "bold_grid100_counts_by_kingdom.csv"
 LAND_CELLS_CSV = PROCESSED_BOLD / "bold_grid100_land_cells.csv"
@@ -58,8 +70,30 @@ MINIMAL_FIELDS = [
 
 
 def ensure_output_dirs() -> None:
-    for path in [PROCESSED_BOLD, EXHIBIT_TABLES, EXHIBIT_FIGURES, EXHIBIT_MAPS]:
+    for path in [PROCESSED_BOLD, EXHIBIT_TABLES, EXHIBIT_FIGURES, EXHIBIT_MAPS,
+                 MERGED_FIGURES, MERGED_TABLES]:
         path.mkdir(parents=True, exist_ok=True)
+
+
+def mirror_to_codex_figures(source: Path, *names: str) -> None:
+    """Publish a generated figure into the merged deck's Figures/ folder (Dropbox).
+
+    The local canonical copy lives under EXHIBIT_FIGURES (where callers savefig);
+    this publishes it to the merged deck so the slides read it. Name kept for
+    backward compatibility -- the old codex_beamer deck is archived.
+    """
+    MERGED_FIGURES.mkdir(parents=True, exist_ok=True)
+    target_names = names or (source.name,)
+    for name in target_names:
+        shutil.copy2(source, MERGED_FIGURES / name)
+
+
+def mirror_to_codex_tables(source: Path, *names: str) -> None:
+    """Publish a generated table fragment into the merged deck's TablesFigures/ folder."""
+    MERGED_TABLES.mkdir(parents=True, exist_ok=True)
+    target_names = names or (source.name,)
+    for name in target_names:
+        shutil.copy2(source, MERGED_TABLES / name)
 
 
 def slug(value: str) -> str:
