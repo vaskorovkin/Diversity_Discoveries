@@ -12,6 +12,8 @@ set more off
 
 local proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
 
+do "`proj'/DoFiles/_beamer_paths.do"
+
 capture log close
 log using "`proj'/Logs/reg_spec_bin.log", replace text
 
@@ -492,6 +494,23 @@ esttab t2_*, keep(conflict forest_loss_share burned_share cyclone earthquake ///
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+
+esttab t2_* using "$DD_CODEX_TABLES/tab_bin_new_discovery.tex", ///
+    keep(conflict L1_conflict L2_conflict) ///
+    order(conflict L1_conflict L2_conflict) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    varlabels(conflict "Conflict" ///
+              L1_conflict "Conflict (t-1)" ///
+              L2_conflict "Conflict (t-2)") ///
+    stats(conflict_sum_txt conflict_sum_se_txt ymean N r2 ///
+          fe_cell fe_cy fe_biome_yr, ///
+          labels("Sum L0-L2" " " "Dep. var. mean" "Obs." "R-sq." ///
+                 "Cell FE" "Country x Year FE" "Biome x Year FE") ///
+          fmt(%s %s %9.4f %9.0fc %9.4f %s %s %s)) ///
+    mtitles("Any" "log(1+B)" "Any" "log(1+B)" "Any" "log(1+B)" "Any" "log(1+B)") ///
+    mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
+            pattern(1 0 1 0 1 0 1 0)) ///
+    fragment replace
 
 * ===================================================================
 * TABLE 3: n_bins — Conflict × Richness interaction
@@ -1152,5 +1171,8 @@ esttab t5_*, keep(conflict c.conflict#c.richness_std ///
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+
+* Publish all local exhibits to the merged deck on Dropbox.
+dd_mirror_outputs
 
 log close

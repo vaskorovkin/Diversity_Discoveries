@@ -2,12 +2,21 @@
 * Organism heterogeneity: Table 3 spec from reg_spec1 by taxonomic group
 * Table 1: Chordata records
 * Table 2: Insecta records
-* Table 3: Plantae + Fungi records
+* Table 3: Plantae + Fungi records (combined)
+* Table 4: Plantae records (separate)
+* Table 5: Fungi records (separate)
+* Table 6: Bacteria records
 
 clear all
 set more off
 
 local proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
+
+* Beamer slide-table export. `beamerdir' is legacy compatibility;
+* `codex_tabledir' is the active deck target.
+do "`proj'/DoFiles/_beamer_paths.do"
+local beamerdir "$DD_CLAUDE_TABLES"
+local codex_tabledir "$DD_CODEX_TABLES"
 
 capture log close
 log using "`proj'/Logs/reg_spec_organisms.log", replace text
@@ -299,7 +308,8 @@ esttab t1_*, `esttab_opts' ///
 * TABLE 2: Insecta
 * ===================================================================
 
-est clear
+* (no est clear: keep t1_* in memory so the kingdom slide table can combine
+*  the intensive-margin columns across taxa)
 run_table, prefix(t2) any(any_insecta) log(log1p_insecta)
 
 esttab t2_*, `esttab_opts' ///
@@ -309,10 +319,71 @@ esttab t2_*, `esttab_opts' ///
 * TABLE 3: Plantae + Fungi
 * ===================================================================
 
-est clear
+* (no est clear: keep t1_*/t2_* in memory for the combined kingdom slide table)
 run_table, prefix(t3) any(any_plantae_fungi) log(log1p_plantae_fungi)
 
 esttab t3_*, `esttab_opts' ///
     title("Table 3: Shocks and Plantae + Fungi Sampling")
+
+* ===================================================================
+* TABLE 4: Plantae (separate)
+* ===================================================================
+
+* (no est clear: keep t1_*/t2_*/t3_* in memory for the combined kingdom slide table)
+run_table, prefix(t4) any(any_plantae) log(log1p_plantae)
+
+esttab t4_*, `esttab_opts' ///
+    title("Table 4: Shocks and Plantae Sampling")
+
+* ===================================================================
+* TABLE 5: Fungi (separate)
+* ===================================================================
+
+* (Fungi is sparse in BOLD -- ~69k records, 0.4% -- so this column is noisy.)
+run_table, prefix(t5) any(any_fungi) log(log1p_fungi)
+
+esttab t5_*, `esttab_opts' ///
+    title("Table 5: Shocks and Fungi Sampling")
+
+* ===================================================================
+* TABLE 6: Bacteria
+* ===================================================================
+
+* (Bacteria is very sparse in BOLD -- ~6k records -- so this column is very noisy.)
+run_table, prefix(t6) any(any_bacteria) log(log1p_bacteria)
+
+esttab t6_*, `esttab_opts' ///
+    title("Table 6: Shocks and Bacteria Sampling")
+
+* --- Beamer fragment: kingdom heterogeneity (intensive margin, with lags) ---
+* Column _4 of each taxon = log(1+records), conflict = log(1+events), L0-L2 lags.
+esttab t1_4 t2_4 t3_4 t4_4 t5_4 t6_4 using "`beamerdir'/tab_kingdom_frag.tex", ///
+    replace fragment noobs ///
+    mtitles("Chordata" "Insecta" "Plantae+Fungi" "Plantae" "Fungi" "Bacteria") ///
+    keep(conflict L1_conflict L2_conflict) ///
+    order(conflict L1_conflict L2_conflict) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    varlabels(conflict "Conflict" ///
+              L1_conflict "Conflict (t-1)" ///
+              L2_conflict "Conflict (t-2)") ///
+    stats(conflict_sum_txt conflict_sum_se_txt ymean N r2, ///
+          labels("Sum L0-L2" "SE" "Dep. var. mean" "Obs." "R-sq.") ///
+          fmt(%s %s %9.4f %9.0fc %9.4f))
+
+esttab t1_4 t2_4 t3_4 t4_4 t5_4 t6_4 using "`codex_tabledir'/tab_kingdom_frag.tex", ///
+    replace fragment noobs ///
+    mtitles("Chordata" "Insecta" "Plantae+Fungi" "Plantae" "Fungi" "Bacteria") ///
+    keep(conflict L1_conflict L2_conflict) ///
+    order(conflict L1_conflict L2_conflict) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    varlabels(conflict "Conflict" ///
+              L1_conflict "Conflict (t-1)" ///
+              L2_conflict "Conflict (t-2)") ///
+    stats(conflict_sum_txt conflict_sum_se_txt ymean N r2, ///
+          labels("Sum L0-L2" "SE" "Dep. var. mean" "Obs." "R-sq.") ///
+          fmt(%s %s %9.4f %9.0fc %9.4f))
+
+* Publish all local exhibits to the merged deck on Dropbox.
+dd_mirror_outputs
 
 log close
