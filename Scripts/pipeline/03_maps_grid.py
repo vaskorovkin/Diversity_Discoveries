@@ -39,6 +39,7 @@ from pipeline_utils import (
     ensure_output_dirs,
     iter_minimal_chunks,
     lognorm_or_none,
+    mirror_to_codex_figures,
 )
 
 
@@ -207,20 +208,30 @@ def main() -> int:
     print("Loading Natural Earth land outlines for grid maps.", flush=True)
     land_outline = load_land_outline()
 
+    all_map_png = EXHIBIT_MAPS / f"map_world_all_observations_grid_{cell_label}.png"
+    chordata_map_png = EXHIBIT_MAPS / f"map_world_chordata_grid_{cell_label}.png"
+
     plot_grid(
         dict(all_counts),
-        EXHIBIT_MAPS / f"map_world_all_observations_grid_{cell_label}.png",
+        all_map_png,
         f"BOLD observations by {args.cell_km:g} km equal-area cell",
         args.cell_km,
         land_outline,
     )
     plot_grid(
         dict(chordata_counts),
-        EXHIBIT_MAPS / f"map_world_chordata_grid_{cell_label}.png",
+        chordata_map_png,
         f"BOLD Chordata observations by {args.cell_km:g} km equal-area cell",
         args.cell_km,
         land_outline,
     )
+    if args.cell_km == 100:
+        mirror_to_codex_figures(
+            all_map_png,
+            "map_world_all_observations_grid_100km.png",
+            "map_sampling_world.png",
+            "map_sampling_density.png",
+        )
     return 0
 
 
