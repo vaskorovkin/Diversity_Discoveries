@@ -10,6 +10,7 @@ clear all
 set more off
 
 local proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
+do "`proj'/DoFiles/_beamer_paths.do"
 
 * -------------------------------------------------------------------
 * HDFE backend
@@ -53,16 +54,19 @@ if "`panel_mode'" == "100-yearly" {
     local panel_path "`proj'/Data/analysis/BOLD_regressor_panel.dta"
     local log_path   "`proj'/Logs/reg_spec1_acled_table3_defs_100km_year.log"
     local panel_freq "year"
+    local mode_tag "100km_year"
 }
 else if "`panel_mode'" == "50-yearly" {
     local panel_path "`proj'/Data/analysis/tests_spatial_time/BOLD_regressor_panel_50km_year.dta"
     local log_path   "`proj'/Logs/reg_spec1_acled_table3_defs_50km_year.log"
     local panel_freq "year"
+    local mode_tag "50km_year"
 }
 else if "`panel_mode'" == "50-quarterly" {
     local panel_path "`proj'/Data/analysis/tests_spatial_time/BOLD_regressor_panel_50km_quarter.dta"
     local log_path   "`proj'/Logs/reg_spec1_acled_table3_defs_50km_quarter.log"
     local panel_freq "quarter"
+    local mode_tag "50km_quarter"
 }
 else {
     di as error "Unknown panel_mode: `panel_mode'"
@@ -90,6 +94,9 @@ if _rc {
 
 capture log close
 log using "`log_path'", replace text
+
+global codex_tabledir "$DD_CODEX_TABLES"
+global acled_defs_mode_tag "`mode_tag'"
 
 capture which `hdfe_cmd'
 if _rc {
@@ -415,6 +422,21 @@ program define run_acled_table3
         mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
                 pattern(1 0 1 0 1 0 1 0)) ///
         compress
+
+    esttab t3_1 t3_2 t3_3 t3_4 t3_5 t3_6 t3_7 t3_8 ///
+        using "$codex_tabledir/tab_acled_defs_${acled_defs_mode_tag}_`countvar'.tex", ///
+        replace fragment nomtitles noobs ///
+        keep(conflict L1_conflict L2_conflict) ///
+        order(conflict L1_conflict L2_conflict) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        varlabels(conflict "ACLED treatment" ///
+                  L1_conflict "ACLED treatment (t-1)" ///
+                  L2_conflict "ACLED treatment (t-2)") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum L0-L2" "SE" "Dep. var. mean" "Obs." "R-sq." ///
+                     "Cell FE" "Country x Time FE" "Biome x Time FE") ///
+              fmt(%s %s %9.4f %9.0fc %9.4f %s %s %s))
 end
 
 global hdfe_cmd "`hdfe_cmd'"
@@ -429,5 +451,8 @@ run_acled_table3, countvar(acled_events_vac) label("violence against civilians")
 run_acled_table3, countvar(acled_events_protests) label("protests")
 run_acled_table3, countvar(acled_events_riots) label("riots")
 run_acled_table3, countvar(acled_events_strategic) label("strategic developments")
+
+* Publish all local exhibits to the merged deck on Dropbox.
+dd_mirror_outputs
 
 log close

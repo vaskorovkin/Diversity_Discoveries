@@ -22,6 +22,7 @@ set more off
 set matsize 11000
 
 local proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
+do "`proj'/DoFiles/_beamer_paths.do"
 
 * HDFE backend. Switch to reghdfejl after confirming Julia works in Stata.
 // local hdfe_cmd "reghdfe"
@@ -85,6 +86,7 @@ capture mkdir "`proj'/Output/figures"
 capture mkdir "`proj'/Output/figures/event_study"
 capture mkdir "`proj'/Output/figures/event_study/twfe_simple"
 capture mkdir "`proj'/Output/figures/event_study/twfe_simple_acled_africa"
+local codex_figures "$DD_CODEX_FIGURES"
 
 foreach pkg in reghdfe ftools coefplot estout {
     capture which `pkg'
@@ -427,7 +429,13 @@ foreach mode of local modes {
         graph export "`proj'/Output/figures/event_study/twfe_simple_acled_africa/twfe_acled_africa_`mode_tag'_`fe_tag'_`window_mode'_`out_stub'.png", ///
             replace width(2600) height(1500)
         graph export "`proj'/Output/figures/event_study/twfe_simple_acled_africa/twfe_acled_africa_`mode_tag'_`fe_tag'_`window_mode'_`out_stub'.pdf", replace
+        graph export "`codex_figures'/twfe_acled_africa_`mode_tag'_`fe_tag'_`window_mode'_`out_stub'.png", ///
+            replace width(2600) height(1500)
+        graph export "`codex_figures'/twfe_acled_africa_`mode_tag'_`fe_tag'_`window_mode'_`out_stub'.pdf", replace
     }
 }
+
+* Publish all local exhibits to the merged deck on Dropbox.
+dd_mirror_outputs
 
 log close

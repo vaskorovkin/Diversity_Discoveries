@@ -16,6 +16,7 @@ clear all
 set more off
 
 local proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
+do "`proj'/DoFiles/_beamer_paths.do"
 
 capture log close
 log using "`proj'/Logs/reg_natural_products_gbif.log", replace text
@@ -341,6 +342,16 @@ esttab gp1_*, keep(conflict L1_conflict L2_conflict ///
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+esttab gp1_* using "$DD_CODEX_TABLES/tab_np_gbif_gp1_species.tex", ///
+    replace fragment noobs ///
+    keep(conflict L1_conflict L2_conflict) ///
+    order(conflict L1_conflict L2_conflict) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    mtitles("Any" "Log N" "Any" "Log N" "Any" "Log N" "Any" "Log N") ///
+    varlabels(conflict "Conflict" L1_conflict "Conflict (t-1)" L2_conflict "Conflict (t-2)") ///
+    stats(conflict_sum_txt conflict_sum_se_txt ymean N r2, ///
+          labels("Sum L0-L2" "SE" "Dep. var. mean" "Obs." "R-sq.") ///
+          fmt(%s %s %9.4f %9.0fc %9.4f))
 
 
 * ===================================================================
@@ -531,6 +542,16 @@ esttab gp2_*, keep(conflict L1_conflict L2_conflict) ///
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+esttab gp2_* using "$DD_CODEX_TABLES/tab_np_gbif_gp2_share_compounds.tex", ///
+    replace fragment noobs ///
+    keep(conflict L1_conflict L2_conflict) ///
+    order(conflict L1_conflict L2_conflict) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    mtitles("Share" "Cmpd" "Share" "Cmpd" "Share" "Cmpd" "Share" "Cmpd") ///
+    varlabels(conflict "Conflict" L1_conflict "Conflict (t-1)" L2_conflict "Conflict (t-2)") ///
+    stats(conflict_sum_txt conflict_sum_se_txt ymean N r2, ///
+          labels("Sum L0-L2" "SE" "Dep. var. mean" "Obs." "R-sq.") ///
+          fmt(%s %s %9.4f %9.0fc %9.4f))
 
 
 * ===================================================================
@@ -742,6 +763,19 @@ esttab gp3_*, keep(conflict c.conflict#c.gp_rich_std ///
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+esttab gp3_* using "$DD_CODEX_TABLES/tab_np_gbif_gp3_richness.tex", ///
+    replace fragment noobs ///
+    keep(conflict L1_conflict L2_conflict c.conflict#c.gp_rich_std) ///
+    order(conflict L1_conflict L2_conflict c.conflict#c.gp_rich_std) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    mtitles("Any" "Log N" "Any" "Log N" "Any" "Log N" "Any" "Log N") ///
+    varlabels(conflict "Conflict" L1_conflict "Conflict (t-1)" ///
+              L2_conflict "Conflict (t-2)" c.conflict#c.gp_rich_std "Conflict x Plant Rich.") ///
+    stats(conflict_sum_txt conflict_sum_se_txt ///
+          conflict_rich_sum_txt conflict_rich_sum_se_txt ymean N r2, ///
+          labels("Sum L0-L2" "SE" "Sum Conflict x Rich. L0-L2" "SE" ///
+                 "Dep. var. mean" "Obs." "R-sq.") ///
+          fmt(%s %s %s %s %9.4f %9.0fc %9.4f))
 
 
 * ===================================================================
@@ -939,6 +973,19 @@ esttab gp4_*, keep(conflict_cont conflict_cont_np ///
     mgroups("log(1+events)" "1[events>0]", ///
             pattern(1 0 1 0)) ///
     compress
+esttab gp4_* using "$DD_CODEX_TABLES/tab_np_gbif_gp4_stacked_np_vs_nonnp.tex", ///
+    replace fragment noobs ///
+    keep(conflict_cont conflict_cont_np L1_conflict_cont L2_conflict_cont ///
+         conflict_bin conflict_bin_np L1_conflict_bin L2_conflict_bin) ///
+    order(conflict_cont conflict_cont_np L1_conflict_cont L2_conflict_cont ///
+          conflict_bin conflict_bin_np L1_conflict_bin L2_conflict_bin) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    mtitles("Cont." "Lags" "Cont." "Lags") ///
+    stats(conflict_sum_txt conflict_sum_se_txt ///
+          conflict_np_sum_txt conflict_np_sum_se_txt ymean N r2, ///
+          labels("Sum L0-L2" "SE" "Sum Conflict x NP L0-L2" "SE" ///
+                 "Dep. var. mean" "Obs." "R-sq.") ///
+          fmt(%s %s %s %s %9.4f %9.0fc %9.4f))
 
 restore
 
@@ -1206,5 +1253,20 @@ esttab gp5_*, keep(conflict gp_records_log ///
     mgroups("ln(NP+1)" "ln(NP+1), rec>0" "ln(NP+1) | effort" "ln(NP+1) | effort, rec>0" "NP share, rec>0", ///
             pattern(1 0 1 0 1 0 1 0 1 0)) ///
     compress
+esttab gp5_* using "$DD_CODEX_TABLES/tab_np_gbif_gp5_sampling_decomp.tex", ///
+    replace fragment noobs ///
+    keep(conflict gp_records_log L1_conflict L2_conflict) ///
+    order(conflict gp_records_log L1_conflict L2_conflict) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    mtitles("Cont." "Lags" "Cont." "Lags" "Cont." "Lags" "Cont." "Lags" "Cont." "Lags") ///
+    varlabels(conflict "Conflict" gp_records_log "GBIF plant effort" ///
+              L1_conflict "Conflict (t-1)" L2_conflict "Conflict (t-2)") ///
+    stats(conflict_sum_txt conflict_sum_se_txt sample_ctrl sample_restr ymean N r2, ///
+          labels("Sum L0-L2" "SE" "Effort control" "Sample restriction" ///
+                 "Dep. var. mean" "Obs." "R-sq.") ///
+          fmt(%s %s %s %s %9.4f %9.0fc %9.4f))
+
+* Publish all local exhibits to the merged deck on Dropbox.
+dd_mirror_outputs
 
 log close

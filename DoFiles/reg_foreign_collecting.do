@@ -10,6 +10,8 @@ clear all
 set more off
 
 local proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
+do "`proj'/DoFiles/_beamer_paths.do"
+local codex_tabledir "$DD_CODEX_TABLES"
 
 capture log close
 log using "`proj'/Logs/reg_foreign_collecting.log", replace text
@@ -95,6 +97,49 @@ program define add_sum_rows
     local setxt = strtrim("`setxt'")
     qui estadd local `name'_txt "`btxt'`star'"
     qui estadd local `name'_se_txt "(`setxt')"
+end
+
+capture program drop export_fc3_deck
+program define export_fc3_deck
+    syntax anything(name=models) , FILE(string)
+    esttab `models' using "`file'", ///
+        replace fragment noobs ///
+        keep(conflict L1_conflict L2_conflict) ///
+        order(conflict L1_conflict L2_conflict) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        mtitles("Dom C" "Dom L" "For C" "For L" "Dist C" "Dist L" "Coll C" "Coll L") ///
+        varlabels(conflict "Conflict" ///
+                  L1_conflict "Conflict (t-1)" ///
+                  L2_conflict "Conflict (t-2)") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum L0-L2" "SE" "Dep. var. mean" ///
+                     "Obs." "R-sq." "Cell FE" "Country x Year FE" ///
+                     "Biome x Year FE") ///
+              fmt(%s %s %9.4f %9.0fc %9.4f %s %s %s))
+end
+
+capture program drop export_fc5_deck
+program define export_fc5_deck
+    syntax anything(name=models) , FILE(string)
+    esttab `models' using "`file'", ///
+        replace fragment noobs ///
+        keep(conflict L1_conflict L2_conflict c.conflict#c.richness_std) ///
+        order(conflict L1_conflict L2_conflict c.conflict#c.richness_std) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        mtitles("Dom C" "Dom L" "For C" "For L" "Dist C" "Dist L" "Coll C" "Coll L") ///
+        varlabels(conflict "Conflict" ///
+                  L1_conflict "Conflict (t-1)" ///
+                  L2_conflict "Conflict (t-2)" ///
+                  c.conflict#c.richness_std "Conflict x Richness") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ///
+              conflict_rich_sum_txt conflict_rich_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum L0-L2" "SE" ///
+                     "Sum Conflict x Rich. L0-L2" "SE" ///
+                     "Dep. var. mean" "Obs." "R-sq." ///
+                     "Cell FE" "Country x Year FE" "Biome x Year FE") ///
+              fmt(%s %s %s %s %9.4f %9.0fc %9.4f %s %s %s))
 end
 
 * ===================================================================
@@ -195,6 +240,7 @@ esttab fc3a_*, keep(conflict forest_loss_share burned_share cyclone earthquake /
     mgroups("Domestic" "Foreign" "Distant" "Collaboration", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+export_fc3_deck fc3a_*, file("`codex_tabledir'/tab_foreign_collecting_fc3a_intensive_logevents.tex")
 
 * ===================================================================
 * TABLE FC3b: Extensive margin — Table 3 FE
@@ -286,6 +332,7 @@ esttab fc3b_*, keep(conflict forest_loss_share burned_share cyclone earthquake /
     mgroups("Domestic" "Foreign" "Distant" "Collaboration", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+export_fc3_deck fc3b_*, file("`codex_tabledir'/tab_foreign_collecting_fc3b_extensive_logevents.tex")
 
 * ===================================================================
 * TABLE FC5a: Intensive + Conflict × Richness
@@ -384,6 +431,7 @@ esttab fc5a_*, keep(conflict c.conflict#c.richness_std ///
     mgroups("Domestic" "Foreign" "Distant" "Collaboration", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+export_fc5_deck fc5a_*, file("`codex_tabledir'/tab_foreign_collecting_fc5a_intensive_richness_logevents.tex")
 
 * ===================================================================
 * TABLE FC5b: Extensive + Conflict × Richness
@@ -482,6 +530,7 @@ esttab fc5b_*, keep(conflict c.conflict#c.richness_std ///
     mgroups("Domestic" "Foreign" "Distant" "Collaboration", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+export_fc5_deck fc5b_*, file("`codex_tabledir'/tab_foreign_collecting_fc5b_extensive_richness_logevents.tex")
 
 * ===================================================================
 * PANEL B: conflict = 1[events > 0]
@@ -582,6 +631,7 @@ esttab fc3c_*, keep(conflict forest_loss_share burned_share cyclone earthquake /
     mgroups("Domestic" "Foreign" "Distant" "Collaboration", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+export_fc3_deck fc3c_*, file("`codex_tabledir'/tab_foreign_collecting_fc3c_intensive_anyevent.tex")
 
 * ===================================================================
 * TABLE FC3d: Extensive margin — Table 3 FE, 1[events>0]
@@ -673,6 +723,7 @@ esttab fc3d_*, keep(conflict forest_loss_share burned_share cyclone earthquake /
     mgroups("Domestic" "Foreign" "Distant" "Collaboration", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+export_fc3_deck fc3d_*, file("`codex_tabledir'/tab_foreign_collecting_fc3d_extensive_anyevent.tex")
 
 * ===================================================================
 * TABLE FC5c: Intensive + Conflict × Richness, 1[events>0]
@@ -771,6 +822,7 @@ esttab fc5c_*, keep(conflict c.conflict#c.richness_std ///
     mgroups("Domestic" "Foreign" "Distant" "Collaboration", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+export_fc5_deck fc5c_*, file("`codex_tabledir'/tab_foreign_collecting_fc5c_intensive_richness_anyevent.tex")
 
 * ===================================================================
 * TABLE FC5d: Extensive + Conflict × Richness, 1[events>0]
@@ -869,5 +921,9 @@ esttab fc5d_*, keep(conflict c.conflict#c.richness_std ///
     mgroups("Domestic" "Foreign" "Distant" "Collaboration", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+export_fc5_deck fc5d_*, file("`codex_tabledir'/tab_foreign_collecting_fc5d_extensive_richness_anyevent.tex")
+
+* Publish all local exhibits to the merged deck on Dropbox.
+dd_mirror_outputs
 
 log close

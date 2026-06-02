@@ -5,6 +5,8 @@ clear all
 set more off
 
 local proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
+do "`proj'/DoFiles/_beamer_paths.do"
+local codex_figures "$DD_CODEX_FIGURES"
 
 capture log close
 log using "`proj'/Logs/desc_foreign_collecting.log", replace text
@@ -188,6 +190,7 @@ histogram foreign_share if !missing(foreign_share), ///
     xtitle("Foreign Share") ytitle("Fraction of cell-years") ///
     note("Cell-years with classified collectors, 2005-2023")
 graph export "`proj'/Exhibits/figures/foreign_collecting_share_hist.png", replace width(1200)
+graph export "`codex_figures'/foreign_collecting_share_hist.png", replace width(1200)
 
 histogram distant_share if !missing(distant_share), ///
     width(0.05) fraction ///
@@ -195,6 +198,7 @@ histogram distant_share if !missing(distant_share), ///
     xtitle("Distant Share") ytitle("Fraction of cell-years") ///
     note("Cell-years with classified collectors, 2005-2023")
 graph export "`proj'/Exhibits/figures/foreign_collecting_distant_share_hist.png", replace width(1200)
+graph export "`codex_figures'/foreign_collecting_distant_share_hist.png", replace width(1200)
 
 * ===================================================================
 * 14. Binscatter: foreign share vs GDP and richness
@@ -207,12 +211,15 @@ if _rc == 0 {
         title("Foreign Collecting Share vs GDP per capita") ///
         xtitle("Log GDP per capita") ytitle("Foreign Share")
     graph export "`proj'/Exhibits/figures/foreign_collecting_vs_gdp_binscatter.png", replace width(1200)
+    graph export "`codex_figures'/foreign_collecting_vs_gdp_binscatter.png", replace width(1200)
+    graph export "`codex_figures'/foreign_vs_gdp.png", replace width(1200)
 
     binscatter distant_share log_gdp_pc if !missing(distant_share), ///
         nquantiles(20) ///
         title("Distant Collecting Share vs GDP per capita") ///
         xtitle("Log GDP per capita") ytitle("Distant Share")
     graph export "`proj'/Exhibits/figures/distant_collecting_vs_gdp_binscatter.png", replace width(1200)
+    graph export "`codex_figures'/distant_collecting_vs_gdp_binscatter.png", replace width(1200)
 
     binscatter foreign_share richness_total if !missing(foreign_share), ///
         nquantiles(20) ///
@@ -220,12 +227,15 @@ if _rc == 0 {
         xtitle("Species Richness (mammals+amphibians+reptiles+birds)") ///
         ytitle("Foreign Share")
     graph export "`proj'/Exhibits/figures/foreign_collecting_vs_richness_binscatter.png", replace width(1200)
+    graph export "`codex_figures'/foreign_collecting_vs_richness_binscatter.png", replace width(1200)
+    graph export "`codex_figures'/foreign_vs_richness.png", replace width(1200)
 
     binscatter collab_share log_gdp_pc if !missing(collab_share), ///
         nquantiles(20) ///
         title("Collaboration Share vs GDP per capita") ///
         xtitle("Log GDP per capita") ytitle("Collaboration Share")
     graph export "`proj'/Exhibits/figures/collab_share_vs_gdp_binscatter.png", replace width(1200)
+    graph export "`codex_figures'/collab_share_vs_gdp_binscatter.png", replace width(1200)
 }
 else {
     di "binscatter not installed — skipping binscatter plots"
@@ -233,5 +243,8 @@ else {
 }
 
 di _n "=== DONE ==="
+
+* Publish all local exhibits to the merged deck on Dropbox.
+dd_mirror_outputs
 
 log close

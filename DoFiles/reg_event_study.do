@@ -57,6 +57,7 @@ set more off
 set matsize 11000
 
 global proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
+do "$proj/DoFiles/_beamer_paths.do"
 
 * HDFE backend for TWFE/continuous OLS steps. Switch to reghdfejl after
 * confirming Julia works in Stata.
@@ -87,6 +88,7 @@ log using "$proj/Logs/reg_event_study.log", replace text
 capture mkdir "$proj/Output"
 capture mkdir "$proj/Output/figures"
 capture mkdir "$proj/Output/figures/event_study"
+global codex_figures "$DD_CODEX_FIGURES"
 
 foreach pkg in did_imputation did_multiplegt_dyn csdid drdid coefplot ///
                matsort estout reghdfe ftools {
@@ -829,6 +831,7 @@ graph combine es_twfe_only_log es_bjs_only_log, ///
 
 graph save "$proj/Output/figures/event_study/twfe_vs_bjs_conflict_log1p.gph", replace
 graph export "$proj/Output/figures/event_study/twfe_vs_bjs_conflict_log1p.pdf", replace
+graph export "$codex_figures/twfe_vs_bjs_conflict_log1p.pdf", replace
 
 * -------------------------------------------------------------------
 * FIGURE 2 — TWFE vs BJS comparison for conflict, any_total LHS (extensive margin)
@@ -882,6 +885,7 @@ graph combine es_twfe_only_any es_bjs_only_any, ///
 
 graph save "$proj/Output/figures/event_study/twfe_vs_bjs_conflict_any.gph", replace
 graph export "$proj/Output/figures/event_study/twfe_vs_bjs_conflict_any.pdf", replace
+graph export "$codex_figures/twfe_vs_bjs_conflict_any.pdf", replace
 
 * -------------------------------------------------------------------
 * FIGURE 3 — Multi-shock BJS comparison (Section B headline figure)
@@ -916,6 +920,7 @@ coefplot ///
 
 graph save "$proj/Output/figures/event_study/bjs_conflict_drought_fire.gph", replace
 graph export "$proj/Output/figures/event_study/bjs_conflict_drought_fire.pdf", replace
+graph export "$codex_figures/bjs_conflict_drought_fire.pdf", replace
 
 * -------------------------------------------------------------------
 * FIGURE 4 — Multi-shock TWFE comparison
@@ -949,6 +954,7 @@ coefplot ///
 
 graph save "$proj/Output/figures/event_study/twfe_conflict_drought_fire.gph", replace
 graph export "$proj/Output/figures/event_study/twfe_conflict_drought_fire.pdf", replace
+graph export "$codex_figures/twfe_conflict_drought_fire.pdf", replace
 
 * -------------------------------------------------------------------
 * FIGURE 5 — Continuous-treatment distributed-lag dynamic effects
@@ -984,6 +990,7 @@ coefplot (cont_conflict_log1p_total, label("DL continuous") msymbol(O) mcolor(na
 
 graph save "$proj/Output/figures/event_study/continuous_dl_conflict_log1p.gph", replace
 graph export "$proj/Output/figures/event_study/continuous_dl_conflict_log1p.pdf", replace
+graph export "$codex_figures/continuous_dl_conflict_log1p.pdf", replace
 
 * -------------------------------------------------------------------
 * FIGURE 6 — dCDH heterogeneity-robust dynamic effects (continuous treatment)
@@ -1020,6 +1027,7 @@ coefplot (dcdh_conflict_log1p_total, label("dCDH dynamic") msymbol(O) mcolor(nav
 
 graph save "$proj/Output/figures/event_study/dcdh_continuous_conflict_log1p.gph", replace
 graph export "$proj/Output/figures/event_study/dcdh_continuous_conflict_log1p.pdf", replace
+graph export "$codex_figures/dcdh_continuous_conflict_log1p.pdf", replace
 
 * -------------------------------------------------------------------
 * 9. Cleanup
@@ -1034,5 +1042,8 @@ display "  $proj/Output/figures/event_study/bjs_conflict_drought_fire.pdf"
 display "  $proj/Output/figures/event_study/twfe_conflict_drought_fire.pdf"
 display "  $proj/Output/figures/event_study/continuous_dl_conflict_log1p.pdf"
 display "  $proj/Output/figures/event_study/dcdh_continuous_conflict_log1p.pdf"
+
+* Publish all local exhibits to the merged deck on Dropbox.
+dd_mirror_outputs
 
 log close

@@ -7,6 +7,7 @@ clear all
 set more off
 
 local proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
+do "`proj'/DoFiles/_beamer_paths.do"
 
 capture log close
 log using "`proj'/Logs/reg_publications.log", replace text
@@ -531,6 +532,49 @@ program define print_table5
         compress
 end
 
+capture program drop export_pub_t3_deck
+program define export_pub_t3_deck
+    syntax , PREFIX(string) FILE(string)
+    esttab `prefix'_* using "`file'", ///
+        replace fragment noobs ///
+        keep(conflict L1_conflict L2_conflict) ///
+        order(conflict L1_conflict L2_conflict) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        mtitles("Any" "Log N" "Any" "Log N" "Any" "Log N" "Any" "Log N") ///
+        varlabels(conflict "Conflict" ///
+                  L1_conflict "Conflict (t-1)" ///
+                  L2_conflict "Conflict (t-2)") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum L0-L2" "SE" "Dep. var. mean" ///
+                     "Obs." "R-sq." "Cell FE" "Country x Year FE" ///
+                     "Biome x Year FE") ///
+              fmt(%s %s %9.4f %9.0fc %9.4f %s %s %s))
+end
+
+capture program drop export_pub_t5_deck
+program define export_pub_t5_deck
+    syntax , PREFIX(string) FILE(string)
+    esttab `prefix'_* using "`file'", ///
+        replace fragment noobs ///
+        keep(conflict L1_conflict L2_conflict c.conflict#c.richness_std) ///
+        order(conflict L1_conflict L2_conflict c.conflict#c.richness_std) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        mtitles("Any" "Log N" "Any" "Log N" "Any" "Log N" "Any" "Log N") ///
+        varlabels(conflict "Conflict" ///
+                  L1_conflict "Conflict (t-1)" ///
+                  L2_conflict "Conflict (t-2)" ///
+                  c.conflict#c.richness_std "Conflict x Richness") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ///
+              conflict_rich_sum_txt conflict_rich_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum L0-L2" "SE" ///
+                     "Sum Conflict x Rich. L0-L2" "SE" ///
+                     "Dep. var. mean" "Obs." "R-sq." ///
+                     "Cell FE" "Country x Year FE" "Biome x Year FE") ///
+              fmt(%s %s %s %s %9.4f %9.0fc %9.4f %s %s %s))
+end
+
 capture program drop run_publication_outcome
 program define run_publication_outcome
     syntax , PREFIX(string) ANY(string) LOG(string) TITLE(string)
@@ -557,10 +601,12 @@ program define run_publication_outcome
     est clear
     run_table3, prefix(`prefix't3) any(`any') log(`log')
     print_table3, prefix(`prefix't3) title(`"`title'"')
+    export_pub_t3_deck, prefix(`prefix't3) file("$DD_CODEX_TABLES/tab_publications_`prefix'_t3.tex")
 
     est clear
     run_table5, prefix(`prefix't5) any(`any') log(`log')
     print_table5, prefix(`prefix't5) title(`"`title'"')
+    export_pub_t5_deck, prefix(`prefix't5) file("$DD_CODEX_TABLES/tab_publications_`prefix'_t5.tex")
 end
 
 capture program drop run_publication_yield
@@ -640,5 +686,8 @@ if _rc == 0 {
 else {
     di as text "Skipping fungi-only BOLD yield slice: fungi_records not found."
 }
+
+* Publish all local exhibits to the merged deck on Dropbox.
+dd_mirror_outputs
 
 log close

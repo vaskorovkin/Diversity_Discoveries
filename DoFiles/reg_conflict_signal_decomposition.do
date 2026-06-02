@@ -10,6 +10,7 @@ set more off
 set matsize 11000
 
 local proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
+do "`proj'/DoFiles/_beamer_paths.do"
 
 * -------------------------------------------------------------------
 * Clickers
@@ -39,6 +40,7 @@ log using "`proj'/Logs/reg_conflict_signal_decomposition.log", replace text
 
 capture mkdir "`proj'/Exhibits"
 capture mkdir "`proj'/Exhibits/tables"
+local codex_tabledir "$DD_CODEX_TABLES"
 
 foreach pkg in reghdfe ftools estout {
     capture which `pkg'
@@ -317,6 +319,24 @@ foreach mode of local modes {
                       %s %s %s %s)) ///
             title("Conflict signal decomposition: `mode', `measure_label' distributed lags") ///
             compress
+
+        esttab `models' using "`codex_tabledir'/conflict_signal_decomp_`mode_tag'_`measure'.tex", ///
+            replace ///
+            keep(conflict L1_conflict L2_conflict) ///
+            order(conflict L1_conflict L2_conflict) ///
+            coeflabels(conflict "Conflict" ///
+                       L1_conflict "Conflict t-1" ///
+                       L2_conflict "Conflict t-2") ///
+            se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+            stats(sum_l0_l2 sum_l0_l2_se sum_l0_l2_p ymean ysd N r2 ///
+                  sample lhs_label conflict_measure fe, ///
+                  labels("Sum conflict L0-L2" "SE: sum L0-L2" "p: sum L0-L2" ///
+                         "Dep. var. mean" "Dep. var. SD" "Obs." "R-sq." ///
+                         "Sample" "LHS" "Conflict measure" "FE") ///
+                  fmt(%9.4f %9.4f %9.4f %9.4f %9.4f %9.0fc %9.4f ///
+                      %s %s %s %s)) ///
+            title("Conflict signal decomposition: `mode', `measure_label' distributed lags") ///
+            compress
     }
 
     * ---------------------------------------------------------------
@@ -391,6 +411,25 @@ foreach mode of local modes {
               fmt(%9.4f %9.4f %9.0fc %9.4f %s %s %s)) ///
         title("Conflict signal decomposition: `mode', current vs accumulated exposure") ///
         compress
+
+    esttab `stock_models' using "`codex_tabledir'/conflict_signal_stock_`mode_tag'.tex", ///
+        replace ///
+        keep(conflict_any L1_cum_any_conflict conflict_log L1_cum_log_conflict) ///
+        order(conflict_any L1_cum_any_conflict conflict_log L1_cum_log_conflict) ///
+        coeflabels(conflict_any "Current conflict any" ///
+                   L1_cum_any_conflict "Lagged cumulative conflict periods" ///
+                   conflict_log "Current log(1+events)" ///
+                   L1_cum_log_conflict "Lagged cumulative log events") ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        stats(ymean ysd N r2 lhs_label exposure fe, ///
+              labels("Dep. var. mean" "Dep. var. SD" "Obs." "R-sq." ///
+                     "LHS" "Exposure model" "FE") ///
+              fmt(%9.4f %9.4f %9.0fc %9.4f %s %s %s)) ///
+        title("Conflict signal decomposition: `mode', current vs accumulated exposure") ///
+        compress
 }
+
+* Publish all local exhibits to the merged deck on Dropbox.
+dd_mirror_outputs
 
 log close

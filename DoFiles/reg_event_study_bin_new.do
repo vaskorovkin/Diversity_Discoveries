@@ -9,6 +9,7 @@ set more off
 set matsize 11000
 
 global proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
+do "$proj/DoFiles/_beamer_paths.do"
 
 * -------------------------------------------------------------------
 * FE clicker
@@ -30,6 +31,7 @@ log using "$proj/Logs/reg_event_study_bin_new.log", replace text
 capture mkdir "$proj/Output"
 capture mkdir "$proj/Output/figures"
 capture mkdir "$proj/Output/figures/event_study"
+global codex_figures "$DD_CODEX_FIGURES"
 
 foreach pkg in did_imputation did_multiplegt_dyn csdid drdid coefplot ///
                matsort estout reghdfe ftools {
@@ -503,6 +505,28 @@ esttab `est_bjs_log' `est_bjs_drought' `est_bjs_fire', ///
     mtitles("Conflict" "Severe drought" "Fire") ///
     compress
 
+esttab `est_twfe_conflict' `est_bjs_log' ///
+       `est_twfe_drought'  `est_bjs_drought' ///
+       `est_twfe_fire'     `est_bjs_fire' ///
+    using "$DD_CODEX_TABLES/tab_event_study_bin_twfe_bjs.tex", ///
+    replace fragment noobs cells(none) ///
+    stats(att_avg_03_txt att_avg_03_se_txt ///
+          att_avg_05_txt att_avg_05_se_txt ///
+          att_avg_08_txt att_avg_08_se_txt ///
+          pretrend_p estimator shock lhs_label N r2 ///
+          fe_cell fe_year fe_cy fe_biome_yr, ///
+          labels("Avg tau0-tau2" "SE" ///
+                 "Avg tau0-tau4" "SE" ///
+                 "Avg tau0-tau8" "SE" ///
+                 "Pre-trend joint p" "Estimator" "Shock" "LHS" "Obs." "R-sq." ///
+                 "Cell FE" "Year FE" "Country x Year FE" "Biome x Year FE") ///
+          fmt(%s %s %s %s %s %s %9.4f %s %s %s %9.0fc %9.4f %s %s %s %s)) ///
+    mtitles("TWFE" "BJS" "TWFE" "BJS" "TWFE" "BJS") ///
+    mgroups("Conflict" "Severe drought" "Fire", ///
+            pattern(1 0 1 0 1 0) span ///
+            prefix(\multicolumn{@span}{c}{) suffix(})) ///
+    compress
+
 * -------------------------------------------------------------------
 * Table 4
 * -------------------------------------------------------------------
@@ -564,6 +588,7 @@ graph combine es_binnew_twfe_log es_binnew_bjs_log, ///
     cols(2) ycommon name(es_binnew_conflict_log, replace)
 graph save "$proj/Output/figures/event_study/twfe_vs_bjs_conflict_bin_new_log1p.gph", replace
 graph export "$proj/Output/figures/event_study/twfe_vs_bjs_conflict_bin_new_log1p.pdf", replace
+graph export "$codex_figures/twfe_vs_bjs_conflict_bin_new_log1p.pdf", replace
 
 * -------------------------------------------------------------------
 * Figure 2
@@ -600,6 +625,7 @@ graph combine es_binnew_twfe_any es_binnew_bjs_any, ///
     cols(2) ycommon name(es_binnew_conflict_any, replace)
 graph save "$proj/Output/figures/event_study/twfe_vs_bjs_conflict_bin_new_any.gph", replace
 graph export "$proj/Output/figures/event_study/twfe_vs_bjs_conflict_bin_new_any.pdf", replace
+graph export "$codex_figures/twfe_vs_bjs_conflict_bin_new_any.pdf", replace
 
 * -------------------------------------------------------------------
 * Figure 3
@@ -623,6 +649,7 @@ coefplot ///
     name(es_binnew_multishock_bjs, replace)
 graph save "$proj/Output/figures/event_study/bjs_conflict_drought_fire_bin_new.gph", replace
 graph export "$proj/Output/figures/event_study/bjs_conflict_drought_fire_bin_new.pdf", replace
+graph export "$codex_figures/bjs_conflict_drought_fire_bin_new.pdf", replace
 
 * -------------------------------------------------------------------
 * Figure 4
@@ -646,6 +673,7 @@ coefplot ///
     name(es_binnew_multishock_twfe, replace)
 graph save "$proj/Output/figures/event_study/twfe_conflict_drought_fire_bin_new.gph", replace
 graph export "$proj/Output/figures/event_study/twfe_conflict_drought_fire_bin_new.pdf", replace
+graph export "$codex_figures/twfe_conflict_drought_fire_bin_new.pdf", replace
 
 * -------------------------------------------------------------------
 * Figure 5
@@ -672,6 +700,7 @@ coefplot (`est_cont', label("DL continuous") msymbol(O) mcolor(navy) ciopts(lcol
     name(es_binnew_continuous, replace)
 graph save "$proj/Output/figures/event_study/continuous_dl_conflict_bin_new_log1p.gph", replace
 graph export "$proj/Output/figures/event_study/continuous_dl_conflict_bin_new_log1p.pdf", replace
+graph export "$codex_figures/continuous_dl_conflict_bin_new_log1p.pdf", replace
 
 * -------------------------------------------------------------------
 * Figure 6
@@ -693,6 +722,7 @@ coefplot (`est_dcdh', label("dCDH dynamic") msymbol(O) mcolor(navy) ciopts(lcolo
     name(es_binnew_dcdh, replace)
 graph save "$proj/Output/figures/event_study/dcdh_continuous_conflict_bin_new_log1p.gph", replace
 graph export "$proj/Output/figures/event_study/dcdh_continuous_conflict_bin_new_log1p.pdf", replace
+graph export "$codex_figures/dcdh_continuous_conflict_bin_new_log1p.pdf", replace
 
 display _n "{txt}=== Done. ==="
 display "Log:    $proj/Logs/reg_event_study_bin_new.log"
@@ -703,5 +733,8 @@ display "  $proj/Output/figures/event_study/bjs_conflict_drought_fire_bin_new.pd
 display "  $proj/Output/figures/event_study/twfe_conflict_drought_fire_bin_new.pdf"
 display "  $proj/Output/figures/event_study/continuous_dl_conflict_bin_new_log1p.pdf"
 display "  $proj/Output/figures/event_study/dcdh_continuous_conflict_bin_new_log1p.pdf"
+
+* Publish all local exhibits to the merged deck on Dropbox.
+dd_mirror_outputs
 
 log close

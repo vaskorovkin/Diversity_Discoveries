@@ -11,6 +11,7 @@ clear all
 set more off
 
 local proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
+do "`proj'/DoFiles/_beamer_paths.do"
 
 capture log close
 log using "`proj'/Logs/reg_natural_products.log", replace text
@@ -322,6 +323,16 @@ esttab np1_*, keep(conflict forest_loss_share burned_share cyclone earthquake //
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+esttab np1_* using "$DD_CODEX_TABLES/tab_np_combined_np1_species.tex", ///
+    replace fragment noobs ///
+    keep(conflict L1_conflict L2_conflict) ///
+    order(conflict L1_conflict L2_conflict) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    mtitles("Any" "Log N" "Any" "Log N" "Any" "Log N" "Any" "Log N") ///
+    varlabels(conflict "Conflict" L1_conflict "Conflict (t-1)" L2_conflict "Conflict (t-2)") ///
+    stats(conflict_sum_txt conflict_sum_se_txt ymean N r2, ///
+          labels("Sum L0-L2" "SE" "Dep. var. mean" "Obs." "R-sq.") ///
+          fmt(%s %s %9.4f %9.0fc %9.4f))
 
 * ===================================================================
 * TABLE NP2: NP share & compound diversity
@@ -549,6 +560,16 @@ esttab np2_*, keep(conflict forest_loss_share burned_share cyclone earthquake //
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+esttab np2_* using "$DD_CODEX_TABLES/tab_np_combined_np2_share_compounds.tex", ///
+    replace fragment noobs ///
+    keep(conflict L1_conflict L2_conflict) ///
+    order(conflict L1_conflict L2_conflict) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    mtitles("Share" "Cmpd" "Share" "Cmpd" "Share" "Cmpd" "Share" "Cmpd") ///
+    varlabels(conflict "Conflict" L1_conflict "Conflict (t-1)" L2_conflict "Conflict (t-2)") ///
+    stats(conflict_sum_txt conflict_sum_se_txt ymean N r2, ///
+          labels("Sum L0-L2" "SE" "Dep. var. mean" "Obs." "R-sq.") ///
+          fmt(%s %s %9.4f %9.0fc %9.4f))
 
 * ===================================================================
 * TABLE NP3: Conflict × Species Richness with NP LHS
@@ -788,6 +809,19 @@ esttab np3_*, keep(conflict c.conflict#c.richness_std ///
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+esttab np3_* using "$DD_CODEX_TABLES/tab_np_combined_np3_richness.tex", ///
+    replace fragment noobs ///
+    keep(conflict L1_conflict L2_conflict c.conflict#c.richness_std) ///
+    order(conflict L1_conflict L2_conflict c.conflict#c.richness_std) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    mtitles("Any" "Log N" "Any" "Log N" "Any" "Log N" "Any" "Log N") ///
+    varlabels(conflict "Conflict" L1_conflict "Conflict (t-1)" ///
+              L2_conflict "Conflict (t-2)" c.conflict#c.richness_std "Conflict x Richness") ///
+    stats(conflict_sum_txt conflict_sum_se_txt ///
+          conflict_rich_sum_txt conflict_rich_sum_se_txt ymean N r2, ///
+          labels("Sum L0-L2" "SE" "Sum Conflict x Rich. L0-L2" "SE" ///
+                 "Dep. var. mean" "Obs." "R-sq.") ///
+          fmt(%s %s %s %s %9.4f %9.0fc %9.4f))
 
 * ===================================================================
 * TABLE NP4: Source decomposition — BOLD vs GBIF
@@ -917,6 +951,16 @@ esttab np4_*, keep(conflict L1_conflict L2_conflict ///
     mgroups("BOLD" "GBIF Plantae", ///
             pattern(1 0 1 0)) ///
     compress
+esttab np4_* using "$DD_CODEX_TABLES/tab_np_combined_np4_source_decomp.tex", ///
+    replace fragment noobs ///
+    keep(conflict L1_conflict L2_conflict) ///
+    order(conflict L1_conflict L2_conflict) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    mtitles("BOLD log" "BOLD share" "GBIF log" "GBIF share") ///
+    varlabels(conflict "Conflict" L1_conflict "Conflict (t-1)" L2_conflict "Conflict (t-2)") ///
+    stats(conflict_sum_txt conflict_sum_se_txt source ymean N r2, ///
+          labels("Sum L0-L2" "SE" "Source" "Dep. var. mean" "Obs." "R-sq.") ///
+          fmt(%s %s %s %9.4f %9.0fc %9.4f))
 
 * ===================================================================
 * TABLE NP5: Name-resolution robustness
@@ -1038,6 +1082,16 @@ esttab np5_*, keep(conflict L1_conflict L2_conflict ///
     title("Table NP5: Name-Resolution Robustness") ///
     mtitles("Strict BIN" "No fuzzy" "No BIN" "Named only") ///
     compress
+esttab np5_* using "$DD_CODEX_TABLES/tab_np_combined_np5_name_robustness.tex", ///
+    replace fragment noobs ///
+    keep(conflict L1_conflict L2_conflict) ///
+    order(conflict L1_conflict L2_conflict) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    mtitles("Strict BIN" "No fuzzy" "No BIN" "Named only") ///
+    varlabels(conflict "Conflict" L1_conflict "Conflict (t-1)" L2_conflict "Conflict (t-2)") ///
+    stats(conflict_sum_txt conflict_sum_se_txt variant ymean N r2, ///
+          labels("Sum L0-L2" "SE" "NP variant" "Dep. var. mean" "Obs." "R-sq.") ///
+          fmt(%s %s %s %9.4f %9.0fc %9.4f))
 
 * ===================================================================
 * TABLE NP6: Stacked NP vs non-NP — direct differential test
@@ -1265,6 +1319,19 @@ esttab np6_*, keep(conflict_cont conflict_cont_np ///
     mgroups("log(1+events)" "1[events>0]", ///
             pattern(1 0 1 0)) ///
     compress
+esttab np6_* using "$DD_CODEX_TABLES/tab_np_combined_np6_stacked_np_vs_nonnp.tex", ///
+    replace fragment noobs ///
+    keep(conflict_cont conflict_cont_np L1_conflict_cont L2_conflict_cont ///
+         conflict_bin conflict_bin_np L1_conflict_bin L2_conflict_bin) ///
+    order(conflict_cont conflict_cont_np L1_conflict_cont L2_conflict_cont ///
+          conflict_bin conflict_bin_np L1_conflict_bin L2_conflict_bin) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    mtitles("Cont." "Lags" "Cont." "Lags") ///
+    stats(conflict_sum_txt conflict_sum_se_txt ///
+          conflict_np_sum_txt conflict_np_sum_se_txt ymean N r2, ///
+          labels("Sum L0-L2" "SE" "Sum Conflict x NP L0-L2" "SE" ///
+                 "Dep. var. mean" "Obs." "R-sq.") ///
+          fmt(%s %s %s %s %9.4f %9.0fc %9.4f))
 
 restore
 
@@ -1489,5 +1556,20 @@ esttab np7_*, keep(conflict log1p_total ///
     mgroups("ln(NP+1)" "ln(NP+1) | effort" "ln(NP+1) | effort, total>0" "NP share, total>0", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+esttab np7_* using "$DD_CODEX_TABLES/tab_np_combined_np7_sampling_decomp.tex", ///
+    replace fragment noobs ///
+    keep(conflict log1p_total L1_conflict L2_conflict) ///
+    order(conflict log1p_total L1_conflict L2_conflict) ///
+    se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+    mtitles("Cont." "Lags" "Cont." "Lags" "Cont." "Lags" "Cont." "Lags") ///
+    varlabels(conflict "Conflict" log1p_total "Sampling effort" ///
+              L1_conflict "Conflict (t-1)" L2_conflict "Conflict (t-2)") ///
+    stats(conflict_sum_txt conflict_sum_se_txt sample_ctrl sample_restr ymean N r2, ///
+          labels("Sum L0-L2" "SE" "Sampling control" "Sample restriction" ///
+                 "Dep. var. mean" "Obs." "R-sq.") ///
+          fmt(%s %s %s %s %9.4f %9.0fc %9.4f))
+
+* Publish all local exhibits to the merged deck on Dropbox.
+dd_mirror_outputs
 
 log close

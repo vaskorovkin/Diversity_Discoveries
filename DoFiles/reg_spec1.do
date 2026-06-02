@@ -9,6 +9,15 @@ set more off
 local proj "/Users/vasilykorovkin/Documents/Diversity_Discoveries"
 
 * -------------------------------------------------------------------
+* Beamer slide-table export (claude_beamer and codex_beamer decks)
+* Compatibility 4-column fragments and full 8-column table bodies are
+* written only for the baseline 100-yearly panel.
+* -------------------------------------------------------------------
+do "`proj'/DoFiles/_beamer_paths.do"
+local beamerdir "$DD_CLAUDE_TABLES"   // legacy deck compatibility
+local codex_tabledir "$DD_CODEX_TABLES"
+
+* -------------------------------------------------------------------
 * HDFE backend
 *   "reghdfe"   = standard Stata backend, safest default
 *   "reghdfejl" = Julia backend; usually faster after Julia's first-call compile
@@ -800,6 +809,68 @@ esttab t3_*, keep(conflict forest_loss_share burned_share cyclone earthquake ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
 
+* --- Beamer table body: Table 3 full eight-column headline ---
+if "`panel_mode'" == "100-yearly" {
+    esttab t3_1 t3_2 t3_3 t3_4 using "`beamerdir'/tab_sampling_main_frag.tex", ///
+        replace fragment nomtitles noobs ///
+        keep(conflict L1_conflict L2_conflict) ///
+        order(conflict L1_conflict L2_conflict) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        varlabels(conflict "Conflict" ///
+                  L1_conflict "Conflict (t-1)" ///
+                  L2_conflict "Conflict (t-2)") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum L0-L2" "SE" "Dep. var. mean" ///
+                     "Obs." "R-sq." "Cell FE" "Country x Year FE" ///
+                     "Biome x Year FE") ///
+	              fmt(%s %s %9.4f %9.0fc %9.4f %s %s %s))
+    esttab t3_1 t3_2 t3_3 t3_4 t3_5 t3_6 t3_7 t3_8 using "`beamerdir'/tab_sampling_main_full.tex", ///
+        replace fragment noobs ///
+        mtitles("Any" "Log N" "Any" "Log N" "Any" "Log N" "Any" "Log N") ///
+        keep(conflict L1_conflict L2_conflict) ///
+        order(conflict L1_conflict L2_conflict) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        varlabels(conflict "Conflict" ///
+                  L1_conflict "Conflict (t-1)" ///
+                  L2_conflict "Conflict (t-2)") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum L0-L2" "SE" "Dep. var. mean" ///
+                     "Obs." "R-sq." "Cell FE" "Country x Year FE" ///
+                     "Biome x Year FE") ///
+              fmt(%s %s %9.4f %9.0fc %9.4f %s %s %s))
+    esttab t3_1 t3_2 t3_3 t3_4 using "`codex_tabledir'/tab_sampling_main_frag.tex", ///
+        replace fragment nomtitles noobs ///
+        keep(conflict L1_conflict L2_conflict) ///
+        order(conflict L1_conflict L2_conflict) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        varlabels(conflict "Conflict" ///
+                  L1_conflict "Conflict (t-1)" ///
+                  L2_conflict "Conflict (t-2)") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+	              labels("Sum L0-L2" "SE" "Dep. var. mean" ///
+	                     "Obs." "R-sq." "Cell FE" "Country x Year FE" ///
+	                     "Biome x Year FE") ///
+	              fmt(%s %s %9.4f %9.0fc %9.4f %s %s %s))
+    esttab t3_1 t3_2 t3_3 t3_4 t3_5 t3_6 t3_7 t3_8 using "`codex_tabledir'/tab_sampling_main_full.tex", ///
+        replace fragment noobs ///
+        mtitles("Any" "Log N" "Any" "Log N" "Any" "Log N" "Any" "Log N") ///
+        keep(conflict L1_conflict L2_conflict) ///
+        order(conflict L1_conflict L2_conflict) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        varlabels(conflict "Conflict" ///
+                  L1_conflict "Conflict (t-1)" ///
+                  L2_conflict "Conflict (t-2)") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum L0-L2" "SE" "Dep. var. mean" ///
+                     "Obs." "R-sq." "Cell FE" "Country x Year FE" ///
+                     "Biome x Year FE") ///
+              fmt(%s %s %9.4f %9.0fc %9.4f %s %s %s))
+}
+
 * ===================================================================
 * TABLE 4: Table 3 + Conflict × MSA interaction
 * ===================================================================
@@ -1037,6 +1108,72 @@ esttab t4_*, keep(conflict c.conflict#c.msa_overall ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
 
+* --- Beamer table body: Table 4 full eight-column heterogeneity ---
+if "`panel_mode'" == "100-yearly" {
+    esttab t4_1 t4_2 t4_3 t4_4 using "`beamerdir'/tab_msa_frag.tex", ///
+        replace fragment nomtitles noobs ///
+        keep(conflict c.conflict#c.msa_overall) ///
+        order(conflict c.conflict#c.msa_overall) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        varlabels(conflict "Conflict" ///
+                  c.conflict#c.msa_overall "Conflict x MSA") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ///
+              conflict_msa_sum_txt conflict_msa_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum Conflict L0-L2" "SE" ///
+                     "Sum Conflict x MSA L0-L2" "SE" ///
+                     "Dep. var. mean" "Obs." "R-sq." ///
+	                     "Cell FE" "Country x Year FE" "Biome x Year FE") ///
+	              fmt(%s %s %s %s %9.4f %9.0fc %9.4f %s %s %s))
+    esttab t4_1 t4_2 t4_3 t4_4 t4_5 t4_6 t4_7 t4_8 using "`beamerdir'/tab_msa_full.tex", ///
+        replace fragment noobs ///
+        mtitles("Any" "Log N" "Any" "Log N" "Any" "Log N" "Any" "Log N") ///
+        keep(conflict c.conflict#c.msa_overall) ///
+        order(conflict c.conflict#c.msa_overall) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        varlabels(conflict "Conflict" ///
+                  c.conflict#c.msa_overall "Conflict x MSA") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ///
+              conflict_msa_sum_txt conflict_msa_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum Conflict L0-L2" "SE" ///
+                     "Sum Conflict x MSA L0-L2" "SE" ///
+                     "Dep. var. mean" "Obs." "R-sq." ///
+                     "Cell FE" "Country x Year FE" "Biome x Year FE") ///
+              fmt(%s %s %s %s %9.4f %9.0fc %9.4f %s %s %s))
+    esttab t4_1 t4_2 t4_3 t4_4 using "`codex_tabledir'/tab_msa_frag.tex", ///
+        replace fragment nomtitles noobs ///
+        keep(conflict c.conflict#c.msa_overall) ///
+        order(conflict c.conflict#c.msa_overall) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        varlabels(conflict "Conflict" ///
+                  c.conflict#c.msa_overall "Conflict x MSA") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ///
+              conflict_msa_sum_txt conflict_msa_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum Conflict L0-L2" "SE" ///
+                     "Sum Conflict x MSA L0-L2" "SE" ///
+                     "Dep. var. mean" "Obs." "R-sq." ///
+	                     "Cell FE" "Country x Year FE" "Biome x Year FE") ///
+	              fmt(%s %s %s %s %9.4f %9.0fc %9.4f %s %s %s))
+    esttab t4_1 t4_2 t4_3 t4_4 t4_5 t4_6 t4_7 t4_8 using "`codex_tabledir'/tab_msa_full.tex", ///
+        replace fragment noobs ///
+        mtitles("Any" "Log N" "Any" "Log N" "Any" "Log N" "Any" "Log N") ///
+        keep(conflict c.conflict#c.msa_overall) ///
+        order(conflict c.conflict#c.msa_overall) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        varlabels(conflict "Conflict" ///
+                  c.conflict#c.msa_overall "Conflict x MSA") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ///
+              conflict_msa_sum_txt conflict_msa_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum Conflict L0-L2" "SE" ///
+                     "Sum Conflict x MSA L0-L2" "SE" ///
+                     "Dep. var. mean" "Obs." "R-sq." ///
+                     "Cell FE" "Country x Year FE" "Biome x Year FE") ///
+              fmt(%s %s %s %s %9.4f %9.0fc %9.4f %s %s %s))
+}
+
 * ===================================================================
 * TABLE 5: Table 3 + Conflict × Species Richness (IUCN) interaction
 * ===================================================================
@@ -1273,5 +1410,74 @@ esttab t5_*, keep(conflict c.conflict#c.richness_std ///
     mgroups("Contemporaneous" "With Lags" "Contemporaneous" "With Lags", ///
             pattern(1 0 1 0 1 0 1 0)) ///
     compress
+
+* --- Beamer table body: Table 5 full eight-column heterogeneity ---
+if "`panel_mode'" == "100-yearly" {
+    esttab t5_1 t5_2 t5_3 t5_4 using "`beamerdir'/tab_richness_frag.tex", ///
+        replace fragment nomtitles noobs ///
+        keep(conflict c.conflict#c.richness_std) ///
+        order(conflict c.conflict#c.richness_std) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        varlabels(conflict "Conflict" ///
+                  c.conflict#c.richness_std "Conflict x Richness (SD)") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ///
+              conflict_rich_sum_txt conflict_rich_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum Conflict L0-L2" "SE" ///
+                     "Sum Conflict x Rich. L0-L2" "SE" ///
+                     "Dep. var. mean" "Obs." "R-sq." ///
+	                     "Cell FE" "Country x Year FE" "Biome x Year FE") ///
+	              fmt(%s %s %s %s %9.4f %9.0fc %9.4f %s %s %s))
+    esttab t5_1 t5_2 t5_3 t5_4 t5_5 t5_6 t5_7 t5_8 using "`beamerdir'/tab_richness_full.tex", ///
+        replace fragment noobs ///
+        mtitles("Any" "Log N" "Any" "Log N" "Any" "Log N" "Any" "Log N") ///
+        keep(conflict c.conflict#c.richness_std) ///
+        order(conflict c.conflict#c.richness_std) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        varlabels(conflict "Conflict" ///
+                  c.conflict#c.richness_std "Conflict x Richness (SD)") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ///
+              conflict_rich_sum_txt conflict_rich_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum Conflict L0-L2" "SE" ///
+                     "Sum Conflict x Rich. L0-L2" "SE" ///
+                     "Dep. var. mean" "Obs." "R-sq." ///
+                     "Cell FE" "Country x Year FE" "Biome x Year FE") ///
+              fmt(%s %s %s %s %9.4f %9.0fc %9.4f %s %s %s))
+    esttab t5_1 t5_2 t5_3 t5_4 using "`codex_tabledir'/tab_richness_frag.tex", ///
+        replace fragment nomtitles noobs ///
+        keep(conflict c.conflict#c.richness_std) ///
+        order(conflict c.conflict#c.richness_std) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        varlabels(conflict "Conflict" ///
+                  c.conflict#c.richness_std "Conflict x Richness (SD)") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ///
+              conflict_rich_sum_txt conflict_rich_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum Conflict L0-L2" "SE" ///
+                     "Sum Conflict x Rich. L0-L2" "SE" ///
+                     "Dep. var. mean" "Obs." "R-sq." ///
+	                     "Cell FE" "Country x Year FE" "Biome x Year FE") ///
+	              fmt(%s %s %s %s %9.4f %9.0fc %9.4f %s %s %s))
+    esttab t5_1 t5_2 t5_3 t5_4 t5_5 t5_6 t5_7 t5_8 using "`codex_tabledir'/tab_richness_full.tex", ///
+        replace fragment noobs ///
+        mtitles("Any" "Log N" "Any" "Log N" "Any" "Log N" "Any" "Log N") ///
+        keep(conflict c.conflict#c.richness_std) ///
+        order(conflict c.conflict#c.richness_std) ///
+        se star(* 0.10 ** 0.05 *** 0.01) b(4) se(4) ///
+        varlabels(conflict "Conflict" ///
+                  c.conflict#c.richness_std "Conflict x Richness (SD)") ///
+        stats(conflict_sum_txt conflict_sum_se_txt ///
+              conflict_rich_sum_txt conflict_rich_sum_se_txt ymean N r2 ///
+              fe_cell fe_cy fe_biome_yr, ///
+              labels("Sum Conflict L0-L2" "SE" ///
+                     "Sum Conflict x Rich. L0-L2" "SE" ///
+                     "Dep. var. mean" "Obs." "R-sq." ///
+                     "Cell FE" "Country x Year FE" "Biome x Year FE") ///
+              fmt(%s %s %s %s %9.4f %9.0fc %9.4f %s %s %s))
+}
+
+* Publish all local exhibits to the merged deck on Dropbox.
+dd_mirror_outputs
 
 log close
