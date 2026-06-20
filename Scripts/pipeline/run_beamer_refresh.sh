@@ -31,6 +31,7 @@ DOFILES=(
   "DoFiles/reg_event_study_natural_products_gbif.do"
   "DoFiles/reg_event_study_twfe_simple.do"
   "DoFiles/reg_event_study_twfe_simple_acled_africa.do"
+  "DoFiles/reg_event_study_combined_shocks.do"
 )
 
 {
